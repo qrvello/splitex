@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "591582935820",
+    "project_id": "gastos-grupales-4b8a6",
+    "storage_bucket": "gastos-grupales-4b8a6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:591582935820:android:961c97799235ef17eb6729",
+        "android_client_info": {
+          "package_name": "com.example.gastos_grupales"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "591582935820-q06s6t7og8lk0dkoqsgfh498rgr5toju.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gastos_grupales",
+            "certificate_hash": "49b00a7d638d9bb1aa9a8805c91b0907a872365a"
+          }
+        },
+        {
+          "client_id": "591582935820-uufdd1ah4p5ui3m1lhbam8rd419b86lt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPn8UMhX9O9Vj6uUeCwgwgFFgYPoeHY00"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "591582935820-uufdd1ah4p5ui3m1lhbam8rd419b86lt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
