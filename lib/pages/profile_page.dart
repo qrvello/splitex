@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gastos_grupales/pages/sign_up_page.dart';
 import 'package:gastos_grupales/provider/google_sign_in.dart';
 import 'package:gastos_grupales/widgets/logged_in_widget.dart';
-import 'package:gastos_grupales/widgets/sign_up_widget.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -22,7 +22,7 @@ class ProfilePage extends StatelessWidget {
             } else if (snapshot.hasData) {
               return LoggedInWidget();
             } else {
-              return SignUpWidget();
+              return SignUpPage();
             }
           },
         ),
