@@ -1,16 +1,65 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gastos_grupales/widgets/groups_list_widget.dart';
 import 'package:gastos_grupales/widgets/side_menu.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      drawer: SideMenu(),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: () =>
-            Navigator.pushReplacementNamed(context, 'create_group'),
-        child: Icon(Icons.add),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          bottom: TabBar(
+            isScrollable: false,
+            tabs: [
+              Tab(text: 'Amigos'),
+              Tab(text: 'Grupos'),
+              Tab(text: 'Actividad'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            Icon(Icons.directions_car),
+            GroupsLists(),
+            Icon(Icons.directions_bike),
+          ],
+        ),
+        drawer: SideMenu(),
+        floatingActionButton: new FloatingActionButton(
+          onPressed: () => showDialog(
+            context: context,
+            builder: (BuildContext context) => CupertinoAlertDialog(
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('create_group');
+                  },
+                  child: Text("Crear grupo"),
+                ),
+                CupertinoDialogAction(
+                  child: Text("Añadir gasto"),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('create_group');
+                  },
+                ),
+                CupertinoDialogAction(
+                  child: Text(
+                    "Cancelar",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop("Discard");
+                  },
+                ),
+              ],
+            ),
+          ),
+          //Navigator.pushReplacementNamed(context, 'create_group'),
+
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }

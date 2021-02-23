@@ -8,10 +8,11 @@ class GoogleSignUpButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: EdgeInsets.all(4),
         child: OutlineButton.icon(
-          onPressed: () {
+          onPressed: () async {
             final provider =
                 Provider.of<GoogleSignInProvider>(context, listen: false);
-            provider.login();
+            await provider.login();
+            Navigator.of(context).pushNamed('home');
           },
           icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
           label: Text('Inicia sesión con Google'),

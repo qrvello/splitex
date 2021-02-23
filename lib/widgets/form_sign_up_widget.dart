@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gastos_grupales/bloc/login_bloc.dart';
+import 'package:gastos_grupales/bloc/provider.dart' as providerBloc;
+
 import 'package:gastos_grupales/provider/google_sign_in.dart';
 import 'package:gastos_grupales/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class FormSignUp extends StatelessWidget {
   final userProvider = new UserProvider();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final bloc = Provider.of(context);
+    final bloc = providerBloc.Provider.of(context);
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -52,9 +56,8 @@ class FormSignUp extends StatelessWidget {
             ),
           ),
           FlatButton(
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, 'register'),
-            child: Text('¿Todavía no te registraste? Registrate acá'),
+            onPressed: () => Navigator.pushReplacementNamed(context, 'login'),
+            child: Text('¿Ya te registraste? Iniciá sesión acá'),
           ),
           SizedBox(height: 100.0),
         ],

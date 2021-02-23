@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gastos_grupales/models/group_model.dart';
+import 'package:gastos_grupales/provider/groups_provider.dart';
 
 class CreateGroupPage extends StatefulWidget {
   @override
@@ -6,27 +9,34 @@ class CreateGroupPage extends StatefulWidget {
 }
 
 class _CreateGroupPageState extends State<CreateGroupPage> {
+  final formKey = GlobalKey<FormState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final groupProvider = new GroupsProvider();
+  GroupModel group = new GroupModel();
+  bool isSwitched = false;
+  bool _guardando = false;
   @override
-
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: null,
-        child: Icon(Icons.check),
-        backgroundColor: Colors.green,
-      ),
       body: Form(
+        key: formKey,
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Column(
             children: <Widget>[
-              SizedBox(
-                height: 8,
+              _inputCreateName(),
+              SizedBox(height: 12.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Simplificar las deudas grupales'),
+                  _switch(),
+                ],
               ),
-              _inputText('Nombre del grupo', 'Vacaciones'),
-              _inputText('Descripción', 'Vacaciones a Río Negro'),
-              _inputText('Email de participantes', 'nicolas@gmail.com'),
+              _helpSwitch(),
+              _button(),
             ],
           ),
         ),
@@ -34,34 +44,83 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     );
   }
 
-  Widget _inputText(label, hintText) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: Text(
-            label,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+  Widget _button() {
+    return CupertinoButton.filled(
+      child: Text('Guardar'),
+      onPressed: (_guardando) ? null : _submit,
+    );
+  }
+
+  Widget _inputCreateName() {
+    return TextFormField(
+      decoration: InputDecoration(
+        fillColor: Colors.white,
+        labelText: 'Nombre del grupo',
+        border: new OutlineInputBorder(
+          borderRadius: new BorderRadius.circular(25.0),
+          borderSide: new BorderSide(),
         ),
-        SizedBox(
-          height: 12,
+      ),
+      onSaved: (value) => group.name = value,
+      validator: (value) {
+        if (value.length < 1) {
+          return 'Ingrese el nombre del producto';
+        } else {
+          return null;
+        }
+      },
+    );
+  }
+
+  Widget _switch() {
+    return CupertinoSwitch(
+      value: isSwitched,
+      onChanged: (value) {
+        setState(() {
+          isSwitched = value;
+        });
+      },
+    );
+  }
+
+  void _submit() async {
+    if (!formKey.currentState.validate()) return;
+
+    formKey.currentState.save();
+
+    setState(() {
+      _guardando = true;
+    });
+
+    group.simplifyGroupDebts = isSwitched;
+
+    groupProvider.createGroup(group);
+
+    // Upload image
+
+    setState(() {
+      _guardando = false;
+    });
+
+    Navigator.pop(context);
+  }
+
+  Widget _helpSwitch() {
+    if (isSwitched) {
+      return Padding(
+        padding: EdgeInsets.only(right: 24.0, bottom: 20),
+        child: Text(
+          'Se combinarán automáticamente las deudas de este grupo para deshacerse de pagos adicionales innecesarios.',
+          style: TextStyle(fontWeight: FontWeight.w300),
         ),
-        TextField(
-          decoration: InputDecoration(
-            hintText: hintText,
-            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            isDense: true,
-          ),
-        ),
-        SizedBox(
-          height: 12,
-        ),
-      ],
+      );
+    }
+    return Padding(
+      padding: EdgeInsets.only(right: 24.0, bottom: 20),
+      child: Text(
+        'No  se combinarán las deudas en este grupo, incluso si hay pagos adicionales innecesarios.',
+        style: TextStyle(fontWeight: FontWeight.w300),
+      ),
     );
   }
 }

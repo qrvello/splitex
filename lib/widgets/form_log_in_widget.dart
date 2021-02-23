@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gastos_grupales/bloc/login_bloc.dart';
-import 'package:gastos_grupales/provider/google_sign_in.dart';
+import 'package:gastos_grupales/bloc/provider.dart';
 import 'package:gastos_grupales/provider/user_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:gastos_grupales/widgets/google_sign_up_button_widget.dart';
 
 class FormLogIn extends StatelessWidget {
   final userProvider = new UserProvider();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final bloc = Provider.of(context);
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -38,7 +38,7 @@ class FormLogIn extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Text(
-                  'Registrate',
+                  'Iniciá sesión',
                   style: TextStyle(fontSize: 20.0),
                 ),
                 SizedBox(height: 30.0),
@@ -47,13 +47,14 @@ class FormLogIn extends StatelessWidget {
                 _password(bloc),
                 SizedBox(height: 30.0),
                 _button(bloc),
-                _googleSignUpButton(context)
+                GoogleSignUpButtonWidget(),
               ],
             ),
           ),
           FlatButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, 'login'),
-            child: Text('¿Ya te registraste? Iniciá sesión acá'),
+            onPressed: () =>
+                Navigator.pushReplacementNamed(context, 'register'),
+            child: Text('¿Todavía no te registraste? Registrate acá'),
           ),
           SizedBox(height: 100.0),
         ],
@@ -109,7 +110,7 @@ class FormLogIn extends StatelessWidget {
           return OutlineButton(
             onPressed: snapshot.hasData ? () => _login(bloc, context) : null,
             child: Container(
-              child: Text('Registrarse'),
+              child: Text('Iniciar sesión'),
               padding: EdgeInsets.symmetric(horizontal: 55),
             ),
             shape: StadiumBorder(),
@@ -117,25 +118,6 @@ class FormLogIn extends StatelessWidget {
             textColor: Colors.black,
           );
         });
-  }
-
-  Widget _googleSignUpButton(context) {
-    return Container(
-      padding: EdgeInsets.all(4),
-      child: OutlineButton.icon(
-        onPressed: () {
-          final provider =
-              Provider.of<GoogleSignInProvider>(context, listen: false);
-          provider.login();
-        },
-        icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
-        label: Text('Iniciá sesión con Google'),
-        shape: StadiumBorder(),
-        borderSide: BorderSide(color: Colors.black),
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        textColor: Colors.black,
-      ),
-    );
   }
 
   _login(LoginBloc bloc, BuildContext context) async {
