@@ -50,7 +50,7 @@ class HomePage extends StatelessWidget {
                     style: TextStyle(color: Colors.red),
                   ),
                   onPressed: () {
-                    Navigator.of(context, rootNavigator: true).pop("Discard");
+                    Navigator.pop(context);
                   },
                 ),
               ],

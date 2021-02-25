@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInProvider extends ChangeNotifier {
+  final databaseReference = FirebaseDatabase.instance.reference();
   final googleSignIn = GoogleSignIn();
   bool _isSigninIn;
 
@@ -32,6 +34,19 @@ class GoogleSignInProvider extends ChangeNotifier {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
+
+      DataSnapshot snapshot = await databaseReference
+          .child('users/${FirebaseAuth.instance.currentUser.uid}')
+          .once();
+
+      if (snapshot.value == null) {
+        databaseReference.child('users').set({
+          FirebaseAuth.instance.currentUser.uid: {
+            'name': user.displayName,
+            'email': user.email,
+          }
+        });
+      }
 
       isSigninIn = false;
     }

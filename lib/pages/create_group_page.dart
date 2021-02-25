@@ -15,6 +15,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   GroupModel group = new GroupModel();
   bool isSwitched = false;
   bool _guardando = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,15 +57,17 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       decoration: InputDecoration(
         fillColor: Colors.white,
         labelText: 'Nombre del grupo',
-        border: new OutlineInputBorder(
-          borderRadius: new BorderRadius.circular(25.0),
-          borderSide: new BorderSide(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
+          borderSide: BorderSide(),
         ),
       ),
       onSaved: (value) => group.name = value,
       validator: (value) {
         if (value.length < 1) {
-          return 'Ingrese el nombre del producto';
+          return 'Ingrese el nombre del grupo';
+        } else if (value.length > 25) {
+          return 'Ingrese un nombre menor a 25 caracteres';
         } else {
           return null;
         }
@@ -96,12 +99,14 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
     groupProvider.createGroup(group);
 
-    // Upload image
-
     setState(() {
       _guardando = false;
     });
 
+    // Back to the home page
+    Navigator.pop(context);
+
+    // Close modal
     Navigator.pop(context);
   }
 

@@ -1,41 +1,52 @@
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
 import 'package:gastos_grupales/models/group_model.dart';
-import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 
 class GroupsProvider {
-  final String _url =
-      'https://gastos-grupales-4b8a6-default-rtdb.firebaseio.com/';
+  final user = FirebaseAuth.instance.currentUser;
+
+  final databaseReference = FirebaseDatabase.instance.reference();
 
   Future<bool> createGroup(GroupModel group) async {
-    final idToken = await FirebaseAuth.instance.currentUser.getIdToken();
+    // Guarda el id del creador del grupo
+    final uidUser = user.uid;
+    group.adminUser = uidUser;
 
-    final url = '$_url/groups.json?auth=$idToken';
+    // Inserta nuevo dato con una key creada por firebase
+    databaseReference.child('groups').push().set({
+      'name': group.name,
+      'simplify_group_debts': group.simplifyGroupDebts,
+      'admin_user': group.adminUser,
+    });
 
-    await http.post(url, body: groupModelToJson(group));
+    // Actualiza los grupos del usuario
+    databaseReference
+        .child('users/${user.uid}/groups')
+        .update({group.name: true});
 
     return true;
   }
 
   Future<List<GroupModel>> loadGroups() async {
-    final idToken = await FirebaseAuth.instance.currentUser.getIdToken();
+    DataSnapshot snapshot = await databaseReference.child('groups').once();
 
-    final url = '$_url/groups.json?auth=$idToken';
-    final resp = await http.get(url);
+    final decodedData = new Map<String, dynamic>.from(snapshot.value);
 
-    final Map<String, dynamic> decodedData = json.decode(resp.body);
-    final List<GroupModel> productos = new List();
+    // Limpia el mapa para que no tire un error (?)
+    final cleanMap = jsonDecode(jsonEncode(decodedData));
+
+    final List<GroupModel> groups = new List();
 
     if (decodedData == null) return [];
 
-    decodedData.forEach((id, producto) {
-      final prodTemp = GroupModel.fromJson(producto);
-      prodTemp.id = id;
-
-      productos.add(prodTemp);
+    cleanMap.forEach((id, group) {
+      final groupTemp = GroupModel.fromJson(group);
+      groupTemp.id = id;
+      groups.add(groupTemp);
     });
 
-    return productos;
+    return groups;
   }
 }

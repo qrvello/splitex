@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gastos_grupales/models/group_model.dart';
@@ -8,8 +9,7 @@ class GroupsLists extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: GroupsProvider().loadGroups(),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<GroupModel>> snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.hasData) {
           final groups = snapshot.data;
           return ListView.builder(
@@ -27,11 +27,24 @@ class GroupsLists extends StatelessWidget {
     return Dismissible(
       key: UniqueKey(),
       background: Container(
-        color: Colors.red,
+        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.red[200],
+        ),
+        alignment: AlignmentDirectional.centerEnd,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
       ),
-      //onDismissed: (direccion) {
-      //  productosProvider.borrarProducto(producto.id);
+      //onDismissed: (direction) {
+      //  groupPr.borrarProducto(producto.id);
       //},
+      direction: DismissDirection.endToStart,
       child: Card(
         child: Column(
           children: <Widget>[

@@ -33,6 +33,7 @@ dependencies:
   google_sign_in:
   firebase_auth:
   firebase_core:
+  firebase_database: "^6.0.0"
   rxdart:
   shared_preferences:
   http:
