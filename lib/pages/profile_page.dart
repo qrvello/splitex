@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/provider/google_sign_in.dart';
+import 'package:gastos_grupales/provider/google_sign_in_provider.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -23,14 +23,17 @@ class ProfilePage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    maxRadius: 25,
-                    backgroundImage: NetworkImage(user.photoURL),
-                  ),
+                      maxRadius: 25,
+                      backgroundImage: (user.photoURL != null
+                          ? (NetworkImage(user.photoURL))
+                          : AssetImage('assets/blank-profile.jpg'))),
                   SizedBox(height: 8),
-                  Text(
-                    'Nombre: ' + user.displayName,
-                    style: TextStyle(color: Colors.white),
-                  ),
+                  (user.displayName != null
+                      ? Text(
+                          'Nombre: ' + user.displayName,
+                          style: TextStyle(color: Colors.white),
+                        )
+                      : SizedBox.shrink()),
                   SizedBox(height: 8),
                   Text(
                     'Correo electrónico: ' + user.email,

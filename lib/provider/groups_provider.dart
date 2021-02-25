@@ -15,23 +15,39 @@ class GroupsProvider {
     group.adminUser = uidUser;
 
     // Inserta nuevo dato con una key creada por firebase
-    databaseReference.child('groups').push().set({
-      'name': group.name,
-      'simplify_group_debts': group.simplifyGroupDebts,
-      'admin_user': group.adminUser,
+    final newChildRef = databaseReference.child('groups').push();
+
+    // Guarda la nueva key que se usará.
+    final newChildKey = newChildRef.key;
+
+    newChildRef.set(
+      {
+        'name': group.name,
+        'simplify_group_debts': group.simplifyGroupDebts,
+        'admin_user': group.adminUser,
+      },
+    ).catchError((onError) {
+      print(onError);
+      return false;
     });
 
-    // Actualiza los grupos del usuario
+    // Actualiza los grupos del usuario con el id del grupo marcandolo true.
     databaseReference
         .child('users/${user.uid}/groups')
-        .update({group.name: true});
+        .update({newChildKey: true}).catchError(
+      (onError) {
+        print(onError);
+        return false;
+      },
+    );
 
     return true;
   }
 
   Future<List<GroupModel>> loadGroups() async {
     DataSnapshot snapshot = await databaseReference.child('groups').once();
-
+    //final groupsUser = new Map<String, dynamic>.from(snapshot.value);
+    //print(groupsUser);
     final decodedData = new Map<String, dynamic>.from(snapshot.value);
 
     // Limpia el mapa para que no tire un error (?)

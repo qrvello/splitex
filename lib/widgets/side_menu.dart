@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/provider/google_sign_in.dart';
+import 'package:gastos_grupales/provider/google_sign_in_provider.dart';
 import 'package:gastos_grupales/widgets/drawer_header_widget.dart';
 import 'package:provider/provider.dart';
 

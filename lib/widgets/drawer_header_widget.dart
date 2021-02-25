@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class DrawerHeaderWidget extends StatelessWidget {
@@ -10,9 +9,11 @@ class DrawerHeaderWidget extends StatelessWidget {
       children: <Widget>[
         UserAccountsDrawerHeader(
           currentAccountPicture: CircleAvatar(
-            backgroundImage: NetworkImage(user.photoURL),
+            backgroundImage: (user.photoURL != null
+                ? (NetworkImage(user.photoURL))
+                : AssetImage('assets/blank-profile.jpg')),
           ),
-          accountName: Text(user.displayName),
+          accountName: Text((user.displayName) != null ? user.displayName : ''),
           accountEmail: Text(user.email),
         ),
         ListTile(

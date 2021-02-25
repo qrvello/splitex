@@ -21,45 +21,69 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(),
-      body: Form(
-        key: formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            children: <Widget>[
-              _inputCreateName(),
-              SizedBox(height: 12.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Simplificar las deudas grupales'),
-                  _switch(),
-                ],
-              ),
-              _helpSwitch(),
-              _button(),
-            ],
+      body: Builder(
+        builder: (context) => Form(
+          key: formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: <Widget>[
+                _inputCreateName(),
+                SizedBox(height: 12.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Simplificar las deudas grupales'),
+                    _switch(),
+                  ],
+                ),
+                _helpSwitch(),
+                SizedBox(
+                  height: 12,
+                ),
+                RichText(
+                  text: TextSpan(
+                    text: 'Nota: ',
+                    style: TextStyle(color: Colors.black45),
+                    children: <TextSpan>[
+                      TextSpan(
+                          text:
+                              'se podrán agregar miembros después de crear el grupo.',
+                          style: TextStyle(color: Colors.black87)),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 12,
+                ),
+                _button(context),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _button() {
-    return CupertinoButton.filled(
+  Widget _button(context) {
+    return CupertinoButton(
+      color: Color(0xff2a9d8f),
+      borderRadius: BorderRadius.circular(20.0),
       child: Text('Guardar'),
-      onPressed: (_guardando) ? null : _submit,
+      onPressed: (_guardando)
+          ? null
+          : () {
+              _submit(context);
+            },
     );
   }
 
   Widget _inputCreateName() {
     return TextFormField(
       decoration: InputDecoration(
-        fillColor: Colors.white,
         labelText: 'Nombre del grupo',
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25.0),
-          borderSide: BorderSide(),
         ),
       ),
       onSaved: (value) => group.name = value,
@@ -77,6 +101,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
   Widget _switch() {
     return CupertinoSwitch(
+      activeColor: Color(0xff2a9d8f),
       value: isSwitched,
       onChanged: (value) {
         setState(() {
@@ -86,7 +111,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     );
   }
 
-  void _submit() async {
+  _submit(context) async {
     if (!formKey.currentState.validate()) return;
 
     formKey.currentState.save();
@@ -97,17 +122,17 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
     group.simplifyGroupDebts = isSwitched;
 
-    groupProvider.createGroup(group);
+    final resp = await groupProvider.createGroup(group);
 
     setState(() {
       _guardando = false;
     });
 
-    // Back to the home page
-    Navigator.pop(context);
-
-    // Close modal
-    Navigator.pop(context);
+    if (resp) {
+      return _success(context);
+    } else {
+      return _error();
+    }
   }
 
   Widget _helpSwitch() {
@@ -125,6 +150,68 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       child: Text(
         'No  se combinarán las deudas en este grupo, incluso si hay pagos adicionales innecesarios.',
         style: TextStyle(fontWeight: FontWeight.w300),
+      ),
+    );
+  }
+
+  _success(context) async {
+    Scaffold.of(context).showSnackBar(
+      new SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Color(0xff2a9d8f),
+        content: Text(
+          'Grupo creado satisfactoriamente',
+        ),
+        action: SnackBarAction(
+          textColor: Colors.white,
+          label: 'Ok',
+          onPressed: () {
+            // Back to the home page
+            Navigator.pop(context);
+
+            // Close modal
+            Navigator.pop(context);
+
+            return;
+          },
+        ),
+      ),
+    );
+
+    //// Despues de mostrar el snackbar espera 2 segundos y vuelve atras
+    //await Future.delayed(const Duration(seconds: 2), () {
+    //  final currentRoute = ModalRoute.of(context).settings.name;
+    //  if (currentRoute != 'create_group') {
+    //    // Back to the home page
+    //    Navigator.pop(context);
+
+    //    // Close modal
+    //    Navigator.pop(context);
+    //  }
+    //});
+  }
+
+  _error() {
+    Scaffold.of(context).showSnackBar(
+      new SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Color(0xffe63946),
+        content: Text(
+          'Error al crear grupo',
+        ),
+        action: SnackBarAction(
+          textColor: Colors.white,
+          label: 'Ok',
+          onPressed: () {
+            // Back to the home page
+            Navigator.pop(context);
+
+            // Close modal
+            Navigator.pop(context);
+
+            return;
+          },
+        ),
       ),
     );
   }

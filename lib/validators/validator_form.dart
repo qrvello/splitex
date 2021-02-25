@@ -1,6 +1,6 @@
 import 'dart:async';
 
-class Validators {
+class ValidatorForm {
   final validarPassword = StreamTransformer<String, String>.fromHandlers(
       handleData: (password, sink) {
     if (password.length >= 6) {
@@ -9,6 +9,7 @@ class Validators {
       sink.addError('Ingrese una contraseña con más de 6 caracteres.');
     }
   });
+
   final validarEmail =
       StreamTransformer<String, String>.fromHandlers(handleData: (email, sink) {
     Pattern pattern =

@@ -27,40 +27,42 @@ class HomePage extends StatelessWidget {
           ],
         ),
         drawer: SideMenu(),
-        floatingActionButton: new FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
           onPressed: () => showDialog(
             context: context,
-            builder: (BuildContext context) => CupertinoAlertDialog(
-              actions: <Widget>[
-                CupertinoDialogAction(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('create_group');
-                  },
-                  child: Text("Crear grupo"),
-                ),
-                CupertinoDialogAction(
-                  child: Text("Añadir gasto"),
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('create_group');
-                  },
-                ),
-                CupertinoDialogAction(
-                  child: Text(
-                    "Cancelar",
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
+            builder: (BuildContext context) => _dialog(context),
           ),
-          //Navigator.pushReplacementNamed(context, 'create_group'),
-
           child: Icon(Icons.add),
         ),
       ),
+    );
+  }
+
+  Widget _dialog(context) {
+    return CupertinoAlertDialog(
+      actions: <Widget>[
+        CupertinoDialogAction(
+          onPressed: () {
+            Navigator.of(context).pushNamed('create_group');
+          },
+          child: Text("Crear grupo"),
+        ),
+        CupertinoDialogAction(
+          child: Text("Añadir gasto"),
+          onPressed: () {
+            Navigator.of(context).pushNamed('create_group');
+          },
+        ),
+        CupertinoDialogAction(
+          child: Text(
+            "Cancelar",
+            style: TextStyle(color: Colors.red),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
     );
   }
 }

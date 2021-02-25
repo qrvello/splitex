@@ -1,15 +1,23 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/bloc/provider.dart';
-import 'package:gastos_grupales/provider/user_provider.dart';
+import 'package:gastos_grupales/provider/authentication_provider.dart';
 import 'package:gastos_grupales/widgets/google_sign_up_button_widget.dart';
 
-class FormLogIn extends StatelessWidget {
-  final userProvider = new UserProvider();
+class FormLogIn extends StatefulWidget {
+  @override
+  _FormLogInState createState() => _FormLogInState();
+}
+
+class _FormLogInState extends State<FormLogIn> {
+  final firebaseInstance = FirebaseAuth.instance;
+
+  final _password = TextEditingController();
+  final _email = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final bloc = Provider.of(context);
+    final _formKey = GlobalKey<FormState>();
 
     return SingleChildScrollView(
       child: Column(
@@ -35,20 +43,23 @@ class FormLogIn extends StatelessWidget {
                 ),
               ],
             ),
-            child: Column(
-              children: <Widget>[
-                Text(
-                  'Iniciá sesión',
-                  style: TextStyle(fontSize: 20.0),
-                ),
-                SizedBox(height: 30.0),
-                _email(bloc),
-                SizedBox(height: 30.0),
-                _password(bloc),
-                SizedBox(height: 30.0),
-                _button(bloc),
-                GoogleSignUpButtonWidget(),
-              ],
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    'Iniciá sesión',
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                  SizedBox(height: 30.0),
+                  _emailInput(),
+                  SizedBox(height: 30.0),
+                  _passwordInput(),
+                  SizedBox(height: 30.0),
+                  _button(_formKey, context),
+                  GoogleSignUpButtonWidget(),
+                ],
+              ),
             ),
           ),
           FlatButton(
@@ -62,82 +73,96 @@ class FormLogIn extends StatelessWidget {
     );
   }
 
-  Widget _email(LoginBloc bloc) {
-    return StreamBuilder<Object>(
-        stream: bloc.emailStream,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          return Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            child: TextField(
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
-                hintText: 'ejemplo@correo.com',
-                labelText: 'Correo electrónico',
-                counterText: snapshot.data,
-                errorText: snapshot.error,
-              ),
-              onChanged: bloc.changeEmail,
-            ),
-          );
-        });
+  Widget _emailInput() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFormField(
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+          icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
+          hintText: 'ejemplo@correo.com',
+          labelText: 'Correo electrónico',
+        ),
+        validator: (input) =>
+            input.isValidEmail() ? null : "El email ingresado es incorrecto",
+        controller: _email,
+      ),
+    );
   }
 
-  Widget _password(LoginBloc bloc) {
-    return StreamBuilder<Object>(
-        stream: bloc.passwordStream,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          return Container(
-            padding: EdgeInsets.symmetric(horizontal: 20.0),
-            child: TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
-                labelText: 'Contraseña',
-                counterText: snapshot.data,
-                errorText: snapshot.error,
-              ),
-              onChanged: bloc.changePassword,
-            ),
-          );
-        });
+  Widget _passwordInput() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFormField(
+        obscureText: true,
+        decoration: InputDecoration(
+          icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
+          labelText: 'Contraseña',
+        ),
+        validator: (value) {
+          if (value.isEmpty) {
+            return 'Ingrese una contraseña';
+          }
+          if (value.length < 6) {
+            return 'Ingrese una contraseña mayor a 6 caracteres';
+          }
+          return null;
+        },
+        controller: _password,
+      ),
+    );
   }
 
-  Widget _button(LoginBloc bloc) {
-    return StreamBuilder<Object>(
-        stream: bloc.formValidStream,
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          return OutlineButton(
-            onPressed: snapshot.hasData ? () => _login(bloc, context) : null,
-            child: Container(
-              child: Text('Iniciar sesión'),
-              padding: EdgeInsets.symmetric(horizontal: 55),
-            ),
-            shape: StadiumBorder(),
-            borderSide: BorderSide(color: Colors.black),
-            textColor: Colors.black,
-          );
-        });
+  Widget _button(_formKey, context) {
+    return OutlineButton(
+      onPressed: () {
+        // Validate returns true if the form is valid, otherwise false.
+        if (_formKey.currentState.validate()) {
+          // If the form is valid, display a snackbar. In the real world,
+          // you'd often call a server or save the information in a database.
+          _submit();
+          print(_email.text);
+          print(_password.text);
+
+          Scaffold.of(context)
+              .showSnackBar(SnackBar(content: Text('Processing Data')));
+        }
+      },
+      child: Container(
+        child: Text('Iniciar sesión'),
+        padding: EdgeInsets.symmetric(horizontal: 55),
+      ),
+      shape: StadiumBorder(),
+      borderSide: BorderSide(color: Colors.black),
+      textColor: Colors.black,
+    );
   }
 
-  _login(LoginBloc bloc, BuildContext context) async {
-    Map info = await userProvider.login(bloc.email, bloc.password);
-    if (info['ok']) {
-      Navigator.pushReplacementNamed(context, 'home');
-    } else {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text('Los datos ingresados son incorrectos.'),
-              content: Text(info['message']),
-              actions: <Widget>[
-                FlatButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('Ok'))
-              ],
-            );
-          });
-    }
+  void _submit() {
+    AuthenticationProvider(firebaseInstance)
+        .signUp(_email.text, _password.text);
   }
 }
+
+extension EmailValidator on String {
+  bool isValidEmail() {
+    return RegExp(
+            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+        .hasMatch(this);
+  }
+}
+
+//_login() async {
+
+//    showDialog(
+//          return AlertDialog(
+//            title: Text('Los datos ingresados son incorrectos.'),
+//            content: Text(info['message']),
+//            actions: <Widget>[
+//              FlatButton(
+//                  onPressed: () => Navigator.of(context).pop(),
+//                  child: Text('Ok'))
+//            ],
+//          ),
+//    );
+//  }
