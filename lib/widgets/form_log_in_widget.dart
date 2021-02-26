@@ -9,12 +9,25 @@ class FormLogIn extends StatefulWidget {
 }
 
 class _FormLogInState extends State<FormLogIn> {
-  final firebaseInstance = FirebaseAuth.instance;
-
   final _password = TextEditingController();
   final _email = TextEditingController();
 
   @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the widget tree.
+    // This also removes the _printLatestValue listener.
+    _password.dispose();
+    _email.dispose();
+    super.dispose();
+  }
+
+  bool _obscureText = true;
+  void _toggle() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final _formKey = GlobalKey<FormState>();
@@ -24,7 +37,7 @@ class _FormLogInState extends State<FormLogIn> {
         children: [
           SafeArea(
             child: Container(
-              height: 120.0,
+              height: .0,
             ),
           ),
           Container(
@@ -43,31 +56,39 @@ class _FormLogInState extends State<FormLogIn> {
                 ),
               ],
             ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    'Iniciá sesión',
-                    style: TextStyle(fontSize: 20.0),
+            child: Column(
+              children: <Widget>[
+                Text(
+                  'Iniciá sesión',
+                  style: TextStyle(fontSize: 20.0),
+                ),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 30.0),
+                      _emailInput(),
+                      SizedBox(height: 30.0),
+                      _passwordInput(),
+                      SizedBox(height: 30.0),
+                      _button(_formKey, context),
+                    ],
                   ),
-                  SizedBox(height: 30.0),
-                  _emailInput(),
-                  SizedBox(height: 30.0),
-                  _passwordInput(),
-                  SizedBox(height: 30.0),
-                  _button(_formKey, context),
-                  GoogleSignUpButtonWidget(),
-                ],
-              ),
+                ),
+                GoogleSignUpButtonWidget(),
+              ],
             ),
           ),
           FlatButton(
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, 'register'),
+            onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
             child: Text('¿Todavía no te registraste? Registrate acá'),
           ),
-          SizedBox(height: 100.0),
+          FlatButton(
+            onPressed: () =>
+                Navigator.pushReplacementNamed(context, '/register'),
+            child: Text('Recuperá tu contraseña'),
+            // TODO recuperar contraseña
+          ),
         ],
       ),
     );
@@ -79,7 +100,8 @@ class _FormLogInState extends State<FormLogIn> {
       child: TextFormField(
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
-          icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
+          icon: Icon(Icons.alternate_email, color: Color(0xff2a9d8f)),
+          labelStyle: TextStyle(color: Color(0xff264653)),
           hintText: 'ejemplo@correo.com',
           labelText: 'Correo electrónico',
         ),
@@ -94,9 +116,17 @@ class _FormLogInState extends State<FormLogIn> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
-        obscureText: true,
+        obscureText: _obscureText,
         decoration: InputDecoration(
-          icon: Icon(Icons.lock_outline, color: Colors.deepPurple),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureText ? Icons.visibility_off : Icons.visibility,
+            ),
+            onPressed: () {
+              _toggle();
+            },
+          ),
+          icon: Icon(Icons.lock_outline, color: Color(0xff2a9d8f)),
           labelText: 'Contraseña',
         ),
         validator: (value) {
@@ -124,23 +154,34 @@ class _FormLogInState extends State<FormLogIn> {
           print(_email.text);
           print(_password.text);
 
-          Scaffold.of(context)
-              .showSnackBar(SnackBar(content: Text('Processing Data')));
+          Scaffold.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Color(0xff264653),
+              behavior: SnackBarBehavior.floating,
+              content: Text('Iniciando sesión...'),
+            ),
+          );
         }
       },
       child: Container(
-        child: Text('Iniciar sesión'),
+        child: Text(
+          'Iniciar sesión',
+          style: TextStyle(color: Colors.black87),
+        ),
         padding: EdgeInsets.symmetric(horizontal: 55),
       ),
       shape: StadiumBorder(),
-      borderSide: BorderSide(color: Colors.black),
+      borderSide: BorderSide(color: Colors.black54),
       textColor: Colors.black,
     );
   }
 
-  void _submit() {
-    AuthenticationProvider(firebaseInstance)
-        .signUp(_email.text, _password.text);
+  void _submit() async {
+    final firebaseInstance = FirebaseAuth.instance;
+
+    await AuthenticationProvider(firebaseInstance)
+        .signIn(_email.text, _password.text);
+    Navigator.of(context).pushNamed('/home');
   }
 }
 

@@ -40,7 +40,7 @@ class SideMenu extends StatelessWidget {
                 margin: EdgeInsets.symmetric(vertical: 50, horizontal: 40),
                 child: OutlineButton(
                   padding: EdgeInsets.symmetric(),
-                  onPressed: () => Navigator.of(context).pushNamed('login'),
+                  onPressed: () => Navigator.of(context).pushNamed('/login'),
                   child: Text('Iniciar sesión'),
                   shape: StadiumBorder(),
                   borderSide: BorderSide(color: Colors.black),

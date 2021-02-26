@@ -154,7 +154,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     );
   }
 
-  _success(context) async {
+  _success(context) {
     Scaffold.of(context).showSnackBar(
       new SnackBar(
         behavior: SnackBarBehavior.floating,
@@ -177,18 +177,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         ),
       ),
     );
-
-    //// Despues de mostrar el snackbar espera 2 segundos y vuelve atras
-    //await Future.delayed(const Duration(seconds: 2), () {
-    //  final currentRoute = ModalRoute.of(context).settings.name;
-    //  if (currentRoute != 'create_group') {
-    //    // Back to the home page
-    //    Navigator.pop(context);
-
-    //    // Close modal
-    //    Navigator.pop(context);
-    //  }
-    //});
   }
 
   _error() {

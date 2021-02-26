@@ -12,8 +12,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<GoogleSignInProvider>(create: (_) => GoogleSignInProvider()),
-        Provider<AuthenticationProvider>(
+        ChangeNotifierProvider<GoogleSignInProvider>(
+            create: (_) => GoogleSignInProvider()),
+        ChangeNotifierProvider<AuthenticationProvider>(
             create: (_) => AuthenticationProvider(FirebaseAuth.instance)),
         StreamProvider(
             create: (context) =>
@@ -22,11 +23,11 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'DivideGastos',
-          initialRoute: 'home',
+          initialRoute: '/home',
           theme: ThemeData(
-            primaryColor: Color(0xffE76F51),
+            primaryColor: Color(0xff2a9d8f),
             floatingActionButtonTheme: FloatingActionButtonThemeData(
-                backgroundColor: Color(0xffE76F51)),
+                backgroundColor: Color(0xff2a9d8f)),
           ),
           routes: routes
           //darkTheme: ThemeData.dark(),

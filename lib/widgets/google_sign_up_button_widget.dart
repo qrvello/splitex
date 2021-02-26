@@ -7,25 +7,25 @@ class GoogleSignUpButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: EdgeInsets.all(4),
-        child: _button(context),
+        child: OutlineButton.icon(
+          onPressed: () async {
+            final provider =
+                Provider.of<GoogleSignInProvider>(context, listen: false);
+            await provider
+                .login()
+                .then((value) => Navigator.of(context).pushNamed('/home'));
+
+            //Navigator.of(context).pushNamed('home');
+          },
+          icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
+          label: Text(
+            'Inicia sesión con Google',
+            style: TextStyle(color: Colors.black87),
+          ),
+          shape: StadiumBorder(),
+          borderSide: BorderSide(color: Colors.black54),
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          textColor: Colors.black,
+        ),
       );
-
-  Widget _button(context) {
-    return OutlineButton.icon(
-      onPressed: () async {
-        final provider =
-            Provider.of<GoogleSignInProvider>(context, listen: false);
-
-        await provider.login();
-
-        Navigator.of(context).pushNamed('home');
-      },
-      icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
-      label: Text('Inicia sesión con Google'),
-      shape: StadiumBorder(),
-      borderSide: BorderSide(color: Colors.black),
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      textColor: Colors.black,
-    );
-  }
 }

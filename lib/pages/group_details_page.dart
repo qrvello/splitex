@@ -41,17 +41,15 @@ class GroupDetailsPage extends StatelessWidget {
       ),
     );
 
-    final pinkBox = Transform.rotate(
+    final box = Transform.rotate(
       angle: -3.14 / 4.0,
       child: Container(
         height: 360,
         width: 360,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(90.0),
-            gradient: LinearGradient(colors: [
-              Color.fromRGBO(250, 98, 200, 1),
-              Color.fromRGBO(241, 142, 172, 1)
-            ])),
+            gradient:
+                LinearGradient(colors: [Color(0xff2a9d8f), Color(0xff264653)])),
       ),
     );
 
@@ -61,7 +59,7 @@ class GroupDetailsPage extends StatelessWidget {
         Positioned(
           top: -100,
           left: -20,
-          child: pinkBox,
+          child: box,
         )
       ],
     );

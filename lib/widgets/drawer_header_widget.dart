@@ -19,7 +19,7 @@ class DrawerHeaderWidget extends StatelessWidget {
         ListTile(
           leading: Icon(Icons.person),
           title: Text('Mi perfil'),
-          onTap: () => Navigator.of(context).pushNamed('profile'),
+          onTap: () => Navigator.of(context).pushNamed('/profile'),
         ),
       ],
     );

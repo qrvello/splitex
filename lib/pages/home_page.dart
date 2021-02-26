@@ -43,14 +43,14 @@ class HomePage extends StatelessWidget {
       actions: <Widget>[
         CupertinoDialogAction(
           onPressed: () {
-            Navigator.of(context).pushNamed('create_group');
+            Navigator.of(context).pushNamed('/create_group');
           },
           child: Text("Crear grupo"),
         ),
         CupertinoDialogAction(
           child: Text("Añadir gasto"),
           onPressed: () {
-            Navigator.of(context).pushNamed('create_group');
+            Navigator.of(context).pushNamed('/create_group');
           },
         ),
         CupertinoDialogAction(

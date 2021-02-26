@@ -3,7 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-class GoogleSignInProvider extends ChangeNotifier {
+class GoogleSignInProvider with ChangeNotifier {
   final databaseReference = FirebaseDatabase.instance.reference();
   final googleSignIn = GoogleSignIn();
   bool _isSigninIn;
@@ -21,10 +21,14 @@ class GoogleSignInProvider extends ChangeNotifier {
 
   Future login() async {
     isSigninIn = true;
-    final user = await googleSignIn.signIn();
+
+    await googleSignIn.signIn();
+
+    final user = googleSignIn.currentUser;
+
     if (user == null) {
       isSigninIn = false;
-      return;
+      return null;
     } else {
       final googleAuth = await user.authentication;
 
@@ -52,8 +56,8 @@ class GoogleSignInProvider extends ChangeNotifier {
     }
   }
 
-  void logout() async {
+  logout() async {
     await googleSignIn.disconnect();
-    FirebaseAuth.instance.signOut();
+    await FirebaseAuth.instance.signOut();
   }
 }

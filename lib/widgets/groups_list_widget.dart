@@ -49,7 +49,7 @@ class GroupsLists extends StatelessWidget {
           children: <Widget>[
             ListTile(
               title: Text(group.name),
-              onTap: () => Navigator.pushNamed(context, 'group_details',
+              onTap: () => Navigator.pushNamed(context, '/group_details',
                   arguments: group),
             ),
           ],
