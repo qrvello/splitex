@@ -27,7 +27,7 @@ class GroupsProvider {
         'admin_user': group.adminUser,
       },
     ).catchError((onError) {
-      print(onError);
+      print('Error al crear grupo: $onError');
       return false;
     });
 
@@ -64,5 +64,14 @@ class GroupsProvider {
     });
 
     return groups;
+  }
+
+  bool deleteGroup(GroupModel group) {
+    // Valida que el admin del grupo sea el usuario que lo elimina
+    if (group.adminUser == user.uid) {
+      databaseReference.child('groups/${group.id}').remove();
+      return true;
+    }
+    return false;
   }
 }

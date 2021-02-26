@@ -131,7 +131,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     if (resp) {
       return _success(context);
     } else {
-      return _error();
+      return _error(context);
     }
   }
 
@@ -179,7 +179,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     );
   }
 
-  _error() {
+  _error(context) {
     Scaffold.of(context).showSnackBar(
       new SnackBar(
         behavior: SnackBarBehavior.floating,
