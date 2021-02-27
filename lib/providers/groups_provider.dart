@@ -25,6 +25,7 @@ class GroupsProvider {
         'name': group.name,
         'simplify_group_debts': group.simplifyGroupDebts,
         'admin_user': group.adminUser,
+        'timestamp': ServerValue.timestamp,
       },
     ).catchError((onError) {
       print('Error al crear grupo: $onError');
@@ -45,15 +46,18 @@ class GroupsProvider {
   }
 
   Future<List<GroupModel>> loadGroups() async {
+    final List<GroupModel> groups = new List();
     DataSnapshot snapshot = await databaseReference.child('groups').once();
+
+    if (snapshot.value == null) {
+      return groups;
+    }
     //final groupsUser = new Map<String, dynamic>.from(snapshot.value);
     //print(groupsUser);
     final decodedData = new Map<String, dynamic>.from(snapshot.value);
 
     // Limpia el mapa para que no tire un error (?)
     final cleanMap = jsonDecode(jsonEncode(decodedData));
-
-    final List<GroupModel> groups = new List();
 
     if (decodedData == null) return [];
 

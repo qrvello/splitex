@@ -1,23 +1,40 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gastos_grupales/models/group_model.dart';
-import 'package:gastos_grupales/provider/groups_provider.dart';
+import 'package:gastos_grupales/providers/groups_provider.dart';
 
-class GroupsLists extends StatelessWidget {
+class GroupsListTab extends StatefulWidget {
+  @override
+  _GroupsListTabState createState() => _GroupsListTabState();
+}
+
+class _GroupsListTabState extends State<GroupsListTab> {
   final groupProvider = GroupsProvider();
+  List groups;
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: groupProvider.loadGroups(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final groups = snapshot.data;
+          groups = snapshot.data;
+          if (groups.length < 1) {
+            return Center(child: Text('No participás de ningún grupo'));
+          }
+          // Ordenar alfabeticamente a - b
+          //groups.sort((a, b) => a.name.compareTo(b.name));
+
+          // Ordenar por fecha de creación (ultimo a viejo)
+          //groups.sort((a, b) {
+          //  return b.timestamp.compareTo(a.timestamp);
+          //});
+
           return ListView.builder(
             itemCount: groups.length,
             itemBuilder: (context, i) => _createItem(context, groups[i]),
           );
         } else {
-          return Center(child: CupertinoActivityIndicator());
+          return Center(child: CircularProgressIndicator());
         }
       },
     );
@@ -34,7 +51,12 @@ class GroupsLists extends StatelessWidget {
           },
         );
       },
-      key: UniqueKey(),
+      onDismissed: (_) {
+        setState(() {
+          groups.remove(group);
+        });
+      },
+      key: Key(group.id),
       background: Container(
         margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
         decoration: BoxDecoration(
@@ -51,15 +73,15 @@ class GroupsLists extends StatelessWidget {
         ),
       ),
       direction: DismissDirection.endToStart,
-      child: Card(
-        child: Column(
-          children: <Widget>[
-            ListTile(
-              title: Text(group.name),
-              onTap: () => Navigator.pushNamed(context, '/group_details',
-                  arguments: group),
-            ),
-          ],
+      child: Container(
+        child: ListTile(
+          title: Text(group.name),
+          trailing: Text(
+            'No debés nada',
+            style: TextStyle(color: Colors.black38),
+          ),
+          onTap: () =>
+              Navigator.pushNamed(context, '/group_details', arguments: group),
         ),
       ),
     );

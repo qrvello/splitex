@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gastos_grupales/models/group_model.dart';
-import 'package:gastos_grupales/provider/groups_provider.dart';
+import 'package:gastos_grupales/providers/groups_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CreateGroupPage extends StatefulWidget {
   @override
@@ -10,17 +10,32 @@ class CreateGroupPage extends StatefulWidget {
 
 class _CreateGroupPageState extends State<CreateGroupPage> {
   final formKey = GlobalKey<FormState>();
+
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
   final groupProvider = new GroupsProvider();
+
+  final _groupNameController = new TextEditingController();
+
   GroupModel group = new GroupModel();
+
   bool isSwitched = false;
+
   bool _guardando = false;
 
   @override
+  void dispose() {
+    _groupNameController.dispose();
+    super.dispose();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      appBar: AppBar(),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Crear grupo'),
+      ),
       body: Builder(
         builder: (context) => Form(
           key: formKey,
@@ -43,8 +58,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 ),
                 RichText(
                   text: TextSpan(
+                    style: GoogleFonts.workSans(
+                        textStyle: TextStyle(color: Colors.black54)),
                     text: 'Nota: ',
-                    style: TextStyle(color: Colors.black45),
                     children: <TextSpan>[
                       TextSpan(
                           text:
@@ -66,41 +82,58 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   }
 
   Widget _button(context) {
-    return CupertinoButton(
-      color: Color(0xff2a9d8f),
-      borderRadius: BorderRadius.circular(20.0),
-      child: Text('Guardar'),
-      onPressed: (_guardando)
-          ? null
-          : () {
-              _submit(context);
-            },
+    return Container(
+      width: 120,
+      child: RaisedButton(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+        color: Color(0xff2a9d8f),
+        child: Text(
+          'Guardar',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        onPressed: (_guardando)
+            ? null
+            : () {
+                _submit(context);
+              },
+      ),
     );
   }
 
   Widget _inputCreateName() {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: 'Nombre del grupo',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25.0),
+    return Container(
+      height: 65,
+      child: TextFormField(
+        maxLength: 25,
+        cursorColor: Color(0xff264653),
+        style: TextStyle(fontSize: 18),
+        decoration: InputDecoration(
+          helperText: 'Ejemplo: Vacaciones a la costa',
+          labelText: 'Nombre del grupo',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25.0),
+          ),
         ),
+        onSaved: (value) => group.name = value,
+        validator: (value) {
+          if (value.length < 1) {
+            return 'Ingrese el nombre del grupo';
+          } else if (value.length > 25) {
+            return 'Ingrese un nombre menor a 25 caracteres';
+          } else {
+            return null;
+          }
+        },
+        controller: _groupNameController,
       ),
-      onSaved: (value) => group.name = value,
-      validator: (value) {
-        if (value.length < 1) {
-          return 'Ingrese el nombre del grupo';
-        } else if (value.length > 25) {
-          return 'Ingrese un nombre menor a 25 caracteres';
-        } else {
-          return null;
-        }
-      },
     );
   }
 
   Widget _switch() {
-    return CupertinoSwitch(
+    return Switch(
       activeColor: Color(0xff2a9d8f),
       value: isSwitched,
       onChanged: (value) {
@@ -129,6 +162,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     });
 
     if (resp) {
+      _groupNameController.text = '';
       return _success(context);
     } else {
       return _error(context);

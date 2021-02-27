@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/widgets/groups_list_widget.dart';
+import 'package:gastos_grupales/pages/home/tabs/friends_list_tab.dart';
+import 'package:gastos_grupales/pages/home/tabs/groups_list_tab.dart';
 import 'package:gastos_grupales/widgets/side_menu.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -13,16 +15,31 @@ class HomePage extends StatelessWidget {
           bottom: TabBar(
             isScrollable: false,
             tabs: [
-              Tab(text: 'Amigos'),
-              Tab(text: 'Grupos'),
-              Tab(text: 'Actividad'),
+              Tab(
+                child: Text(
+                  'Amigos',
+                  style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  'Grupos',
+                  style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Tab(
+                child: Text(
+                  'Actividad',
+                  style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
+                ),
+              ),
             ],
           ),
         ),
         body: TabBarView(
           children: [
-            Icon(Icons.directions_car),
-            GroupsLists(),
+            FriendsListTab(),
+            GroupsListTab(),
             Icon(Icons.directions_bike),
           ],
         ),
@@ -39,21 +56,21 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _dialog(context) {
-    return CupertinoAlertDialog(
+    return AlertDialog(
       actions: <Widget>[
-        CupertinoDialogAction(
+        TextButton(
+          child: Text("Crear grupo"),
           onPressed: () {
             Navigator.of(context).pushNamed('/create_group');
           },
-          child: Text("Crear grupo"),
         ),
-        CupertinoDialogAction(
+        TextButton(
           child: Text("Añadir gasto"),
           onPressed: () {
             Navigator.of(context).pushNamed('/create_group');
           },
         ),
-        CupertinoDialogAction(
+        TextButton(
           child: Text(
             "Cancelar",
             style: TextStyle(color: Colors.red),

@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gastos_grupales/widgets/background_form_widget.dart';
-import 'package:gastos_grupales/widgets/form_log_in_widget.dart';
+import 'package:gastos_grupales/widgets/form_sign_up_widget.dart';
 
-class LoginPage extends StatelessWidget {
+class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,8 +12,8 @@ class LoginPage extends StatelessWidget {
         builder: (context, snapshot) {
           return Stack(
             children: <Widget>[
-              BackgroundForm(),
-              FormLogIn(),
+              BackgroundFormWidget(),
+              FormSignUp(),
             ],
           );
         },

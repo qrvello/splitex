@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/provider/authentication_provider.dart';
-import 'package:gastos_grupales/provider/google_sign_in_provider.dart';
+import 'package:gastos_grupales/providers/authentication_provider.dart';
+import 'package:gastos_grupales/providers/google_sign_in_provider.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatelessWidget {

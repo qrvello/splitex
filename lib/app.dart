@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/provider/authentication_provider.dart';
-import 'package:gastos_grupales/provider/google_sign_in_provider.dart';
+import 'package:gastos_grupales/providers/authentication_provider.dart';
+import 'package:gastos_grupales/providers/google_sign_in_provider.dart';
 import 'package:gastos_grupales/routes/routes.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
           title: 'DivideGastos',
           initialRoute: '/home',
           theme: ThemeData(
+            textTheme: GoogleFonts.workSansTextTheme(),
             primaryColor: Color(0xff2a9d8f),
             floatingActionButtonTheme: FloatingActionButtonThemeData(
                 backgroundColor: Color(0xff2a9d8f)),

@@ -36,6 +36,7 @@ dependencies:
   firebase_database:
   shared_preferences:
   http:
+  google_fonts: ^1.1.2
 
 
 dev_dependencies:

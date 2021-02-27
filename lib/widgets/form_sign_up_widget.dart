@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/provider/authentication_provider.dart';
+import 'package:gastos_grupales/providers/authentication_provider.dart';
 import 'package:gastos_grupales/widgets/google_sign_up_button_widget.dart';
 
 class FormSignUp extends StatefulWidget {
