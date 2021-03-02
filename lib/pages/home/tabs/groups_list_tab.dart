@@ -58,8 +58,6 @@ class _GroupsListTabState extends State<GroupsListTab> {
           thisGroup.id = id;
           foundGroups.add(thisGroup);
         });
-
-        print(foundGroups.length);
         yield foundGroups;
       }
     }

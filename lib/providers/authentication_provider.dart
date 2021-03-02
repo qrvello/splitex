@@ -38,7 +38,7 @@ class AuthenticationProvider with ChangeNotifier {
         await databaseReference.child('users/${user.uid}').once();
 
     if (snapshot.value == null) {
-      databaseReference.child('users').set({
+      databaseReference.child('users').update({
         FirebaseAuth.instance.currentUser.uid: {
           'name': user.displayName,
           'email': user.email,
