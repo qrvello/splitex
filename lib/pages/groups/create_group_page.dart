@@ -226,11 +226,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           label: 'Ok',
           onPressed: () {
             // Back to the home page
-            Navigator.pop(context);
-
-            // Close modal
-            Navigator.pop(context);
-
+            Navigator.of(context)..pop();
             return;
           },
         ),

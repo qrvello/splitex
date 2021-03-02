@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:gastos_grupales/models/group_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,59 +12,54 @@ class GroupsProvider {
     final uidUser = user.uid;
     group.adminUser = uidUser;
 
-    // Inserta nuevo dato con una key creada por firebase
-    final newChildRef = databaseReference.child('groups').push();
+    // Crea la referencia con una key creada por firebase
 
-    // Guarda la nueva key que se usará.
-    final newChildKey = newChildRef.key;
+    final newChildGroupRef = databaseReference.child('groups').push();
 
-    newChildRef.set(
-      {
-        'name': group.name,
-        'simplify_group_debts': group.simplifyGroupDebts,
-        'admin_user': group.adminUser,
-        'timestamp': ServerValue.timestamp,
-      },
-    ).catchError((onError) {
-      print('Error al crear grupo: $onError');
+    // Crea la referencia en usuarios con la key anterior
+    final newChildUserGroupsRef = databaseReference
+        .child('users/${user.uid}/groups/${newChildGroupRef.key}');
+
+    // Guarda la data en un mapa
+
+    final Map<String, dynamic> data = {
+      'name': group.name,
+      'simplify_group_debts': group.simplifyGroupDebts,
+      'admin_user': group.adminUser,
+      'timestamp': ServerValue.timestamp,
+    };
+
+    // Crea un mapa para usar multiple paths al insertar datos
+    final Map<String, dynamic> mapRefs = {
+      "${newChildGroupRef.path}": data,
+      "${newChildUserGroupsRef.path}": data,
+    };
+
+    databaseReference.update(mapRefs).catchError((onError) {
+      print("Error al crear nuevo grupo: $onError");
       return false;
     });
-
-    // Actualiza los grupos del usuario con el id del grupo marcandolo true.
-    databaseReference
-        .child('users/${user.uid}/groups')
-        .update({newChildKey: true}).catchError(
-      (onError) {
-        print(onError);
-        return false;
-      },
-    );
 
     return true;
   }
 
   Future<List<GroupModel>> loadGroups() async {
-    final List<GroupModel> groups = new List();
-    DataSnapshot snapshot = await databaseReference.child('groups').once();
+    List<GroupModel> groups = new List();
+
+    // Recibe los grupos del usuario (keys)
+    DataSnapshot snapshot =
+        await databaseReference.child('users/${user.uid}/groups').once();
 
     if (snapshot.value == null) {
       return groups;
     }
-    //final groupsUser = new Map<String, dynamic>.from(snapshot.value);
-    //print(groupsUser);
-    final decodedData = new Map<String, dynamic>.from(snapshot.value);
 
-    // Limpia el mapa para que no tire un error (?)
-    final cleanMap = jsonDecode(jsonEncode(decodedData));
-
-    if (decodedData == null) return [];
-
-    cleanMap.forEach((id, group) {
+    // Pasa por cada key para acceder a los datos completos del grupo
+    snapshot.value.forEach((id, group) async {
       final groupTemp = GroupModel.fromJson(group);
       groupTemp.id = id;
       groups.add(groupTemp);
     });
-
     return groups;
   }
 
@@ -74,6 +67,7 @@ class GroupsProvider {
     // Valida que el admin del grupo sea el usuario que lo elimina
     if (group.adminUser == user.uid) {
       databaseReference.child('groups/${group.id}').remove();
+      databaseReference.child('users/${user.uid}/groups/${group.id}').remove();
       return true;
     }
     return false;

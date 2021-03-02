@@ -24,7 +24,7 @@ class GroupModel {
   int timestamp;
   bool simplifyGroupDebts;
 
-  factory GroupModel.fromJson(Map<String, dynamic> json) => GroupModel(
+  factory GroupModel.fromJson(Map<dynamic, dynamic> json) => GroupModel(
         id: json["id"],
         name: json["name"],
         adminUser: json["admin_user"],
@@ -33,7 +33,6 @@ class GroupModel {
       );
 
   Map<String, dynamic> toJson() => {
-        "id": id,
         "name": name,
         "simplify_group_debts": simplifyGroupDebts,
         "admin_user": adminUser,

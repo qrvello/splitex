@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/models/group_model.dart';
+//import 'package:gastos_grupales/models/group_model.dart';
 import 'package:gastos_grupales/providers/groups_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -17,7 +17,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   Widget build(BuildContext context) {
-    final GroupModel group = ModalRoute.of(context).settings.arguments;
+    //final GroupModel group = ModalRoute.of(context).settings.arguments;
 
     final formKey = GlobalKey<FormState>();
 
@@ -36,7 +36,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: <Widget>[
-                _inputCreateName(),
+                _inputDescription(),
                 SizedBox(
                   height: 12,
                 ),
@@ -87,7 +87,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  Widget _inputCreateName() {
+  Widget _inputDescription() {
     return Container(
       height: 65,
       child: TextFormField(
@@ -95,8 +95,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
         cursorColor: Color(0xff264653),
         style: TextStyle(fontSize: 18),
         decoration: InputDecoration(
-          helperText: 'Ejemplo: Vacaciones a la costa',
-          labelText: 'Nombre del grupo',
+          helperText: 'Ejemplo: almuerzo',
+          labelText: 'Descripción del gasto',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(25.0),
           ),

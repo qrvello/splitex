@@ -1,5 +1,11 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/utils/stream_subscriber_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:gastos_grupales/models/group_model.dart';
+
 import 'package:gastos_grupales/providers/groups_provider.dart';
 
 class GroupsListTab extends StatefulWidget {
@@ -9,34 +15,66 @@ class GroupsListTab extends StatefulWidget {
 
 class _GroupsListTabState extends State<GroupsListTab> {
   final groupProvider = GroupsProvider();
-  List groups;
+
+  final user = FirebaseAuth.instance.currentUser;
+  final databaseReference = FirebaseDatabase.instance.reference();
+
+  StreamSubscription _streamSubscription;
+
+  List<GroupModel> groups = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _streamSubscription = getData().listen((data) {
+      setState(() {
+        groups = data;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _streamSubscription?.cancel();
+
+    super.dispose();
+  }
+
+  Stream<List<GroupModel>> getData() async* {
+    var userGroupsStream = databaseReference
+        .child('users/${user.uid}/groups')
+        .orderByKey()
+        .onValue;
+    var foundGroups = List<GroupModel>();
+
+    await for (var userGroupsSnapshot in userGroupsStream) {
+      foundGroups.clear();
+
+      Map dictionary = userGroupsSnapshot.snapshot.value;
+      if (dictionary != null) {
+        dictionary.forEach((id, group) {
+          var thisGroup = GroupModel.fromJson(group);
+          thisGroup.id = id;
+          foundGroups.add(thisGroup);
+        });
+
+        print(foundGroups.length);
+        yield foundGroups;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: groupProvider.loadGroups(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          groups = snapshot.data;
-          if (groups.length < 1) {
-            return Center(child: Text('No participás de ningún grupo'));
-          }
-          // Ordenar alfabeticamente a - b
-          //groups.sort((a, b) => a.name.compareTo(b.name));
-
-          // Ordenar por fecha de creación (ultimo a viejo)
-          //groups.sort((a, b) {
-          //  return b.timestamp.compareTo(a.timestamp);
-          //});
-
-          return ListView.builder(
-            itemCount: groups.length,
-            itemBuilder: (context, i) => _createItem(context, groups[i]),
-          );
-        } else {
-          return Center(child: CircularProgressIndicator());
-        }
-      },
+    if (groups.length != 0) {
+      return ListView.builder(
+        itemCount: groups.length,
+        itemBuilder: (context, i) => _createItem(context, groups[i]),
+      );
+    }
+    return Center(
+      child: Text('No participás de ningún grupo.'),
     );
   }
 
@@ -52,11 +90,9 @@ class _GroupsListTabState extends State<GroupsListTab> {
         );
       },
       onDismissed: (_) {
-        setState(() {
-          groups.remove(group);
-        });
+        setState(() {});
       },
-      key: Key(group.id),
+      key: UniqueKey(),
       background: Container(
         margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
         decoration: BoxDecoration(

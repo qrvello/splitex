@@ -7,8 +7,11 @@ class DetailsGroupPage extends StatelessWidget {
     final GroupModel group = ModalRoute.of(context).settings.arguments;
     final size = MediaQuery.of(context).size;
 
-    return Container(
-      child: Stack(
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+      ),
+      body: Stack(
         children: [
           _background(size),
           Scaffold(
@@ -27,21 +30,8 @@ class DetailsGroupPage extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18.0)),
-                          color: Color(0xff2a9d8f),
-                          child: Text(
-                            'Añadir gasto',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.of(context)
-                                .pushNamed('/add_expense', arguments: group);
-                          },
-                        ),
+                        _buttonAddExpense(context, group),
+                        _buttonAddMember(context, group),
                       ],
                     ),
                   ],
@@ -89,6 +79,38 @@ class DetailsGroupPage extends StatelessWidget {
           top: -150,
         ),
       ],
+    );
+  }
+
+  Widget _buttonAddExpense(BuildContext context, GroupModel group) {
+    return RaisedButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+      color: Color(0xff2a9d8f),
+      child: Text(
+        'Añadir gasto',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/add_expense', arguments: group);
+      },
+    );
+  }
+
+  Widget _buttonAddMember(BuildContext context, GroupModel group) {
+    return RaisedButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+      color: Color(0xff2a9d8f),
+      child: Text(
+        'Añadir miembro',
+        style: TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      onPressed: () {
+        Navigator.of(context).pushNamed('/add_expense', arguments: group);
+      },
     );
   }
 }
