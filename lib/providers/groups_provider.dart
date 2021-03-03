@@ -22,17 +22,26 @@ class GroupsProvider {
 
     // Guarda la data en un mapa
 
-    final Map<String, dynamic> data = {
+    final Map<String, dynamic> dataUser = {
       'name': group.name,
       'simplify_group_debts': group.simplifyGroupDebts,
       'admin_user': group.adminUser,
       'timestamp': ServerValue.timestamp,
     };
 
+    final Map<String, dynamic> data = dataUser;
+
+    dataUser.putIfAbsent(
+      'members',
+      () => {
+        user.uid: true,
+      },
+    );
+
     // Crea un mapa para usar multiple paths al insertar datos
     final Map<String, dynamic> mapRefs = {
       "${newChildGroupRef.path}": data,
-      "${newChildUserGroupsRef.path}": data,
+      "${newChildUserGroupsRef.path}": dataUser,
     };
 
     databaseReference.update(mapRefs).catchError((onError) {
@@ -43,24 +52,34 @@ class GroupsProvider {
     return true;
   }
 
-  Future<List<GroupModel>> loadGroups() async {
-    List<GroupModel> groups = new List();
+  Future<bool> updateGroup(GroupModel group) async {
+    Map<String, dynamic> updateObj = {};
+    // Obtiene la referencia
 
-    // Recibe los grupos del usuario (keys)
-    DataSnapshot snapshot =
-        await databaseReference.child('users/${user.uid}/groups').once();
+    final groupRef = databaseReference.child('groups/${group.id}/');
 
-    if (snapshot.value == null) {
-      return groups;
-    }
+    // Crea un mapa para usar multiple paths al insertar datos
+    updateObj = {
+      "${groupRef.path}/name": group.name,
+      "${groupRef.path}/simplify_group_debts": group.simplifyGroupDebts,
+    };
+    final members =
+        await databaseReference.child('groups/${group.id}/members').once();
 
-    // Pasa por cada key para acceder a los datos completos del grupo
-    snapshot.value.forEach((id, group) async {
-      final groupTemp = GroupModel.fromJson(group);
-      groupTemp.id = id;
-      groups.add(groupTemp);
+    members.value.keys.forEach((key) {
+      updateObj.putIfAbsent(
+          'users/$key/groups/${group.id}/name', () => group.name);
+      updateObj.putIfAbsent(
+          'users/$key/groups/${group.id}/simplify_group_debts',
+          () => group.simplifyGroupDebts);
     });
-    return groups;
+
+    databaseReference.update(updateObj).catchError((onError) {
+      print("Error al crear nuevo grupo: $onError");
+      return false;
+    });
+
+    return true;
   }
 
   bool deleteGroup(GroupModel group) {

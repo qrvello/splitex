@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/utils/stream_subscriber_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:gastos_grupales/models/group_model.dart';
+import 'package:gastos_grupales/pages/groups/details_group_page.dart';
 
 import 'package:gastos_grupales/providers/groups_provider.dart';
 
@@ -58,6 +58,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
           thisGroup.id = id;
           foundGroups.add(thisGroup);
         });
+
         yield foundGroups;
       }
     }
@@ -65,12 +66,15 @@ class _GroupsListTabState extends State<GroupsListTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (groups.length != 0) {
+    if (groups.length > 0) {
       return ListView.builder(
         itemCount: groups.length,
         itemBuilder: (context, i) => _createItem(context, groups[i]),
       );
     }
+    // ignore: todo
+    //TODO: Arreglar carga: que cuando esté cargando no aparezca el mensaje de no participas en ningun grupo sino que aparezca un circular progress indicator
+
     return Center(
       child: Text('No participás de ningún grupo.'),
     );
@@ -114,8 +118,12 @@ class _GroupsListTabState extends State<GroupsListTab> {
             'No debés nada',
             style: TextStyle(color: Colors.black38),
           ),
-          onTap: () =>
-              Navigator.pushNamed(context, '/group_details', arguments: group),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailsGroupPage(group: group),
+            ),
+          ),
         ),
       ),
     );

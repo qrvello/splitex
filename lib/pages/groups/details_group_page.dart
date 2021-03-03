@@ -1,44 +1,109 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:gastos_grupales/models/group_model.dart';
+import 'package:gastos_grupales/pages/groups/edit_group_page.dart';
 
-class DetailsGroupPage extends StatelessWidget {
+class DetailsGroupPage extends StatefulWidget {
+  final GroupModel group;
+
+  DetailsGroupPage({@required this.group});
+
+  @override
+  _DetailsGroupPageState createState() => _DetailsGroupPageState();
+}
+
+class _DetailsGroupPageState extends State<DetailsGroupPage> {
+  final user = FirebaseAuth.instance.currentUser;
+
+  final databaseReference = FirebaseDatabase.instance.reference();
+
+  GroupModel group;
+  StreamSubscription _streamSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _streamSubscription = getData(widget.group).listen((data) {
+      setState(() {
+        group = data;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _streamSubscription?.cancel();
+
+    super.dispose();
+  }
+
+  Stream<GroupModel> getData(GroupModel group) async* {
+    GroupModel groupUpdated;
+
+    var groupStream = databaseReference.child('groups/${group.id}').onValue;
+
+    await for (var groupSnapshot in groupStream) {
+      var groupValue = groupSnapshot.snapshot.value;
+
+      if (groupValue != null) {
+        var thisGroup = GroupModel.fromJson(groupValue);
+
+        thisGroup.id = groupSnapshot.snapshot.key;
+
+        groupUpdated = thisGroup;
+      }
+
+      yield groupUpdated;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final GroupModel group = ModalRoute.of(context).settings.arguments;
-    final size = MediaQuery.of(context).size;
+    GroupModel group = widget.group;
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-      ),
-      body: Stack(
-        children: [
-          _background(size),
-          Scaffold(
-              backgroundColor: Colors.transparent,
-              extendBodyBehindAppBar: true,
-              appBar: AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                centerTitle: true,
-                title: Text(group.name),
-              ),
-              body: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buttonAddExpense(context, group),
-                        _buttonAddMember(context, group),
-                      ],
+    final size = MediaQuery.of(context).size;
+    return Stack(
+      children: [
+        _background(size),
+        Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.settings),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditGroupPage(group: group),
                     ),
-                  ],
+                  ),
                 ),
-              )),
-        ],
-      ),
+              ],
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              title: Text(group.name),
+            ),
+            body: Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buttonAddExpense(context, group),
+                      _buttonAddMember(context, group),
+                    ],
+                  ),
+                ],
+              ),
+            )),
+      ],
     );
   }
 

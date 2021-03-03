@@ -22,6 +22,7 @@ class _FormLogInState extends State<FormLogIn> {
   }
 
   bool _obscureText = true;
+  bool _error = false;
   void _toggle() {
     setState(() {
       _obscureText = !_obscureText;
@@ -58,6 +59,16 @@ class _FormLogInState extends State<FormLogIn> {
             ),
             child: Column(
               children: <Widget>[
+                _error == true
+                    ? Container(
+                        height: 32,
+                        child: Text(
+                          'Error al iniciar sesión',
+                          style:
+                              TextStyle(color: Color(0xffe76f51), fontSize: 22),
+                        ),
+                      )
+                    : SizedBox.shrink(),
                 Text(
                   'Iniciá sesión',
                   style: TextStyle(fontSize: 20.0),
@@ -87,6 +98,7 @@ class _FormLogInState extends State<FormLogIn> {
             onPressed: () =>
                 Navigator.pushReplacementNamed(context, '/register'),
             child: Text('Recuperá tu contraseña'),
+            // ignore: todo
             // TODO recuperar contraseña
           ),
         ],
@@ -179,9 +191,14 @@ class _FormLogInState extends State<FormLogIn> {
   void _submit() async {
     final firebaseInstance = FirebaseAuth.instance;
 
-    await AuthenticationProvider(firebaseInstance)
+    final resp = await AuthenticationProvider(firebaseInstance)
         .signIn(_email.text, _password.text);
-    Navigator.of(context).pushNamed('/home');
+    if (resp != false) {
+      Navigator.of(context).pushNamed('/home');
+    } else {
+      _error = true;
+      setState(() {});
+    }
   }
 }
 
@@ -192,18 +209,3 @@ extension EmailValidator on String {
         .hasMatch(this);
   }
 }
-
-//_login() async {
-
-//    showDialog(
-//          return AlertDialog(
-//            title: Text('Los datos ingresados son incorrectos.'),
-//            content: Text(info['message']),
-//            actions: <Widget>[
-//              FlatButton(
-//                  onPressed: () => Navigator.of(context).pop(),
-//                  child: Text('Ok'))
-//            ],
-//          ),
-//    );
-//  }

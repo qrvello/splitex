@@ -86,6 +86,7 @@ class _FormSignUpState extends State<FormSignUp> {
           FlatButton(
             onPressed: () => Navigator.pushReplacementNamed(context, '/'),
             child: Text('Recuperá tu contraseña'),
+            // ignore: todo
             // TODO recuperar contraseña
           ),
         ],

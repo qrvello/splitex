@@ -10,19 +10,20 @@ GroupModel groupModelFromJson(String str) =>
 String groupModelToJson(GroupModel data) => json.encode(data.toJson());
 
 class GroupModel {
-  GroupModel({
-    this.id,
-    this.name,
-    this.simplifyGroupDebts,
-    this.adminUser,
-    this.timestamp,
-  });
+  GroupModel(
+      {this.id,
+      this.name,
+      this.simplifyGroupDebts,
+      this.adminUser,
+      this.timestamp,
+      this.members});
 
   String adminUser;
   String id;
   String name;
   int timestamp;
   bool simplifyGroupDebts;
+  Object members;
 
   factory GroupModel.fromJson(Map<dynamic, dynamic> json) => GroupModel(
         id: json["id"],
@@ -30,6 +31,7 @@ class GroupModel {
         adminUser: json["admin_user"],
         simplifyGroupDebts: json["simplify_group_debts"],
         timestamp: json["timestamp"],
+        members: json["members"],
       );
 
   Map<String, dynamic> toJson() => {
