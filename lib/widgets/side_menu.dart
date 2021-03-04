@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/providers/google_sign_in_provider.dart';
-import 'package:gastos_grupales/widgets/drawer_header_widget.dart';
+import 'package:repartapp/providers/google_sign_in_provider.dart';
+import 'package:repartapp/widgets/drawer_header_widget.dart';
 import 'package:provider/provider.dart';
 
 class SideMenu extends StatelessWidget {
@@ -38,13 +38,16 @@ class SideMenu extends StatelessWidget {
             return DrawerHeader(
               child: Container(
                 margin: EdgeInsets.symmetric(vertical: 50, horizontal: 40),
-                child: OutlineButton(
-                  padding: EdgeInsets.symmetric(),
+                child: OutlinedButton(
                   onPressed: () => Navigator.of(context).pushNamed('/login'),
                   child: Text('Iniciar sesión'),
-                  shape: StadiumBorder(),
-                  borderSide: BorderSide(color: Colors.black),
-                  textColor: Colors.black,
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.resolveWith(
+                      (Set<MaterialState> states) {
+                        return StadiumBorder();
+                      },
+                    ),
+                  ),
                 ),
               ),
             );

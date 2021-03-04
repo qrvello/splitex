@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:repartapp/styles/elevated_button_style.dart';
 
 class FriendsListTab extends StatelessWidget {
   @override
@@ -40,10 +41,8 @@ class FriendsListTab extends StatelessWidget {
 
   Widget _buttonAddFriends() {
     return Container(
-      child: RaisedButton(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-        color: Color(0xff2a9d8f),
+      child: ElevatedButton(
+        style: elevatedButtonStyle,
         child: Text(
           'Agregar amigo',
           style: TextStyle(

@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/widgets/background_form_widget.dart';
-import 'package:gastos_grupales/widgets/form_sign_up_widget.dart';
+import 'package:repartapp/widgets/background_form_widget.dart';
+import 'package:repartapp/widgets/form_sign_up_widget.dart';
 
 class SignUpPage extends StatelessWidget {
   @override

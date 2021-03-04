@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/providers/authentication_provider.dart';
-import 'package:gastos_grupales/widgets/google_sign_up_button_widget.dart';
+import 'package:repartapp/providers/authentication_provider.dart';
+import 'package:repartapp/widgets/google_sign_up_button_widget.dart';
+
+import 'google_sign_up_button_widget.dart';
 
 class FormSignUp extends StatefulWidget {
   @override
@@ -11,17 +13,19 @@ class FormSignUp extends StatefulWidget {
 class _FormSignUpState extends State<FormSignUp> {
   final _password = TextEditingController();
   final _email = TextEditingController();
+  final _name = TextEditingController();
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed from the widget tree.
-    // This also removes the _printLatestValue listener.
     _password.dispose();
     _email.dispose();
+    _name.dispose();
     super.dispose();
   }
 
   bool _obscureText = true;
+  bool _error = false;
+
   void _toggle() {
     setState(() {
       _obscureText = !_obscureText;
@@ -37,7 +41,7 @@ class _FormSignUpState extends State<FormSignUp> {
         children: [
           SafeArea(
             child: Container(
-              height: .0,
+              height: size.height * 0.025,
             ),
           ),
           Container(
@@ -46,26 +50,38 @@ class _FormSignUpState extends State<FormSignUp> {
             padding: EdgeInsets.symmetric(vertical: 50.0),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(18.0),
               boxShadow: <BoxShadow>[
                 BoxShadow(
                   color: Colors.black26,
-                  blurRadius: 3.0,
-                  offset: Offset(0.0, 2.0),
+                  blurRadius: 0.5,
+                  offset: Offset(0.0, 1.0),
                   spreadRadius: 1.0,
                 ),
               ],
             ),
             child: Column(
               children: <Widget>[
+                _error != false
+                    ? Container(
+                        height: 32,
+                        child: Text(
+                          'Error al iniciar sesión: $_error',
+                          style:
+                              TextStyle(color: Color(0xffe76f51), fontSize: 22),
+                        ),
+                      )
+                    : SizedBox.shrink(),
                 Text(
-                  'Registrarse',
+                  'Registrate',
                   style: TextStyle(fontSize: 20.0),
                 ),
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
+                      SizedBox(height: 30.0),
+                      _nameInput(),
                       SizedBox(height: 30.0),
                       _emailInput(),
                       SizedBox(height: 30.0),
@@ -79,13 +95,35 @@ class _FormSignUpState extends State<FormSignUp> {
               ],
             ),
           ),
-          FlatButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-            child: Text('¿Ya te registraste? Iniciá sesión acá'),
+          Container(
+            width: size.width * 0.85,
+            child: TextButton(
+              onPressed: () =>
+                  Navigator.pushReplacementNamed(context, '/login'),
+              child: Text(
+                '¿Ya te registraste? Iniciá sesión acá',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                  fontSize: 17,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () => Navigator.pushReplacementNamed(context, '/'),
-            child: Text('Recuperá tu contraseña'),
+            child: Text(
+              'Recuperá tu contraseña',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+                fontSize: 17,
+                letterSpacing: 1,
+              ),
+            ),
             // ignore: todo
             // TODO recuperar contraseña
           ),
@@ -144,44 +182,63 @@ class _FormSignUpState extends State<FormSignUp> {
   }
 
   Widget _button(_formKey, context) {
-    return OutlineButton(
-      onPressed: () {
-        // Validate returns true if the form is valid, otherwise false.
-        if (_formKey.currentState.validate()) {
-          // If the form is valid, display a snackbar. In the real world,
-          // you'd often call a server or save the information in a database.
-          _submit();
-          print(_email.text);
-          print(_password.text);
+    return Container(
+      width: 250,
+      padding: EdgeInsets.all(4),
+      child: OutlinedButton(
+        onPressed: () {
+          if (_formKey.currentState.validate()) {
+            _submit();
 
-          Scaffold.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Color(0xff264653),
-              behavior: SnackBarBehavior.floating,
-              content: Text('Registrandose...'),
-            ),
-          );
-        }
-      },
-      child: Container(
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Color(0xff264653),
+                behavior: SnackBarBehavior.floating,
+                content: Text('Registrandose...'),
+              ),
+            );
+          }
+        },
         child: Text(
           'Registrarse',
           style: TextStyle(color: Colors.black87),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 55),
+        style: OutlinedButton.styleFrom(
+          shape: StadiumBorder(),
+          side: BorderSide(color: Colors.black38),
+        ),
       ),
-      shape: StadiumBorder(),
-      borderSide: BorderSide(color: Colors.black54),
-      textColor: Colors.black,
     );
   }
 
   void _submit() async {
     final firebaseInstance = FirebaseAuth.instance;
 
-    await AuthenticationProvider(firebaseInstance)
-        .signUp(_email.text, _password.text);
+    final resp = await AuthenticationProvider(firebaseInstance)
+        .signUp(_email.text.trim(), _password.text, _name.text.trim());
+
+    if (resp != true) {
+      _error = resp;
+      setState(() {});
+      return;
+    }
     Navigator.of(context).pushNamed('/home');
+  }
+
+  _nameInput() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFormField(
+        keyboardType: TextInputType.name,
+        decoration: InputDecoration(
+          icon: Icon(Icons.person, color: Color(0xff2a9d8f)),
+          labelStyle: TextStyle(color: Color(0xff264653)),
+          labelText: 'Nombre',
+        ),
+        validator: (value) => (value.isEmpty) ? 'Ingrese un nombre' : null,
+        controller: _name,
+      ),
+    );
   }
 }
 

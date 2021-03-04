@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/providers/authentication_provider.dart';
-import 'package:gastos_grupales/providers/google_sign_in_provider.dart';
-import 'package:gastos_grupales/routes/routes.dart';
+import 'package:repartapp/providers/authentication_provider.dart';
+import 'package:repartapp/providers/google_sign_in_provider.dart';
+import 'package:repartapp/routes/routes.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AuthenticationProvider>(
             create: (_) => AuthenticationProvider(FirebaseAuth.instance)),
         StreamProvider(
+            initialData: [],
             create: (context) =>
                 context.read<AuthenticationProvider>().authStateChanges)
       ],

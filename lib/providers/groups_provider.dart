@@ -1,5 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:gastos_grupales/models/group_model.dart';
+import 'package:repartapp/models/group_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class GroupsProvider {

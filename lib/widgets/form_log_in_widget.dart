@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/providers/authentication_provider.dart';
-import 'package:gastos_grupales/widgets/google_sign_up_button_widget.dart';
+import 'package:repartapp/providers/authentication_provider.dart';
+import 'package:repartapp/widgets/google_sign_up_button_widget.dart';
 
 class FormLogIn extends StatefulWidget {
   @override
@@ -14,8 +14,6 @@ class _FormLogInState extends State<FormLogIn> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed from the widget tree.
-    // This also removes the _printLatestValue listener.
     _password.dispose();
     _email.dispose();
     super.dispose();
@@ -23,6 +21,7 @@ class _FormLogInState extends State<FormLogIn> {
 
   bool _obscureText = true;
   bool _error = false;
+
   void _toggle() {
     setState(() {
       _obscureText = !_obscureText;
@@ -38,7 +37,7 @@ class _FormLogInState extends State<FormLogIn> {
         children: [
           SafeArea(
             child: Container(
-              height: .0,
+              height: size.height * 0.1,
             ),
           ),
           Container(
@@ -47,12 +46,12 @@ class _FormLogInState extends State<FormLogIn> {
             padding: EdgeInsets.symmetric(vertical: 50.0),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
+              borderRadius: BorderRadius.circular(18.0),
               boxShadow: <BoxShadow>[
                 BoxShadow(
                   color: Colors.black26,
-                  blurRadius: 3.0,
-                  offset: Offset(0.0, 2.0),
+                  blurRadius: 0.5,
+                  offset: Offset(0.0, 1.0),
                   spreadRadius: 1.0,
                 ),
               ],
@@ -90,14 +89,36 @@ class _FormLogInState extends State<FormLogIn> {
               ],
             ),
           ),
-          FlatButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, '/signup'),
-            child: Text('¿Todavía no te registraste? Registrate acá'),
+          Container(
+            width: size.width * 0.85,
+            child: TextButton(
+              onPressed: () =>
+                  Navigator.pushReplacementNamed(context, '/signup'),
+              child: Text(
+                '¿Todavía no te registraste? Registrate acá',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                  fontSize: 17,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
           ),
-          FlatButton(
+          TextButton(
             onPressed: () =>
                 Navigator.pushReplacementNamed(context, '/register'),
-            child: Text('Recuperá tu contraseña'),
+            child: Text(
+              'Recuperá tu contraseña',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.black,
+                fontSize: 17,
+                letterSpacing: 1,
+              ),
+            ),
             // ignore: todo
             // TODO recuperar contraseña
           ),
@@ -156,35 +177,37 @@ class _FormLogInState extends State<FormLogIn> {
   }
 
   Widget _button(_formKey, context) {
-    return OutlineButton(
-      onPressed: () {
-        // Validate returns true if the form is valid, otherwise false.
-        if (_formKey.currentState.validate()) {
-          // If the form is valid, display a snackbar. In the real world,
-          // you'd often call a server or save the information in a database.
-          _submit();
-          print(_email.text);
-          print(_password.text);
+    return Container(
+      width: 250,
+      padding: EdgeInsets.all(4),
+      child: OutlinedButton(
+        onPressed: () {
+          // Validate returns true if the form is valid, otherwise false.
+          if (_formKey.currentState.validate()) {
+            // If the form is valid, display a snackbar. In the real world,
+            // you'd often call a server or save the information in a database.
+            _submit();
+            print(_email.text);
+            print(_password.text);
 
-          Scaffold.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Color(0xff264653),
-              behavior: SnackBarBehavior.floating,
-              content: Text('Iniciando sesión...'),
-            ),
-          );
-        }
-      },
-      child: Container(
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Color(0xff264653),
+                behavior: SnackBarBehavior.floating,
+                content: Text('Iniciando sesión...'),
+              ),
+            );
+          }
+        },
         child: Text(
           'Iniciar sesión',
           style: TextStyle(color: Colors.black87),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 55),
+        style: OutlinedButton.styleFrom(
+          shape: StadiumBorder(),
+          side: BorderSide(color: Colors.black38),
+        ),
       ),
-      shape: StadiumBorder(),
-      borderSide: BorderSide(color: Colors.black54),
-      textColor: Colors.black,
     );
   }
 
@@ -192,13 +215,12 @@ class _FormLogInState extends State<FormLogIn> {
     final firebaseInstance = FirebaseAuth.instance;
 
     final resp = await AuthenticationProvider(firebaseInstance)
-        .signIn(_email.text, _password.text);
+        .signIn(_email.text.trim(), _password.text.trim());
     if (resp != false) {
       Navigator.of(context).pushNamed('/home');
-    } else {
-      _error = true;
-      setState(() {});
     }
+    _error = true;
+    setState(() {});
   }
 }
 

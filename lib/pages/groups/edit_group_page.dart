@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/models/group_model.dart';
-import 'package:gastos_grupales/providers/groups_provider.dart';
+import 'package:repartapp/models/group_model.dart';
+import 'package:repartapp/providers/groups_provider.dart';
+import 'package:repartapp/styles/elevated_button_style.dart';
 
 class EditGroupPage extends StatefulWidget {
   final GroupModel group;
@@ -76,10 +77,8 @@ class _EditGroupPageState extends State<EditGroupPage> {
   Widget _button(context, group) {
     return Container(
       width: 120,
-      child: RaisedButton(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-        color: Color(0xff2a9d8f),
+      child: ElevatedButton(
+        style: elevatedButtonStyle,
         child: Text(
           'Guardar',
           style: TextStyle(
@@ -181,7 +180,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   _success(context) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: Color(0xff2a9d8f),
@@ -203,7 +202,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   _error(context) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: Color(0xffe63946),

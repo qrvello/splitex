@@ -24,7 +24,7 @@ class AuthenticationProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> signUp(String email, String password) async {
+  Future<bool> signUp(String email, String password, String name) async {
     try {
       await _firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
@@ -33,18 +33,10 @@ class AuthenticationProvider with ChangeNotifier {
       return false;
     }
 
-    final user = FirebaseAuth.instance.currentUser;
-    DataSnapshot snapshot =
-        await databaseReference.child('users/${user.uid}').once();
-
-    if (snapshot.value == null) {
-      databaseReference.child('users').update({
-        FirebaseAuth.instance.currentUser.uid: {
-          'name': user.displayName,
-          'email': user.email,
-        }
-      });
-    }
+    databaseReference.child('users/${_firebaseAuth.currentUser.uid}').set({
+      'name': name,
+      'email': email,
+    });
 
     return true;
   }

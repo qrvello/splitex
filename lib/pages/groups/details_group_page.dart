@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/models/group_model.dart';
-import 'package:gastos_grupales/pages/groups/edit_group_page.dart';
+import 'package:repartapp/models/group_model.dart';
+import 'package:repartapp/pages/groups/edit_group_page.dart';
+import 'package:repartapp/styles/elevated_button_style.dart';
 
 class DetailsGroupPage extends StatefulWidget {
   final GroupModel group;
@@ -148,9 +149,8 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   }
 
   Widget _buttonAddExpense(BuildContext context, GroupModel group) {
-    return RaisedButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-      color: Color(0xff2a9d8f),
+    return ElevatedButton(
+      style: elevatedButtonStyle,
       child: Text(
         'Añadir gasto',
         style: TextStyle(
@@ -164,9 +164,8 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   }
 
   Widget _buttonAddMember(BuildContext context, GroupModel group) {
-    return RaisedButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-      color: Color(0xff2a9d8f),
+    return ElevatedButton(
+      style: elevatedButtonStyle,
       child: Text(
         'Añadir miembro',
         style: TextStyle(

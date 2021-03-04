@@ -1,23 +1,24 @@
 {
   "project_info": {
     "project_number": "591582935820",
+    "firebase_url": "https://gastos-grupales-4b8a6-default-rtdb.firebaseio.com",
     "project_id": "gastos-grupales-4b8a6",
     "storage_bucket": "gastos-grupales-4b8a6.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:591582935820:android:961c97799235ef17eb6729",
+        "mobilesdk_app_id": "1:591582935820:android:aa5a37801ef45bc8eb6729",
         "android_client_info": {
-          "package_name": "com.example.gastos_grupales"
+          "package_name": "com.qrvello.repartapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "591582935820-q06s6t7og8lk0dkoqsgfh498rgr5toju.apps.googleusercontent.com",
+          "client_id": "591582935820-udgve1hhq6ck1p981pafo6o0v0ggkjkd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.gastos_grupales",
+            "package_name": "com.qrvello.repartapp",
             "certificate_hash": "49b00a7d638d9bb1aa9a8805c91b0907a872365a"
           }
         },

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/pages/home/tabs/friends_list_tab.dart';
-import 'package:gastos_grupales/pages/home/tabs/groups_list_tab.dart';
-import 'package:gastos_grupales/widgets/side_menu.dart';
+import 'package:repartapp/pages/home/tabs/friends_list_tab.dart';
+import 'package:repartapp/pages/home/tabs/groups_list_tab.dart';
+import 'package:repartapp/widgets/side_menu.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatelessWidget {

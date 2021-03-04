@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:gastos_grupales/models/group_model.dart';
-import 'package:gastos_grupales/pages/groups/details_group_page.dart';
+import 'package:repartapp/models/group_model.dart';
+import 'package:repartapp/pages/groups/details_group_page.dart';
 
-import 'package:gastos_grupales/providers/groups_provider.dart';
+import 'package:repartapp/providers/groups_provider.dart';
 
 class GroupsListTab extends StatefulWidget {
   @override
@@ -46,7 +46,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
         .child('users/${user.uid}/groups')
         .orderByKey()
         .onValue;
-    var foundGroups = List<GroupModel>();
+    List<GroupModel> foundGroups = [];
 
     await for (var userGroupsSnapshot in userGroupsStream) {
       foundGroups.clear();
@@ -135,11 +135,11 @@ class _GroupsListTabState extends State<GroupsListTab> {
       content: Text(
           '¿Seguro/a deseas borrar el grupo ${group.name}? Una vez eliminado no se podrá recuperar la información'),
       actions: <Widget>[
-        FlatButton(
+        TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           child: Text('Cancelar'),
         ),
-        FlatButton(
+        TextButton(
           onPressed: () {
             _deleteGroup(context, group);
           },
@@ -153,7 +153,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
   }
 
   _successSnackbar(context) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: Color(0xff2a9d8f),
@@ -164,7 +164,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
           textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
-            Scaffold.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
         ),
       ),
@@ -172,7 +172,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
   }
 
   _errorSnackbar(context) {
-    Scaffold.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: Color(0xffe63946),
@@ -182,7 +182,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
           textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
-            Scaffold.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
             return;
           },

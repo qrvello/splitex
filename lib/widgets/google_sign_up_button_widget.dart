@@ -1,31 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:gastos_grupales/providers/google_sign_in_provider.dart';
+import 'package:repartapp/providers/google_sign_in_provider.dart';
 import 'package:provider/provider.dart';
 
 class GoogleSignUpButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
+        width: 250,
         padding: EdgeInsets.all(4),
-        child: OutlineButton.icon(
+        child: OutlinedButton.icon(
           onPressed: () async {
             final provider =
                 Provider.of<GoogleSignInProvider>(context, listen: false);
             await provider
                 .login()
                 .then((value) => Navigator.of(context).pushNamed('/home'));
-
-            //Navigator.of(context).pushNamed('home');
           },
-          icon: FaIcon(FontAwesomeIcons.google, color: Colors.red),
+          icon: FaIcon(
+            FontAwesomeIcons.google,
+            color: Color(0xffe76f51),
+            size: 18,
+          ),
           label: Text(
             'Inicia sesión con Google',
             style: TextStyle(color: Colors.black87),
           ),
-          shape: StadiumBorder(),
-          borderSide: BorderSide(color: Colors.black54),
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          textColor: Colors.black,
+          style: ButtonStyle(
+            shape: MaterialStateProperty.resolveWith(
+              (Set<MaterialState> states) => StadiumBorder(),
+            ),
+            side: MaterialStateProperty.resolveWith(
+              (Set<MaterialState> states) => BorderSide(color: Colors.black38),
+            ),
+          ),
         ),
       );
 }
