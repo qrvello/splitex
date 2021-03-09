@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-//import 'package:repartapp/models/group_model.dart';
+import 'package:repartapp/models/expense.dart';
+import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:repartapp/styles/elevated_button_style.dart';
 
 class AddExpensePage extends StatefulWidget {
@@ -11,19 +11,23 @@ class AddExpensePage extends StatefulWidget {
 
 class _AddExpensePageState extends State<AddExpensePage> {
   final groupProvider = new GroupsProvider();
-
   final _expenseNameController = new TextEditingController();
-
+  final _expenseAmountController = new TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  Expense expense = new Expense();
   bool _guardando = false;
+  bool error = false;
+
+  @override
+  void dispose() {
+    _expenseNameController.dispose();
+    _expenseAmountController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    //final GroupModel group = ModalRoute.of(context).settings.arguments;
-
-    final formKey = GlobalKey<FormState>();
-
-    final scaffoldKey = GlobalKey<ScaffoldState>();
-
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -38,25 +42,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
             child: Column(
               children: <Widget>[
                 _inputDescription(),
-                SizedBox(
-                  height: 12,
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: GoogleFonts.workSans(
-                        textStyle: TextStyle(color: Colors.black54)),
-                    text: 'Nota: ',
-                    children: <TextSpan>[
-                      TextSpan(
-                          text:
-                              'se podrán agregar miembros después de crear el grupo.',
-                          style: TextStyle(color: Colors.black87)),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 12,
-                ),
+                SizedBox(height: 10),
+                _inputAmount(),
+                SizedBox(height: 12),
+                Text('Pagado por vos y dividido igualmente.'),
+                SizedBox(height: 10),
                 _button(context),
               ],
             ),
@@ -72,7 +62,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       child: ElevatedButton(
         style: elevatedButtonStyle,
         child: Text(
-          'Guardar',
+          'Agregar',
           style: TextStyle(
             color: Colors.white,
           ),
@@ -100,18 +90,76 @@ class _AddExpensePageState extends State<AddExpensePage> {
             borderRadius: BorderRadius.circular(25.0),
           ),
         ),
+        onSaved: (value) => expense.description = value,
         controller: _expenseNameController,
+        validator: (value) {
+          if (value.isEmpty) return 'Por favor ingresá una descripción';
+          return null;
+        },
+      ),
+    );
+  }
+
+  _inputAmount() {
+    return Container(
+      width: 250,
+      height: 60,
+      child: TextFormField(
+        maxLength: 10,
+        keyboardType: TextInputType.number,
+        textAlign: TextAlign.start,
+        cursorColor: Color(0xff264653),
+        style: TextStyle(fontSize: 18),
+        decoration: InputDecoration(
+          prefixIcon: Icon(Icons.attach_money),
+          labelText: 'Cantidad',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(25.0),
+          ),
+        ),
+        controller: _expenseAmountController,
+        onSaved: (value) => expense.amount = double.tryParse(value),
+        validator: (value) {
+          if (value.isEmpty) return 'Por favor ingresa un número';
+          if (_isNumeric(value) != false) {
+            return null;
+          } else {
+            return 'Por favor ingresa solo números.';
+          }
+        },
       ),
     );
   }
 
   _submit(context) async {
+    if (!formKey.currentState.validate()) return;
+
+    formKey.currentState.save();
+    final GroupModel group = ModalRoute.of(context).settings.arguments;
+
     setState(() {
       _guardando = true;
     });
 
+    final resp = await groupProvider.addExpense(group, expense);
+
     setState(() {
       _guardando = false;
     });
+
+    if (resp != false) {
+      error = false;
+      Navigator.pop(context);
+    }
+    setState(() {
+      error = true;
+    });
+  }
+
+  bool _isNumeric(String str) {
+    if (str == null) {
+      return false;
+    }
+    return double.tryParse(str) != null;
   }
 }

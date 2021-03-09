@@ -1,4 +1,6 @@
+//import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -22,16 +24,16 @@ class GroupsProvider {
 
     // Guarda la data en un mapa
 
-    final Map<String, dynamic> dataUser = {
+    final Map<String, dynamic> data = {
       'name': group.name,
       'simplify_group_debts': group.simplifyGroupDebts,
       'admin_user': group.adminUser,
       'timestamp': ServerValue.timestamp,
     };
 
-    final Map<String, dynamic> data = dataUser;
+    final Map<String, dynamic> dataUser = data;
 
-    dataUser.putIfAbsent(
+    data.putIfAbsent(
       'members',
       () => {
         user.uid: true,
@@ -90,5 +92,21 @@ class GroupsProvider {
       return true;
     }
     return false;
+  }
+
+  Future<bool> addExpense(GroupModel group, Expense expense) async {
+    final newChildExpenseReference =
+        databaseReference.child('groups/${group.id}/expenses/').push();
+
+    await newChildExpenseReference.set({
+      'description': expense.description,
+      'amount': expense.amount,
+      'paid_by': user.uid
+    }).catchError((error) {
+      print(error);
+      return false;
+    });
+
+    return true;
   }
 }

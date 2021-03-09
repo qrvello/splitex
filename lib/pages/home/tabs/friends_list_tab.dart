@@ -4,20 +4,23 @@ import 'package:repartapp/styles/elevated_button_style.dart';
 class FriendsListTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
     return Container(
       child: Column(
         children: [
-          _totalBalance(),
+          _totalBalance(screenSize),
           _buttonAddFriends(),
         ],
       ),
     );
   }
 
-  Widget _totalBalance() {
+  Widget _totalBalance(screenSize) {
     return Container(
-      constraints: BoxConstraints(minWidth: 500, maxWidth: 900),
-      height: 85,
+      margin: EdgeInsets.only(bottom: 20),
+      width: screenSize.width,
+      height: screenSize.height * 0.1,
       color: Color(0xff264653),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

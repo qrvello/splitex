@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleSignInProvider with ChangeNotifier {
   final databaseReference = FirebaseDatabase.instance.reference();
+
   final googleSignIn = GoogleSignIn();
   bool _isSigninIn;
 

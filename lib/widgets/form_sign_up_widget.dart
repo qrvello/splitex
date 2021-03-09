@@ -45,7 +45,7 @@ class _FormSignUpState extends State<FormSignUp> {
             ),
           ),
           Container(
-            width: size.width * 0.85,
+            width: (size.width > 1200) ? size.width * 0.40 : size.width * 0.85,
             margin: EdgeInsets.symmetric(vertical: 30.0),
             padding: EdgeInsets.symmetric(vertical: 50.0),
             decoration: BoxDecoration(
