@@ -118,7 +118,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           ),
         ),
         controller: _expenseAmountController,
-        onSaved: (value) => expense.amount = double.tryParse(value),
+        onSaved: (value) => expense.amount = double.tryParse(value).toDouble(),
         validator: (value) {
           if (value.isEmpty) return 'Por favor ingresa un número';
           if (_isNumeric(value) != false) {

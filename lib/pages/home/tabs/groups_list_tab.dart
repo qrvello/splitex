@@ -43,7 +43,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
 
   Stream<List<GroupModel>> getData() async* {
     var userGroupsStream = databaseReference
-        .child('users/${user.uid}/groups')
+        .child('users_groups/${user.uid}/groups')
         .orderByKey()
         .onValue;
     List<GroupModel> foundGroups = [];

@@ -20,7 +20,7 @@ class GroupsProvider {
 
     // Crea la referencia en usuarios con la key anterior
     final newChildUserGroupsRef = databaseReference
-        .child('users/${user.uid}/groups/${newChildGroupRef.key}');
+        .child('users_groups/${user.uid}/groups/${newChildGroupRef.key}');
 
     // Guarda la data en un mapa
 
@@ -70,14 +70,14 @@ class GroupsProvider {
 
     members.value.keys.forEach((key) {
       updateObj.putIfAbsent(
-          'users/$key/groups/${group.id}/name', () => group.name);
+          'users_groups/$key/groups/${group.id}/name', () => group.name);
       updateObj.putIfAbsent(
-          'users/$key/groups/${group.id}/simplify_group_debts',
+          'users_groups/$key/groups/${group.id}/simplify_group_debts',
           () => group.simplifyGroupDebts);
     });
 
     databaseReference.update(updateObj).catchError((onError) {
-      print("Error al crear nuevo grupo: $onError");
+      print("Error al actualizar el grupo: $onError");
       return false;
     });
 
@@ -88,7 +88,9 @@ class GroupsProvider {
     // Valida que el admin del grupo sea el usuario que lo elimina
     if (group.adminUser == user.uid) {
       databaseReference.child('groups/${group.id}').remove();
-      databaseReference.child('users/${user.uid}/groups/${group.id}').remove();
+      databaseReference
+          .child('users_groups/${user.uid}/groups/${group.id}')
+          .remove();
       return true;
     }
     return false;
@@ -101,7 +103,8 @@ class GroupsProvider {
     await newChildExpenseReference.set({
       'description': expense.description,
       'amount': expense.amount,
-      'paid_by': user.uid
+      'paid_by': user.uid,
+      'timestamp': ServerValue.timestamp,
     }).catchError((error) {
       print(error);
       return false;
