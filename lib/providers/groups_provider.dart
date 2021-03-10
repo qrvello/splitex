@@ -166,7 +166,7 @@ class GroupsProvider {
         .remove();
 
     final membersGroupPath =
-        databaseReference.child('groups/${group.id}/members/').path;
+        databaseReference.child('groups/${group.id}/members/${user.uid}').path;
 
     final usersGroupsPath = databaseReference
         .child('users_groups/${user.uid}/groups/${group.id}')
@@ -180,7 +180,7 @@ class GroupsProvider {
     };
 
     final Map<String, dynamic> updateObj = {
-      membersGroupPath: {user.uid: true},
+      membersGroupPath: true,
       usersGroupsPath: data,
     };
 
