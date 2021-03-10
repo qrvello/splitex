@@ -3,8 +3,29 @@ import 'package:flutter/material.dart';
 import 'package:repartapp/providers/authentication_provider.dart';
 import 'package:repartapp/providers/google_sign_in_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  String displayName = '';
+  String email = '';
+
+  @override
+  void initState() {
+    _getUserData();
+    super.initState();
+  }
+
+  _getUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    displayName = prefs.getString('displayName');
+    email = prefs.getString('email');
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -33,15 +54,13 @@ class ProfilePage extends StatelessWidget {
                           ? (NetworkImage(user.photoURL))
                           : AssetImage('assets/blank-profile.jpg'))),
                   SizedBox(height: 8),
-                  (user.displayName != null
-                      ? Text(
-                          'Nombre: ' + user.displayName,
-                          style: TextStyle(color: Colors.white),
-                        )
-                      : SizedBox.shrink()),
+                  Text(
+                    'Nombre: ' + displayName,
+                    style: TextStyle(color: Colors.white),
+                  ),
                   SizedBox(height: 8),
                   Text(
-                    'Correo electrónico: ' + user.email,
+                    'Correo electrónico: ' + email,
                     style: TextStyle(color: Colors.white),
                   ),
                   SizedBox(height: 8),

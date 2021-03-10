@@ -34,14 +34,15 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     _streamSubscription = getData(widget.group).listen((data) {
       setState(() {
         group = data;
+        if (group.expenses != null) {
+          Map map = group.expenses;
 
-        Map map = group.expenses;
+          map.forEach((key, value) {
+            var expense = Expense.fromJson(value, key);
 
-        map.forEach((key, value) {
-          var expense = Expense.fromJson(value, key);
-
-          expenses.add(expense);
-        });
+            expenses.add(expense);
+          });
+        }
       });
     });
   }
@@ -62,9 +63,8 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       var groupValue = groupSnapshot.snapshot.value;
 
       if (groupValue != null) {
-        var thisGroup = GroupModel.fromJson(groupValue);
-
-        thisGroup.id = groupSnapshot.snapshot.key;
+        var thisGroup =
+            GroupModel.fromJson(groupValue, groupSnapshot.snapshot.key);
 
         groupUpdated = thisGroup;
       }
@@ -91,7 +91,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                   onPressed: () async {
                     await showSearch(
                       context: context,
-                      delegate: UserSearchDelegate(),
+                      delegate: UserSearchDelegate(group),
                     );
 
                     //setState(() {});

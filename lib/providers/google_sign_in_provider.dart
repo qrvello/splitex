@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GoogleSignInProvider with ChangeNotifier {
   final databaseReference = FirebaseDatabase.instance.reference();
@@ -39,6 +40,12 @@ class GoogleSignInProvider with ChangeNotifier {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          'displayName', FirebaseAuth.instance.currentUser.displayName);
+      await prefs.setString('email', FirebaseAuth.instance.currentUser.email);
+      await prefs.setString('uid', FirebaseAuth.instance.currentUser.uid);
 
       DataSnapshot snapshot = await databaseReference
           .child('users/${FirebaseAuth.instance.currentUser.uid}')

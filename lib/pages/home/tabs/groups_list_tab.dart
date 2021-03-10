@@ -17,6 +17,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
   final groupProvider = GroupsProvider();
 
   final user = FirebaseAuth.instance.currentUser;
+
   final databaseReference = FirebaseDatabase.instance.reference();
 
   StreamSubscription _streamSubscription;
@@ -36,7 +37,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
 
   @override
   void dispose() {
-    _streamSubscription?.cancel();
+    _streamSubscription.cancel();
 
     super.dispose();
   }
@@ -54,8 +55,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
       Map dictionary = userGroupsSnapshot.snapshot.value;
       if (dictionary != null) {
         dictionary.forEach((id, group) {
-          var thisGroup = GroupModel.fromJson(group);
-          thisGroup.id = id;
+          var thisGroup = GroupModel.fromJson(group, id);
           foundGroups.add(thisGroup);
         });
 
@@ -191,8 +191,8 @@ class _GroupsListTabState extends State<GroupsListTab> {
     );
   }
 
-  _deleteGroup(context, group) {
-    final result = groupProvider.deleteGroup(group);
+  _deleteGroup(context, group) async {
+    final result = await groupProvider.deleteGroup(group);
 
     if (result == true) {
       Navigator.of(context).pop(true);

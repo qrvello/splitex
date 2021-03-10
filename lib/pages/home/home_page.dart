@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:repartapp/pages/home/tabs/activity_tab.dart';
 import 'package:repartapp/pages/home/tabs/friends_list_tab.dart';
 import 'package:repartapp/pages/home/tabs/groups_list_tab.dart';
 import 'package:repartapp/widgets/side_menu.dart';
@@ -40,7 +41,7 @@ class HomePage extends StatelessWidget {
           children: [
             FriendsListTab(),
             GroupsListTab(),
-            Icon(Icons.directions_bike),
+            ActivityTab(),
           ],
         ),
         drawer: SideMenu(),

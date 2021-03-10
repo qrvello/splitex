@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthenticationProvider with ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
@@ -16,12 +17,23 @@ class AuthenticationProvider with ChangeNotifier {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
+
       print("Signed in");
-      return true;
     } on FirebaseAuthException catch (e) {
       print(e.message);
       return false;
     }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final userData = await FirebaseDatabase.instance
+        .reference()
+        .child('/users/${_firebaseAuth.currentUser.uid}')
+        .once();
+
+    await prefs.setString('displayName', userData.value['name']);
+    await prefs.setString('email', email);
+    await prefs.setString('uid', _firebaseAuth.currentUser.uid);
+    return true;
   }
 
   Future<bool> signUp(String email, String password, String name) async {
@@ -37,6 +49,12 @@ class AuthenticationProvider with ChangeNotifier {
       'name': name,
       'email': email,
     });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('displayName', name);
+    await prefs.setString('email', email);
+    await prefs.setString('uid', _firebaseAuth.currentUser.uid);
 
     return true;
   }
