@@ -87,13 +87,13 @@ class _ActivityTabState extends State<ActivityTab> {
               children: [
                 IconButton(
                     icon: Icon(
-                      Icons.cancel,
+                      Icons.cancel_rounded,
                       color: Color(0xffe76f51),
                     ),
                     onPressed: () {}),
                 IconButton(
                     icon: Icon(
-                      Icons.check_circle,
+                      Icons.check_circle_rounded,
                       color: Color(0xff06d6a0),
                     ),
                     onPressed: () {

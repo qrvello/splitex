@@ -46,17 +46,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               children: <Widget>[
                 _inputCreateName(),
                 SizedBox(height: 12.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Simplificar las deudas grupales'),
-                    _switch(),
-                  ],
-                ),
-                _helpSwitch(),
-                SizedBox(
-                  height: 12,
-                ),
                 RichText(
                   text: TextSpan(
                     style: GoogleFonts.workSans(
@@ -131,18 +120,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     );
   }
 
-  Widget _switch() {
-    return Switch(
-      activeColor: Color(0xff2a9d8f),
-      value: isSwitched,
-      onChanged: (value) {
-        setState(() {
-          isSwitched = value;
-        });
-      },
-    );
-  }
-
   _submit(context) async {
     if (!formKey.currentState.validate()) return;
 
@@ -168,25 +145,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     }
   }
 
-  Widget _helpSwitch() {
-    if (isSwitched) {
-      return Padding(
-        padding: EdgeInsets.only(right: 24.0, bottom: 20),
-        child: Text(
-          'Se combinarán automáticamente las deudas de este grupo para deshacerse de pagos adicionales innecesarios.',
-          style: TextStyle(fontWeight: FontWeight.w300),
-        ),
-      );
-    }
-    return Padding(
-      padding: EdgeInsets.only(right: 24.0, bottom: 20),
-      child: Text(
-        'No  se combinarán las deudas en este grupo, incluso si hay pagos adicionales innecesarios.',
-        style: TextStyle(fontWeight: FontWeight.w300),
-      ),
-    );
-  }
-
   _success(context) {
     ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
@@ -200,9 +158,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           label: 'Ok',
           onPressed: () {
             // Back to the home page
-            Navigator.pop(context);
-
-            // Close modal
             Navigator.pop(context);
 
             return;
@@ -225,7 +180,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           label: 'Ok',
           onPressed: () {
             // Back to the home page
-            Navigator.of(context)..pop();
+            Navigator.of(context).pop();
             return;
           },
         ),

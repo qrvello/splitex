@@ -12,16 +12,12 @@ class SideMenu extends StatelessWidget {
         children: <Widget>[
           _drawer(context),
           ListTile(
-            leading: Icon(Icons.share),
+            leading: Icon(Icons.share_rounded),
             title: Text('Invitar a un amigo'),
           ),
           ListTile(
-            leading: Icon(Icons.star_rate),
-            title: Text('Puntúanos'),
-          ),
-          ListTile(
-            leading: Icon(Icons.info),
-            title: Text('Términos y privacidad'),
+            leading: Icon(Icons.star_rate_rounded),
+            title: Text('Opiná de la aplicación'),
           ),
         ],
       ),

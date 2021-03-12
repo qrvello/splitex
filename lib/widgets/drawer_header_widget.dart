@@ -39,7 +39,7 @@ class _DrawerHeaderWidgetState extends State<DrawerHeaderWidget> {
           accountEmail: Text(email),
         ),
         ListTile(
-          leading: Icon(Icons.person),
+          leading: Icon(Icons.person_rounded),
           title: Text('Mi perfil'),
           onTap: () => Navigator.of(context).pushNamed('/profile'),
         ),

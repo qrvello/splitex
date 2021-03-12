@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-String groupModelToJson(GroupModel data) => json.encode(data.toJson());
-
 class GroupModel {
   GroupModel(
       {this.id,

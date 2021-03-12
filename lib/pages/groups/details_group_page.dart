@@ -3,10 +3,15 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/pages/groups/edit_group_page.dart';
 import 'package:repartapp/pages/user_search.dart';
+import 'package:repartapp/providers/groups_provider.dart';
+import 'package:repartapp/styles/elevated_button_style.dart';
+import 'package:repartapp/widgets/dialogs/confirm_delete.dart';
 //import 'package:repartapp/styles/elevated_button_style.dart';
 
 class DetailsGroupPage extends StatefulWidget {
@@ -22,10 +27,15 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   final user = FirebaseAuth.instance.currentUser;
 
   final databaseReference = FirebaseDatabase.instance.reference();
+  final groupProvider = new GroupsProvider();
+  final _newMemberName = new TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
   GroupModel group;
+
   StreamSubscription _streamSubscription;
   List<Expense> expenses = [];
+  List<String> members = [];
 
   @override
   void initState() {
@@ -43,6 +53,14 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
             expenses.add(expense);
           });
         }
+
+        if (group.members != null) {
+          Map map = group.members;
+          print(map);
+          map.forEach((key, value) {
+            members.add(key);
+          });
+        }
       });
     });
   }
@@ -50,7 +68,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   @override
   void dispose() {
     _streamSubscription?.cancel();
-
+    _newMemberName.dispose();
     super.dispose();
   }
 
@@ -60,6 +78,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
     await for (var groupSnapshot in groupStream) {
       expenses.clear();
+      members.clear();
       var groupValue = groupSnapshot.snapshot.value;
 
       if (groupValue != null) {
@@ -78,70 +97,161 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     GroupModel group = widget.group;
 
     final size = MediaQuery.of(context).size;
+
     return Stack(
       children: [
         _background(size),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            actions: [
-              IconButton(
-                  icon: Icon(Icons.person_add),
-                  onPressed: () async {
-                    await showSearch(
+        DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            floatingActionButton: SpeedDial(
+              backgroundColor: Color(0xff006D77),
+              overlayColor: Colors.black12,
+              icon: Icons.add_rounded,
+              activeIcon: Icons.add_rounded,
+              visible: true,
+              children: [
+                SpeedDialChild(
+                  child: Icon(Icons.shopping_bag_rounded),
+                  backgroundColor: Colors.white10,
+                  labelWidget: Text(
+                    'Agregar gasto',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  onTap: () => Navigator.of(context)
+                      .pushNamed('/add_expense', arguments: group),
+                ),
+                SpeedDialChild(
+                  child: Icon(Icons.person_add_rounded),
+                  backgroundColor: Colors.white10,
+                  labelWidget: Text(
+                    'Nueva persona',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  onTap: () {
+                    showDialog(
                       context: context,
-                      delegate: UserSearchDelegate(group),
-                    );
+                      builder: (context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(18.0),
+                            ),
+                          ),
+                          content: Container(
+                            height: 65,
+                            child: Form(
+                              key: formKey,
+                              child: TextFormField(
+                                autofocus: true,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                maxLength: 20,
+                                cursorColor: Color(0xff264653),
+                                style: TextStyle(fontSize: 18),
+                                decoration: InputDecoration(
+                                  errorMaxLines: 3,
+                                  labelText: 'Nombre',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value.length < 1) {
+                                    return 'Ingrese el nombre del nuevo miembro';
+                                  } else if (value.length > 20) {
+                                    return 'Ingrese un nombre menor a 20 caracteres';
+                                  } else {
+                                    final membersMap = Map.from(group.members);
 
-                    //setState(() {});
-                  }),
-              IconButton(
-                icon: Icon(Icons.add),
-                onPressed: () => Navigator.of(context)
-                    .pushNamed('/add_expense', arguments: group),
-              ),
-              IconButton(
-                icon: Icon(Icons.settings),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditGroupPage(group: group),
-                  ),
+                                    if (membersMap.containsKey(value)) {
+                                      return 'Ya existe un miembro con ese nombre. Elegí otro nombre por favor.';
+                                    }
+                                    return null;
+                                  }
+                                },
+                                controller: _newMemberName,
+                              ),
+                            ),
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              style: elevatedButtonStyle,
+                              child: Text('Guardar'),
+                              onPressed: () {
+                                _addNewMember();
+                              },
+                            ),
+                            ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.resolveWith(
+                                  (states) =>
+                                      (states.contains(MaterialState.pressed)
+                                          ? Color(0xffFFDDD2)
+                                          : Color(0xffE29578)),
+                                ),
+                                shape: MaterialStateProperty.resolveWith(
+                                  (states) => RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                  ),
+                                ),
+                              ),
+                              child: Text('Cancelar'),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
-              ),
-            ],
+              ],
+            ),
             backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            title: Text(group.name),
-          ),
-          body: CustomScrollView(
-            slivers: <Widget>[
-              // Add the app bar to the CustomScrollView.
-              SliverAppBar(
-                leading: Container(),
-                title: Text(
-                  'Cuentas saldadas',
-                  style: TextStyle(
-                    fontSize: 14,
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.settings_rounded),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditGroupPage(group: group),
+                    ),
                   ),
                 ),
-                centerTitle: true,
-                floating: true,
+              ],
+              backgroundColor: Color(0xff006D77),
+              elevation: 0,
+              centerTitle: true,
+              title: Text(group.name),
+              bottom: TabBar(
+                isScrollable: false,
+                tabs: [
+                  Tab(
+                    child: Text(
+                      'Resumen',
+                      style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  Tab(
+                    child: Text(
+                      'Gastos',
+                      style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
               ),
-              // Next, create a SliverList
-              SliverList(
-                // Use a delegate to build items as they're scrolled on screen.
-                delegate: SliverChildBuilderDelegate(
-                  // The builder function returns a ListTile with a title that
-                  // displays the index of the current item.
-                  (context, i) => _createItem(context, expenses[i]),
-                  // Builds 1000 ListTiles
-                  childCount: expenses.length,
-                ),
-              ),
-            ],
+            ),
+            body: TabBarView(
+              children: [
+                _overview(),
+                _expensesList(),
+              ],
+            ),
           ),
         ),
       ],
@@ -154,37 +264,18 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       height: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: FractionalOffset(0.0, 0.1),
+          begin: FractionalOffset(0.0, 0.3),
           end: FractionalOffset(0.0, 1.0),
           colors: [
-            Color.fromRGBO(52, 54, 101, 1.0),
-            Color.fromRGBO(35, 37, 57, 1.0),
+            Color(0xff83C5BE),
+            Color(0xffEDF6F9),
           ],
         ),
       ),
     );
 
-    final box = Transform.rotate(
-      angle: -3.14 / 4.0,
-      child: Container(
-        height: size.width,
-        width: size.height * 0.5,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(90.0),
-            gradient:
-                LinearGradient(colors: [Color(0xff2a9d8f), Color(0xff264653)])),
-      ),
-    );
-
     return Stack(
-      children: [
-        gradient,
-        //mainAxisAlignment: MainAxisAlignment.start,
-        Positioned(
-          child: box,
-          top: -150,
-        ),
-      ],
+      children: [gradient],
     );
   }
 
@@ -207,7 +298,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Color(0xffe76f51),
+          color: Color(0xffE29578),
         ),
         alignment: AlignmentDirectional.centerEnd,
         child: Padding(
@@ -220,13 +311,14 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       ),
       direction: DismissDirection.endToStart,
       child: Card(
-        color: Color(0xf2ffffff),
         child: ListTile(
           subtitle: Text('Pagado por vos'),
           title: Text(expense.description),
           trailing: Text(
-            "\$ ${expense.amount.toString()}",
-            style: TextStyle(color: Colors.black87),
+            "\$${expense.amount.toString()}",
+            style: TextStyle(
+              fontSize: 20,
+            ),
           ),
           onTap: () => Navigator.push(
             context,
@@ -240,25 +332,142 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   }
 
   Widget _confirmDeleteDialog(context, expense) {
-    return AlertDialog(
-      title: Text('Confirmar eliminación'),
-      content: Text(
-          '¿Seguro/a deseas borrar el gasto ${expense.description}? Una vez eliminado no se podrá recuperar la información'),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: Text('Cancelar'),
+    _onPressed() {
+      groupProvider.deleteExpense(group, expense);
+      Navigator.pop(context);
+    }
+
+    return ConfirmDelete(
+      message:
+          '¿Seguro/a deseas borrar el gasto ${expense.description}? Una vez eliminado no se podrá recuperar la información',
+      title: 'Confirmar eliminación de gasto',
+      onPressed: _onPressed,
+    );
+  }
+
+  Widget _expensesList() {
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverAppBar(
+          backgroundColor: Colors.transparent,
+          automaticallyImplyLeading: false,
+          title: Text(
+            'Cuentas saldadas',
+            style: TextStyle(
+              fontSize: 14,
+            ),
+          ),
+          centerTitle: true,
+          floating: true,
         ),
-        TextButton(
-          onPressed: () {
-            // TODO borrar expensa
-          },
-          child: Text(
-            'Confirmar',
-            style: TextStyle(color: Color(0xffe76f51)),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, i) => _createItem(context, expenses[i]),
+            childCount: expenses.length,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _overview() {
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverAppBar(
+          backgroundColor: Colors.transparent,
+          floating: true,
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                style: elevatedButtonStyle,
+                child: Text('Invitar a miembros'),
+                onPressed: () async {
+                  await showSearch(
+                    context: context,
+                    delegate: UserSearchDelegate(group),
+                  );
+                },
+              ),
+              ElevatedButton(
+                style: elevatedButtonStyle,
+                child: Text('Balancear cuentas'),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, i) => _listMembers(context, members[i]),
+            childCount: members.length,
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _addNewMember() {
+    if (!formKey.currentState.validate()) return;
+
+    formKey.currentState.save();
+
+    groupProvider.addPersonToGroup(_newMemberName.text.trim(), group);
+    _newMemberName.text = '';
+    setState(() {});
+  }
+
+  Widget _listMembers(BuildContext context, member) {
+    return Dismissible(
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: (_) {
+            // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
+            return;
+          },
+        );
+      },
+      onDismissed: (_) {
+        setState(() {});
+      },
+      key: UniqueKey(),
+      background: Container(
+        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Color(0xffE29578),
+        ),
+        alignment: AlignmentDirectional.centerEnd,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      direction: DismissDirection.endToStart,
+      child: Card(
+        child: ListTile(
+          title: Text(member),
+          //trailing: Text(
+          //  "\$${expense.amount.toString()}",
+          //  style: TextStyle(
+          //    fontSize: 20,
+          //  ),
+          //),
+          trailing: Text('\$0'),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailsGroupPage(group: group),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

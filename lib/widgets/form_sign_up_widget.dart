@@ -138,7 +138,7 @@ class _FormSignUpState extends State<FormSignUp> {
       child: TextFormField(
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
-          icon: Icon(Icons.alternate_email, color: Color(0xff2a9d8f)),
+          icon: Icon(Icons.alternate_email_rounded, color: Color(0xff2a9d8f)),
           labelStyle: TextStyle(color: Color(0xff264653)),
           hintText: 'ejemplo@correo.com',
           labelText: 'Correo electrónico',
@@ -158,13 +158,15 @@ class _FormSignUpState extends State<FormSignUp> {
         decoration: InputDecoration(
           suffixIcon: IconButton(
             icon: Icon(
-              _obscureText ? Icons.visibility_off : Icons.visibility,
+              _obscureText
+                  ? Icons.visibility_off_rounded
+                  : Icons.visibility_rounded,
             ),
             onPressed: () {
               _toggle();
             },
           ),
-          icon: Icon(Icons.lock_outline, color: Color(0xff2a9d8f)),
+          icon: Icon(Icons.lock_outline_rounded, color: Color(0xff2a9d8f)),
           labelText: 'Contraseña',
         ),
         validator: (value) {
@@ -231,7 +233,7 @@ class _FormSignUpState extends State<FormSignUp> {
       child: TextFormField(
         keyboardType: TextInputType.name,
         decoration: InputDecoration(
-          icon: Icon(Icons.person, color: Color(0xff2a9d8f)),
+          icon: Icon(Icons.person_rounded, color: Color(0xff2a9d8f)),
           labelStyle: TextStyle(color: Color(0xff264653)),
           labelText: 'Nombre',
         ),

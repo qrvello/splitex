@@ -81,7 +81,7 @@ class UserSearchDelegate extends SearchDelegate<User> {
           title: Text(user.email),
           subtitle: Text(user.name),
           trailing: IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add_rounded),
             onPressed: () async {
               bool resp = await groupProvider.addMemberToGroup(user, group);
               if (resp == false) {

@@ -99,7 +99,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
         margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Color(0xffe76f51),
+          color: Color(0xffE29578),
         ),
         alignment: AlignmentDirectional.centerEnd,
         child: Padding(
@@ -114,10 +114,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
       child: Container(
         child: ListTile(
           title: Text(group.name),
-          trailing: Text(
-            'No debés nada',
-            style: TextStyle(color: Colors.black38),
-          ),
+          trailing: Icon(Icons.drag_handle_rounded),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(

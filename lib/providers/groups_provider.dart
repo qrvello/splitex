@@ -34,7 +34,16 @@ class GroupsProvider {
 
     final data = Map.from(dataUser);
 
-    data.putIfAbsent('members', () => {user.uid: true});
+    final prefs = await SharedPreferences.getInstance();
+
+    final name = prefs.getString('displayName');
+
+    data.putIfAbsent(
+      'members',
+      () => {
+        name: {"balance": 0}
+      },
+    );
 
     // Crea un mapa para usar multiple paths al insertar datos
     final Map<String, dynamic> mapRefs = {
@@ -125,6 +134,17 @@ class GroupsProvider {
     return true;
   }
 
+  Future<bool> deleteExpense(GroupModel group, Expense expense) async {
+    await databaseReference
+        .child('groups/${group.id}/expenses/${expense.id}')
+        .remove()
+        .catchError((onError) {
+      print('Error al borrar expensa $onError');
+      return false;
+    });
+    return true;
+  }
+
   Future<bool> addMemberToGroup(User userToInvite, GroupModel group) async {
     final snapshotMembers =
         await databaseReference.child('groups/${group.id}/members').once();
@@ -160,7 +180,7 @@ class GroupsProvider {
     return true;
   }
 
-  acceptInvitationGroup(GroupModel group) async {
+  Future<bool> acceptInvitationGroup(GroupModel group) async {
     databaseReference
         .child('users_requests/${user.uid}/groups/${group.id}/')
         .remove();
@@ -190,5 +210,14 @@ class GroupsProvider {
     });
 
     return true;
+  }
+
+  addPersonToGroup(String name, GroupModel group) {
+    final newChildMember =
+        databaseReference.child('/groups/${group.id}/members/$name');
+
+    newChildMember.update({
+      "balance": 0,
+    });
   }
 }

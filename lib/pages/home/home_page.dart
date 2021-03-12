@@ -1,86 +1,50 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:repartapp/pages/home/tabs/activity_tab.dart';
-import 'package:repartapp/pages/home/tabs/friends_list_tab.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:repartapp/pages/home/tabs/groups_list_tab.dart';
 import 'package:repartapp/widgets/side_menu.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          bottom: TabBar(
-            isScrollable: false,
-            tabs: [
-              Tab(
-                child: Text(
-                  'Amigos',
-                  style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  'Grupos',
-                  style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
-                ),
-              ),
-              Tab(
-                child: Text(
-                  'Actividad',
-                  style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            FriendsListTab(),
-            GroupsListTab(),
-            ActivityTab(),
-          ],
-        ),
-        drawer: SideMenu(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => showDialog(
-            context: context,
-            builder: (BuildContext context) => _dialog(context),
-          ),
-          child: Icon(Icons.add),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Grupos'),
+        centerTitle: true,
       ),
-    );
-  }
-
-  Widget _dialog(context) {
-    return AlertDialog(
-      actions: <Widget>[
-        TextButton(
-          child: Text("Crear grupo"),
-          onPressed: () {
-            Navigator.of(context).pushNamed('/create_group');
-          },
-        ),
-        TextButton(
-          child: Text("Añadir gasto"),
-          onPressed: () {
-            Navigator.of(context).pushNamed('/create_group');
-          },
-        ),
-        TextButton(
-          child: Text(
-            "Cancelar",
-            style: TextStyle(color: Colors.red),
+      body: GroupsListTab(),
+      drawer: SideMenu(),
+      floatingActionButton: SpeedDial(
+        backgroundColor: Color(0xff006D77),
+        overlayColor: Colors.black12,
+        icon: Icons.add_rounded,
+        activeIcon: Icons.add_rounded,
+        visible: true,
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.group_rounded),
+            backgroundColor: Colors.white10,
+            labelWidget: Text(
+              'Crear grupo',
+              style: TextStyle(fontSize: 18),
+            ),
+            onTap: () => Navigator.pushNamed(context, '/create_group'),
           ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ],
+          SpeedDialChild(
+            child: Icon(Icons.keyboard_arrow_right_rounded),
+            backgroundColor: Colors.white10,
+            labelWidget: Text(
+              'Unirse a un grupo',
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

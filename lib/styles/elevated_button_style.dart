@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 final elevatedButtonStyle = ButtonStyle(
   backgroundColor: MaterialStateProperty.resolveWith(
     (states) => (states.contains(MaterialState.pressed)
-        ? Color(0xff2a9d8f)
-        : Color(0xaa2a9d8f)),
+        ? Color(0xff83C5BE)
+        : Color(0xff006D77)),
   ),
   shape: MaterialStateProperty.resolveWith(
     (states) => RoundedRectangleBorder(

@@ -54,17 +54,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
               children: <Widget>[
                 _inputEditName(group),
                 SizedBox(height: 12.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Simplificar las deudas grupales'),
-                    _switch(),
-                  ],
-                ),
-                _helpSwitch(),
-                SizedBox(
-                  height: 12,
-                ),
                 _button(context, group),
               ],
             ),
@@ -123,18 +112,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
     );
   }
 
-  Widget _switch() {
-    return Switch(
-      activeColor: Color(0xff2a9d8f),
-      value: isSwitched,
-      onChanged: (value) {
-        setState(() {
-          isSwitched = value;
-        });
-      },
-    );
-  }
-
   _submit(context, group) async {
     if (!formKey.currentState.validate()) return;
 
@@ -158,25 +135,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
     } else {
       return _error(context);
     }
-  }
-
-  Widget _helpSwitch() {
-    if (isSwitched) {
-      return Padding(
-        padding: EdgeInsets.only(right: 24.0, bottom: 20),
-        child: Text(
-          'Se combinarán automáticamente las deudas de este grupo para deshacerse de pagos adicionales innecesarios.',
-          style: TextStyle(fontWeight: FontWeight.w300),
-        ),
-      );
-    }
-    return Padding(
-      padding: EdgeInsets.only(right: 24.0, bottom: 20),
-      child: Text(
-        'No  se combinarán las deudas en este grupo, incluso si hay pagos adicionales innecesarios.',
-        style: TextStyle(fontWeight: FontWeight.w300),
-      ),
-    );
   }
 
   _success(context) {

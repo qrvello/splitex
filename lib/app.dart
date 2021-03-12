@@ -27,11 +27,24 @@ class MyApp extends StatelessWidget {
           title: 'DivideGastos',
           initialRoute: '/home',
           theme: ThemeData(
+            brightness: Brightness.light,
             textTheme: GoogleFonts.workSansTextTheme(),
-            primaryColor: Color(0xff2a9d8f),
+            primaryColor: Color(0xff83C5BE),
+            accentColor: Color(0xff83C5BE),
             floatingActionButtonTheme: FloatingActionButtonThemeData(
-                backgroundColor: Color(0xff2a9d8f)),
+              backgroundColor: Color(0xff83C5BE),
+            ),
           ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            textTheme: GoogleFonts.workSansTextTheme(TextTheme().apply(
+              bodyColor: Colors.white,
+              displayColor: Colors.white,
+            )),
+            primaryColor: Color(0xff006D77),
+            accentColor: Color(0xff83C5BE),
+          ),
+          themeMode: ThemeMode.dark,
           routes: routes
           //darkTheme: ThemeData.dark(),
           ),
