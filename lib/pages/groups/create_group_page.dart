@@ -49,13 +49,13 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 RichText(
                   text: TextSpan(
                     style: GoogleFonts.workSans(
-                        textStyle: TextStyle(color: Colors.black54)),
+                        textStyle: TextStyle(color: Colors.white70)),
                     text: 'Nota: ',
                     children: <TextSpan>[
                       TextSpan(
                           text:
                               'se podrán agregar miembros después de crear el grupo.',
-                          style: TextStyle(color: Colors.black87)),
+                          style: TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -129,8 +129,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       _guardando = true;
     });
 
-    group.simplifyGroupDebts = isSwitched;
-
     final resp = await groupProvider.createGroup(group);
 
     setState(() {
@@ -152,6 +150,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         backgroundColor: Color(0xff2a9d8f),
         content: Text(
           'Grupo creado satisfactoriamente',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,

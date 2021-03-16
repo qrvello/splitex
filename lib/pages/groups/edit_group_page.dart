@@ -27,7 +27,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
   @override
   void initState() {
     super.initState();
-    isSwitched = widget.group.simplifyGroupDebts;
     _groupNameController = TextEditingController(text: widget.group.name);
   }
 

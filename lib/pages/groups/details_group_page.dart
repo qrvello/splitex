@@ -7,17 +7,18 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
+import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/pages/groups/edit_group_page.dart';
 import 'package:repartapp/pages/user_search.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 import 'package:repartapp/styles/elevated_button_style.dart';
 import 'package:repartapp/widgets/dialogs/confirm_delete.dart';
-//import 'package:repartapp/styles/elevated_button_style.dart';
 
 class DetailsGroupPage extends StatefulWidget {
+  final List<Member> members;
   final GroupModel group;
 
-  DetailsGroupPage({@required this.group});
+  DetailsGroupPage({@required this.group, this.members});
 
   @override
   _DetailsGroupPageState createState() => _DetailsGroupPageState();
@@ -34,8 +35,10 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   GroupModel group;
 
   StreamSubscription _streamSubscription;
+
   List<Expense> expenses = [];
-  List<String> members = [];
+
+  List<Member> members = [];
 
   @override
   void initState() {
@@ -44,44 +47,47 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     _streamSubscription = getData(widget.group).listen((data) {
       setState(() {
         group = data;
-        if (group.expenses != null) {
-          Map map = group.expenses;
 
-          map.forEach((key, value) {
-            var expense = Expense.fromJson(value, key);
+        if (group.expenses != null) {
+          group.expenses.forEach((key, value) {
+            Expense expense = Expense.fromJson(value, key);
 
             expenses.add(expense);
           });
         }
 
         if (group.members != null) {
-          Map map = group.members;
-          print(map);
-          map.forEach((key, value) {
-            members.add(key);
+          group.members.forEach((key, value) {
+            Member member = Member.fromJson(value, key);
+            members.add(member);
           });
         }
       });
     });
+
+    FirebaseDatabase().setPersistenceEnabled(true);
+    FirebaseDatabase().setPersistenceCacheSizeBytes(10000000);
   }
 
   @override
   void dispose() {
     _streamSubscription?.cancel();
     _newMemberName.dispose();
+
     super.dispose();
   }
 
   Stream<GroupModel> getData(GroupModel group) async* {
     GroupModel groupUpdated;
+
     var groupStream = databaseReference.child('groups/${group.id}').onValue;
 
     await for (var groupSnapshot in groupStream) {
-      expenses.clear();
-      members.clear();
       var groupValue = groupSnapshot.snapshot.value;
 
       if (groupValue != null) {
+        expenses.clear();
+        members.clear();
         var thisGroup =
             GroupModel.fromJson(groupValue, groupSnapshot.snapshot.key);
 
@@ -112,15 +118,17 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
               visible: true,
               children: [
                 SpeedDialChild(
-                  child: Icon(Icons.shopping_bag_rounded),
-                  backgroundColor: Colors.white10,
-                  labelWidget: Text(
-                    'Agregar gasto',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  onTap: () => Navigator.of(context)
-                      .pushNamed('/add_expense', arguments: group),
-                ),
+                    child: Icon(Icons.shopping_bag_rounded),
+                    backgroundColor: Colors.white10,
+                    labelWidget: Text(
+                      'Agregar gasto',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    onTap: () => Navigator.of(context).pushNamed(
+                          '/add_expense',
+                          arguments:
+                              DetailsGroupPage(group: group, members: members),
+                        )),
                 SpeedDialChild(
                   child: Icon(Icons.person_add_rounded),
                   backgroundColor: Colors.white10,
@@ -162,9 +170,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                                   } else if (value.length > 20) {
                                     return 'Ingrese un nombre menor a 20 caracteres';
                                   } else {
-                                    final membersMap = Map.from(group.members);
-
-                                    if (membersMap.containsKey(value)) {
+                                    if (members.asMap().containsKey(value)) {
                                       return 'Ya existe un miembro con ese nombre. Elegí otro nombre por favor.';
                                     }
                                     return null;
@@ -219,7 +225,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EditGroupPage(group: group),
+                      builder: (context) => EditGroupPage(group: widget.group),
                     ),
                   ),
                 ),
@@ -227,7 +233,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
               backgroundColor: Color(0xff006D77),
               elevation: 0,
               centerTitle: true,
-              title: Text(group.name),
+              title: Text(widget.group.name),
               bottom: TabBar(
                 isScrollable: false,
                 tabs: [
@@ -323,7 +329,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => DetailsGroupPage(group: group),
+              builder: (context) => DetailsGroupPage(group: widget.group),
             ),
           ),
         ),
@@ -379,7 +385,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
                 style: elevatedButtonStyle,
@@ -416,10 +422,11 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
     groupProvider.addPersonToGroup(_newMemberName.text.trim(), group);
     _newMemberName.text = '';
+    Navigator.pop(context);
     setState(() {});
   }
 
-  Widget _listMembers(BuildContext context, member) {
+  Widget _listMembers(BuildContext context, Member member) {
     return Dismissible(
       confirmDismiss: (direction) {
         return showDialog(
@@ -452,14 +459,14 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       direction: DismissDirection.endToStart,
       child: Card(
         child: ListTile(
-          title: Text(member),
+          title: Text(member.id),
           //trailing: Text(
           //  "\$${expense.amount.toString()}",
           //  style: TextStyle(
           //    fontSize: 20,
           //  ),
           //),
-          trailing: Text('\$0'),
+          trailing: Text('\$${member.balance}'),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(

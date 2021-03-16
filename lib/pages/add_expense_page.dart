@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
+import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 import 'package:repartapp/styles/elevated_button_style.dart';
+
+import 'groups/details_group_page.dart';
 
 class AddExpensePage extends StatefulWidget {
   @override
@@ -11,13 +14,17 @@ class AddExpensePage extends StatefulWidget {
 
 class _AddExpensePageState extends State<AddExpensePage> {
   final groupProvider = new GroupsProvider();
+
   final _expenseNameController = new TextEditingController();
   final _expenseAmountController = new TextEditingController();
+
   final formKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
   Expense expense = new Expense();
   bool _guardando = false;
   bool error = false;
+  String dropdownValue = '';
 
   @override
   void dispose() {
@@ -28,6 +35,28 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   Widget build(BuildContext context) {
+    final DetailsGroupPage args = ModalRoute.of(context).settings.arguments;
+
+    final List<Member> members = args.members;
+
+    List<DropdownMenuItem<String>> items = [
+      DropdownMenuItem(
+        value: '',
+        child: Text('Selecciona un miembro'),
+      ),
+    ];
+
+    // Crea los items para el dropdown con los miembros.
+
+    for (Member member in members) {
+      items.add(
+        DropdownMenuItem(
+          value: member.id,
+          child: Text(member.id),
+        ),
+      );
+    }
+
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
@@ -45,8 +74,44 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 SizedBox(height: 10),
                 _inputAmount(),
                 SizedBox(height: 12),
-                Text('Pagado por vos y dividido igualmente.'),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text('Pagado por'),
+                      Container(
+                        margin: EdgeInsets.only(top: 20),
+                        padding: EdgeInsets.only(top: 5),
+                        width: MediaQuery.of(context).size.width * 0.45,
+                        height: 80,
+                        child: DropdownButtonFormField<String>(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          isExpanded: true,
+                          value: dropdownValue,
+                          style: TextStyle(color: Color(0xffEDF6F9)),
+                          onChanged: (newValue) {
+                            setState(() {
+                              dropdownValue = newValue;
+                            });
+                          },
+                          onSaved: (value) => expense.paidBy = value,
+                          items: items,
+                          validator: (value) {
+                            if (value == '') {
+                              return 'Seleccione un miembro';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 SizedBox(height: 10),
+                Container(
+                  child: Text('Dividido de forma igualitaria'),
+                ),
+                SizedBox(height: 16),
                 _button(context),
               ],
             ),
@@ -77,57 +142,54 @@ class _AddExpensePageState extends State<AddExpensePage> {
   }
 
   Widget _inputDescription() {
-    return Container(
-      height: 65,
-      child: TextFormField(
-        maxLength: 25,
-        cursorColor: Color(0xff264653),
-        style: TextStyle(fontSize: 18),
-        decoration: InputDecoration(
-          helperText: 'Ejemplo: almuerzo',
-          labelText: 'Descripción del gasto',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25.0),
-          ),
+    return TextFormField(
+      autofocus: true,
+      maxLength: 25,
+      cursorColor: Color(0xff264653),
+      style: TextStyle(fontSize: 19),
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 14),
+        helperText: 'Ejemplo: almuerzo',
+        labelText: 'Descripción del gasto',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
         ),
-        onSaved: (value) => expense.description = value,
-        controller: _expenseNameController,
-        validator: (value) {
-          if (value.isEmpty) return 'Por favor ingresá una descripción';
-          return null;
-        },
       ),
+      onSaved: (value) => expense.description = value,
+      controller: _expenseNameController,
+      validator: (value) {
+        if (value.isEmpty) return 'Por favor ingresá una descripción';
+        return null;
+      },
     );
   }
 
-  _inputAmount() {
-    return Container(
-      width: 250,
-      height: 60,
-      child: TextFormField(
-        maxLength: 10,
-        keyboardType: TextInputType.number,
-        textAlign: TextAlign.start,
-        cursorColor: Color(0xff264653),
-        style: TextStyle(fontSize: 18),
-        decoration: InputDecoration(
-          prefixIcon: Icon(Icons.attach_money),
-          labelText: 'Cantidad',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25.0),
-          ),
+  Widget _inputAmount() {
+    return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      keyboardType: TextInputType.number,
+      textAlign: TextAlign.start,
+      cursorColor: Color(0xff264653),
+      style: TextStyle(fontSize: 19),
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.symmetric(vertical: 0),
+        fillColor: Colors.white,
+        prefixIcon: Icon(Icons.attach_money),
+        labelText: 'Cantidad',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25.0),
         ),
-        controller: _expenseAmountController,
-        onSaved: (value) => expense.amount = double.tryParse(value).toDouble(),
-        validator: (value) {
-          if (value.isEmpty) return 'Por favor ingresa un número';
-          if (_isNumeric(value) != false) {
-            return null;
-          } else {
-            return 'Por favor ingresa solo números.';
-          }
-        },
       ),
+      controller: _expenseAmountController,
+      onSaved: (value) => expense.amount = double.tryParse(value).toDouble(),
+      validator: (value) {
+        if (value.isEmpty) return 'Por favor ingresa un número';
+        if (_isNumeric(value) != false) {
+          return null;
+        } else {
+          return 'Por favor ingresa solo números.';
+        }
+      },
     );
   }
 
@@ -135,17 +197,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
     if (!formKey.currentState.validate()) return;
 
     formKey.currentState.save();
-    final GroupModel group = ModalRoute.of(context).settings.arguments;
 
-    setState(() {
-      _guardando = true;
-    });
+    final DetailsGroupPage args = ModalRoute.of(context).settings.arguments;
+
+    GroupModel group = args.group;
+
+    group.members = args.members.asMap();
 
     final resp = await groupProvider.addExpense(group, expense);
-
-    setState(() {
-      _guardando = false;
-    });
 
     if (resp != false) {
       error = false;

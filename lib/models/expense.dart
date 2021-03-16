@@ -4,9 +4,10 @@
 
 import 'dart:convert';
 
-//Expense expenseFromJson(String str) => Expense.fromJson(json.decode(str));
+Expense expenseFromJson(String str, key) =>
+    Expense.fromJson(json.decode(str), key);
 
-String expenseToJson(Expense data) => json.encode(data.toJson());
+//String expenseToJson(Expense data) => json.encode(data.toJson());
 
 class Expense {
   Expense({
@@ -27,8 +28,7 @@ class Expense {
         paidBy: json["paid_by"],
       );
 
-  Map<String, dynamic> toJson() => {
-        "id": id,
+  Map<String, dynamic> toMap() => {
         "description": description,
         "amount": amount,
         "paid_by": paidBy,

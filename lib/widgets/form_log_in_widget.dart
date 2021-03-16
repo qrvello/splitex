@@ -49,7 +49,7 @@ class _FormLogInState extends State<FormLogIn> {
               borderRadius: BorderRadius.circular(18.0),
               boxShadow: <BoxShadow>[
                 BoxShadow(
-                  color: Colors.black26,
+                  color: Colors.white60,
                   blurRadius: 0.5,
                   offset: Offset(0.0, 1.0),
                   spreadRadius: 1.0,
@@ -70,7 +70,7 @@ class _FormLogInState extends State<FormLogIn> {
                     : SizedBox.shrink(),
                 Text(
                   'Iniciá sesión',
-                  style: TextStyle(fontSize: 20.0),
+                  style: TextStyle(fontSize: 20.0, color: Colors.black),
                 ),
                 Form(
                   key: _formKey,
@@ -99,7 +99,7 @@ class _FormLogInState extends State<FormLogIn> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 17,
                   letterSpacing: 1,
                 ),
@@ -114,7 +114,7 @@ class _FormLogInState extends State<FormLogIn> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 17,
                 letterSpacing: 1,
               ),
@@ -131,10 +131,16 @@ class _FormLogInState extends State<FormLogIn> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
+        style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
-          icon: Icon(Icons.alternate_email_rounded, color: Color(0xff2a9d8f)),
-          labelStyle: TextStyle(color: Color(0xff264653)),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0xff006D77)),
+          ),
+          icon: Icon(Icons.alternate_email_rounded, color: Color(0xff006D77)),
+          labelStyle: TextStyle(
+            color: Color(0xff006D77),
+          ),
           hintText: 'ejemplo@correo.com',
           labelText: 'Correo electrónico',
         ),
@@ -149,20 +155,27 @@ class _FormLogInState extends State<FormLogIn> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
+        keyboardType: TextInputType.text,
+        style: TextStyle(color: Colors.black),
         obscureText: _obscureText,
         decoration: InputDecoration(
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0xff006D77)),
+          ),
+          fillColor: Colors.black,
+          focusColor: Colors.black,
           suffixIcon: IconButton(
             icon: Icon(
               _obscureText
                   ? Icons.visibility_off_rounded
                   : Icons.visibility_rounded,
             ),
-            onPressed: () {
-              _toggle();
-            },
+            color: Color(0xff006D77),
+            onPressed: _toggle,
           ),
-          icon: Icon(Icons.lock_outline_rounded, color: Color(0xff2a9d8f)),
+          icon: Icon(Icons.lock_outline_rounded, color: Color(0xff006D77)),
           labelText: 'Contraseña',
+          labelStyle: TextStyle(color: Color(0xff006D77)),
         ),
         validator: (value) {
           if (value.isEmpty) {

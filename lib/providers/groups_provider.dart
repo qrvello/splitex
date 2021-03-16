@@ -3,6 +3,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,7 +28,6 @@ class GroupsProvider {
 
     final Map<String, dynamic> dataUser = {
       'name': group.name,
-      'simplify_group_debts': group.simplifyGroupDebts,
       'admin_user': group.adminUser,
       'timestamp': ServerValue.timestamp,
     };
@@ -68,7 +68,6 @@ class GroupsProvider {
     // Crea un mapa para usar multiple paths al insertar datos
     updateObj = {
       "${groupRef.path}/name": group.name,
-      "${groupRef.path}/simplify_group_debts": group.simplifyGroupDebts,
     };
     final members =
         await databaseReference.child('groups/${group.id}/members').once();
@@ -76,9 +75,6 @@ class GroupsProvider {
     members.value.keys.forEach((key) {
       updateObj.putIfAbsent(
           'users_groups/$key/groups/${group.id}/name', () => group.name);
-      updateObj.putIfAbsent(
-          'users_groups/$key/groups/${group.id}/simplify_group_debts',
-          () => group.simplifyGroupDebts);
     });
 
     databaseReference.update(updateObj).catchError((onError) {
@@ -118,15 +114,40 @@ class GroupsProvider {
   }
 
   Future<bool> addExpense(GroupModel group, Expense expense) async {
-    final newChildExpenseReference =
-        databaseReference.child('groups/${group.id}/expenses/').push();
+    final DatabaseReference newChildExpenseReference =
+        databaseReference.child('groups/${group.id}/expenses').push();
 
-    await newChildExpenseReference.set({
-      'description': expense.description,
-      'amount': expense.amount,
-      'paid_by': user.uid,
-      'timestamp': ServerValue.timestamp,
-    }).catchError((error) {
+    final DatabaseReference groupReference =
+        databaseReference.child('groups/${group.id}');
+
+    final List<Member> members = group.members.values.toList();
+
+    final int countMembers = members.length;
+
+    Map<String, dynamic> updateObj = {
+      '${newChildExpenseReference.path}': expense.toMap(),
+    };
+
+    members.forEach((member) {
+      double updatedBalance = 0;
+
+      // Si el id del miembro es igual a el que pagó la expensa entonces suma el balance que
+      // ya tiene en vez de restar
+
+      if (member.id == expense.paidBy) {
+        updatedBalance =
+            member.balance + (expense.amount - expense.amount / countMembers);
+      } else {
+        updatedBalance = member.balance - expense.amount / countMembers;
+      }
+
+      updateObj.putIfAbsent(
+        '${groupReference.path}/members/${member.id}/',
+        () => {"balance": updatedBalance},
+      );
+    });
+
+    await databaseReference.update(updateObj).catchError((error) {
       print(error);
       return false;
     });
@@ -194,7 +215,6 @@ class GroupsProvider {
 
     final Map<String, dynamic> data = {
       'name': group.name,
-      'simplify_group_debts': group.simplifyGroupDebts,
       'admin_user': group.adminUser,
       'timestamp': group.timestamp,
     };

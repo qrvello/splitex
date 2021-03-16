@@ -33,6 +33,9 @@ class _GroupsListTabState extends State<GroupsListTab> {
         groups = data;
       });
     });
+
+    FirebaseDatabase().setPersistenceEnabled(true);
+    FirebaseDatabase().setPersistenceCacheSizeBytes(10000000);
   }
 
   @override

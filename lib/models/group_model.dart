@@ -2,7 +2,6 @@ class GroupModel {
   GroupModel(
       {this.id,
       this.name,
-      this.simplifyGroupDebts,
       this.adminUser,
       this.timestamp,
       this.invitedBy,
@@ -14,15 +13,13 @@ class GroupModel {
   String name;
   String invitedBy;
   int timestamp;
-  bool simplifyGroupDebts;
-  Object members;
-  Object expenses;
+  Map members;
+  Map expenses;
 
   factory GroupModel.fromJson(Map<dynamic, dynamic> json, key) => GroupModel(
         id: key,
         name: json["name"],
         adminUser: json["admin_user"],
-        simplifyGroupDebts: json["simplify_group_debts"],
         timestamp: json["timestamp"],
         members: json["members"],
         expenses: json["expenses"],
@@ -31,7 +28,6 @@ class GroupModel {
 
   Map<dynamic, dynamic> toJson() => {
         "name": name,
-        "simplify_group_debts": simplifyGroupDebts,
         "admin_user": adminUser,
         "timestamp": timestamp,
         "members": members,
