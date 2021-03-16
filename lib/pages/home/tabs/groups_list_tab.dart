@@ -159,6 +159,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
         backgroundColor: Color(0xff2a9d8f),
         content: Text(
           'Grupo eliminado satisfactoriamente',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,
@@ -177,7 +178,11 @@ class _GroupsListTabState extends State<GroupsListTab> {
         behavior: SnackBarBehavior.floating,
         backgroundColor: Color(0xffe63946),
         content: Text(
-            'Error al eliminar el grupo debido a que no sos administrador/a del mismo'),
+          'Error al eliminar el grupo debido a que no sos administrador/a del mismo',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
         action: SnackBarAction(
           textColor: Colors.white,
           label: 'Ok',

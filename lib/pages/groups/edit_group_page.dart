@@ -143,6 +143,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
         backgroundColor: Color(0xff2a9d8f),
         content: Text(
           'Grupo editado satisfactoriamente',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,
@@ -165,6 +166,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
         backgroundColor: Color(0xffe63946),
         content: Text(
           'Error al crear grupo',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,

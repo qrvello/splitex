@@ -80,7 +80,8 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   Stream<GroupModel> getData(GroupModel group) async* {
     GroupModel groupUpdated;
 
-    var groupStream = databaseReference.child('groups/${group.id}').onValue;
+    var groupStream =
+        databaseReference.child('groups/${group.id}').orderByKey().onValue;
 
     await for (var groupSnapshot in groupStream) {
       var groupValue = groupSnapshot.snapshot.value;

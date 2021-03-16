@@ -53,7 +53,7 @@ class _FormSignUpState extends State<FormSignUp> {
               borderRadius: BorderRadius.circular(18.0),
               boxShadow: <BoxShadow>[
                 BoxShadow(
-                  color: Colors.black26,
+                  color: Colors.white60,
                   blurRadius: 0.5,
                   offset: Offset(0.0, 1.0),
                   spreadRadius: 1.0,
@@ -74,7 +74,10 @@ class _FormSignUpState extends State<FormSignUp> {
                     : SizedBox.shrink(),
                 Text(
                   'Registrate',
-                  style: TextStyle(fontSize: 20.0),
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.black,
+                  ),
                 ),
                 Form(
                   key: _formKey,
@@ -105,7 +108,7 @@ class _FormSignUpState extends State<FormSignUp> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 17,
                   letterSpacing: 1,
                 ),
@@ -119,7 +122,7 @@ class _FormSignUpState extends State<FormSignUp> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: Colors.black,
+                color: Colors.white,
                 fontSize: 17,
                 letterSpacing: 1,
               ),
@@ -136,10 +139,19 @@ class _FormSignUpState extends State<FormSignUp> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
+        style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
-          icon: Icon(Icons.alternate_email_rounded, color: Color(0xff2a9d8f)),
-          labelStyle: TextStyle(color: Color(0xff264653)),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0xff83C5BE)),
+          ),
+          icon: Icon(
+            Icons.alternate_email_rounded,
+            color: Color(0xff006D77),
+          ),
+          labelStyle: TextStyle(
+            color: Color(0xff006D77),
+          ),
           hintText: 'ejemplo@correo.com',
           labelText: 'Correo electrónico',
         ),
@@ -154,19 +166,30 @@ class _FormSignUpState extends State<FormSignUp> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
+        style: TextStyle(color: Colors.black),
         obscureText: _obscureText,
         decoration: InputDecoration(
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0xff83C5BE)),
+          ),
           suffixIcon: IconButton(
             icon: Icon(
               _obscureText
                   ? Icons.visibility_off_rounded
                   : Icons.visibility_rounded,
             ),
+            color: Color(0xff006D77),
             onPressed: () {
               _toggle();
             },
           ),
-          icon: Icon(Icons.lock_outline_rounded, color: Color(0xff2a9d8f)),
+          labelStyle: TextStyle(
+            color: Color(0xff006D77),
+          ),
+          icon: Icon(
+            Icons.lock_outline_rounded,
+            color: Color(0xff006D77),
+          ),
           labelText: 'Contraseña',
         ),
         validator: (value) {
@@ -190,15 +213,17 @@ class _FormSignUpState extends State<FormSignUp> {
       child: OutlinedButton(
         onPressed: () {
           if (_formKey.currentState.validate()) {
-            _submit();
-
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: Color(0xff264653),
                 behavior: SnackBarBehavior.floating,
-                content: Text('Registrandose...'),
+                content: Text(
+                  'Registrandose...',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             );
+            _submit();
           }
         },
         child: Text(
@@ -224,17 +249,25 @@ class _FormSignUpState extends State<FormSignUp> {
       setState(() {});
       return;
     }
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
     Navigator.of(context).pushNamed('/home');
   }
 
-  _nameInput() {
+  Widget _nameInput() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
+        style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.name,
         decoration: InputDecoration(
-          icon: Icon(Icons.person_rounded, color: Color(0xff2a9d8f)),
-          labelStyle: TextStyle(color: Color(0xff264653)),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0xff83C5BE)),
+          ),
+          icon: Icon(
+            Icons.person_rounded,
+            color: Color(0xff006D77),
+          ),
+          labelStyle: TextStyle(color: Color(0xff006D77)),
           labelText: 'Nombre',
         ),
         validator: (value) => (value.isEmpty) ? 'Ingrese un nombre' : null,

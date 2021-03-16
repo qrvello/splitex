@@ -47,21 +47,24 @@ class UserSearchDelegate extends SearchDelegate<User> {
       );
     }
 
-    // query!
     return FutureBuilder(
       future: searchUsersProvider.getUserByEmail(query),
-      builder: (_, AsyncSnapshot snapshot) {
-        if (snapshot.hasError) {
-          return ListTile(title: Text('No hay nada con ese término'));
-        }
-
+      builder: (_, snapshot) {
         if (snapshot.hasData && snapshot.data != []) {
           // crear la lista
           return _showUsers(snapshot.data);
-        } else {
-          // Loading
-          return Center(child: CircularProgressIndicator(strokeWidth: 4));
         }
+        //if (snapshot.connectionState == ConnectionState.active) {
+        //  // Loading
+        //  return Center(child: CircularProgressIndicator());
+        //}
+
+        return Center(
+          child: Text(
+            'No hay resultados',
+            style: TextStyle(color: Colors.white),
+          ),
+        );
       },
     );
   }
@@ -83,7 +86,7 @@ class UserSearchDelegate extends SearchDelegate<User> {
           trailing: IconButton(
             icon: Icon(Icons.add_rounded),
             onPressed: () async {
-              bool resp = await groupProvider.addMemberToGroup(user, group);
+              final bool resp = await groupProvider.addUserToGroup(user, group);
               if (resp == false) {
                 return _error(context);
               }
@@ -91,7 +94,6 @@ class UserSearchDelegate extends SearchDelegate<User> {
             },
           ),
           onTap: () {
-            // print( pais );
             this.close(context, user);
           },
         );
@@ -106,6 +108,7 @@ class UserSearchDelegate extends SearchDelegate<User> {
         backgroundColor: Color(0xff2a9d8f),
         content: Text(
           'Invitación enviada correctamente',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,
@@ -128,6 +131,7 @@ class UserSearchDelegate extends SearchDelegate<User> {
         backgroundColor: Color(0xffe63946),
         content: Text(
           'Error invitando al usuario',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,

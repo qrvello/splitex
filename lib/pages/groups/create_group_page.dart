@@ -173,6 +173,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
         backgroundColor: Color(0xffe63946),
         content: Text(
           'Error al crear grupo',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,

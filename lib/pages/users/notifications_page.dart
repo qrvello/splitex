@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
-class ActivityTab extends StatefulWidget {
+class NotificationsPage extends StatefulWidget {
   @override
-  _ActivityTabState createState() => _ActivityTabState();
+  _NotificationsPageState createState() => _NotificationsPageState();
 }
 
-class _ActivityTabState extends State<ActivityTab> {
+class _NotificationsPageState extends State<NotificationsPage> {
   final user = FirebaseAuth.instance.currentUser;
 
   final databaseReference = FirebaseDatabase.instance.reference();
@@ -65,14 +65,20 @@ class _ActivityTabState extends State<ActivityTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (groupsInvitations.length > 0) {
-      return ListView.builder(
-        itemCount: groupsInvitations.length,
-        itemBuilder: (context, i) => _createItem(context, groupsInvitations[i]),
-      );
-    }
-    return Center(
-      child: Text('No hay actividad'),
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('Notificaciones'),
+      ),
+      body: groupsInvitations.length > 0
+          ? ListView.builder(
+              itemCount: groupsInvitations.length,
+              itemBuilder: (context, i) =>
+                  _createItem(context, groupsInvitations[i]),
+            )
+          : Center(
+              child: Text('No hay notificaciones'),
+            ),
     );
   }
 
@@ -115,6 +121,7 @@ class _ActivityTabState extends State<ActivityTab> {
         backgroundColor: Color(0xff2a9d8f),
         content: Text(
           'Invitación aceptada satisfactoriamente',
+          style: TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           textColor: Colors.white,

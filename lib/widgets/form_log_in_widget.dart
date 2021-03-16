@@ -70,7 +70,10 @@ class _FormLogInState extends State<FormLogIn> {
                     : SizedBox.shrink(),
                 Text(
                   'Iniciá sesión',
-                  style: TextStyle(fontSize: 20.0, color: Colors.black),
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.black,
+                  ),
                 ),
                 Form(
                   key: _formKey,
@@ -135,9 +138,14 @@ class _FormLogInState extends State<FormLogIn> {
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff006D77)),
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
           ),
-          icon: Icon(Icons.alternate_email_rounded, color: Color(0xff006D77)),
+          icon: Icon(
+            Icons.alternate_email_rounded,
+            color: Color(0xff006D77),
+          ),
           labelStyle: TextStyle(
             color: Color(0xff006D77),
           ),
@@ -160,7 +168,7 @@ class _FormLogInState extends State<FormLogIn> {
         obscureText: _obscureText,
         decoration: InputDecoration(
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff006D77)),
+            borderSide: BorderSide(color: Color(0xff83C5BE)),
           ),
           fillColor: Colors.black,
           focusColor: Colors.black,
@@ -197,21 +205,18 @@ class _FormLogInState extends State<FormLogIn> {
       padding: EdgeInsets.all(4),
       child: OutlinedButton(
         onPressed: () {
-          // Validate returns true if the form is valid, otherwise false.
           if (_formKey.currentState.validate()) {
-            // If the form is valid, display a snackbar. In the real world,
-            // you'd often call a server or save the information in a database.
-            _submit();
-            print(_email.text);
-            print(_password.text);
-
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: Color(0xff264653),
                 behavior: SnackBarBehavior.floating,
-                content: Text('Iniciando sesión...'),
+                content: Text(
+                  'Iniciando sesión...',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             );
+            _submit();
           }
         },
         child: Text(
@@ -232,6 +237,8 @@ class _FormLogInState extends State<FormLogIn> {
     final resp = await AuthenticationProvider(firebaseInstance)
         .signIn(_email.text.trim(), _password.text.trim());
     if (resp != false) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
       Navigator.of(context).pushNamed('/home');
     }
     _error = true;

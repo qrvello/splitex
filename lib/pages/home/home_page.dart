@@ -16,6 +16,12 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Grupos'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications_rounded),
+            onPressed: () => Navigator.pushNamed(context, '/notifications'),
+          ),
+        ],
       ),
       body: GroupsListTab(),
       drawer: SideMenu(),

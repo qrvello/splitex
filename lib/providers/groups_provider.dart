@@ -166,9 +166,9 @@ class GroupsProvider {
     return true;
   }
 
-  Future<bool> addMemberToGroup(User userToInvite, GroupModel group) async {
+  Future<bool> addUserToGroup(User userToInvite, GroupModel group) async {
     final snapshotMembers =
-        await databaseReference.child('groups/${group.id}/members').once();
+        await databaseReference.child('groups/${group.id}/users').once();
 
     List keysList = [];
 
@@ -202,14 +202,20 @@ class GroupsProvider {
   }
 
   Future<bool> acceptInvitationGroup(GroupModel group) async {
-    databaseReference
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final requestUserPath = databaseReference
         .child('users_requests/${user.uid}/groups/${group.id}/')
-        .remove();
+        .path;
 
-    final membersGroupPath =
-        databaseReference.child('groups/${group.id}/members/${user.uid}').path;
+    final usersGroupPath =
+        databaseReference.child('groups/${group.id}/users/${user.uid}').path;
 
-    final usersGroupsPath = databaseReference
+    final membersGroupPath = databaseReference
+        .child('groups/${group.id}/members/${prefs.getString('displayName')}')
+        .path;
+
+    final groupsUserPath = databaseReference
         .child('users_groups/${user.uid}/groups/${group.id}')
         .path;
 
@@ -220,8 +226,10 @@ class GroupsProvider {
     };
 
     final Map<String, dynamic> updateObj = {
-      membersGroupPath: true,
-      usersGroupsPath: data,
+      usersGroupPath: true,
+      groupsUserPath: data,
+      membersGroupPath: {'balance': 0},
+      requestUserPath: null,
     };
 
     await databaseReference.update(updateObj).catchError((onError) {
