@@ -9,10 +9,10 @@ import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/pages/groups/edit_group_page.dart';
-import 'package:repartapp/pages/user_search.dart';
+import 'package:repartapp/pages/users/user_search.dart';
 import 'package:repartapp/providers/groups_provider.dart';
-import 'package:repartapp/styles/elevated_button_style.dart';
-import 'package:repartapp/widgets/dialogs/confirm_delete.dart';
+
+import 'package:repartapp/widgets/confirm_delete.dart';
 
 class DetailsGroupPage extends StatefulWidget {
   final List<Member> members;
@@ -53,6 +53,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
             Expense expense = Expense.fromJson(value, key);
 
             expenses.add(expense);
+            expenses.sort((a, b) => a.timestamp.compareTo(b.timestamp));
           });
         }
 
@@ -112,7 +113,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           length: 2,
           child: Scaffold(
             floatingActionButton: SpeedDial(
-              backgroundColor: Color(0xff006D77),
+              backgroundColor: Color(0xff284b63),
               overlayColor: Colors.black12,
               icon: Icons.add_rounded,
               activeIcon: Icons.add_rounded,
@@ -161,9 +162,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                                 decoration: InputDecoration(
                                   errorMaxLines: 3,
                                   labelText: 'Nombre',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                  ),
                                 ),
                                 validator: (value) {
                                   if (value.length < 1) {
@@ -183,13 +181,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                           ),
                           actions: [
                             ElevatedButton(
-                              style: elevatedButtonStyle,
-                              child: Text('Guardar'),
-                              onPressed: () {
-                                _addNewMember();
-                              },
-                            ),
-                            ElevatedButton(
                               style: ButtonStyle(
                                 backgroundColor:
                                     MaterialStateProperty.resolveWith(
@@ -198,15 +189,16 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                                           ? Color(0xffFFDDD2)
                                           : Color(0xffE29578)),
                                 ),
-                                shape: MaterialStateProperty.resolveWith(
-                                  (states) => RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                  ),
-                                ),
                               ),
                               child: Text('Cancelar'),
                               onPressed: () {
                                 Navigator.pop(context);
+                              },
+                            ),
+                            ElevatedButton(
+                              child: Text('Guardar'),
+                              onPressed: () {
+                                _addNewMember();
                               },
                             ),
                           ],
@@ -231,9 +223,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                   ),
                 ),
               ],
-              backgroundColor: Color(0xff006D77),
               elevation: 0,
-              centerTitle: true,
               title: Text(widget.group.name),
               bottom: TabBar(
                 isScrollable: false,
@@ -274,8 +264,8 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           begin: FractionalOffset(0.0, 0.3),
           end: FractionalOffset(0.0, 1.0),
           colors: [
-            Color(0xff83C5BE),
-            Color(0xffEDF6F9),
+            Color(0xff1c1e20),
+            Color(0xff000000),
           ],
         ),
       ),
@@ -319,7 +309,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       direction: DismissDirection.endToStart,
       child: Card(
         child: ListTile(
-          subtitle: Text('Pagado por vos'),
+          subtitle: Text('Pagado por ${expense.paidBy}'),
           title: Text(expense.description),
           trailing: Text(
             "\$${expense.amount.toString()}",
@@ -389,7 +379,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                style: elevatedButtonStyle,
                 child: Text('Invitar a miembros'),
                 onPressed: () async {
                   await showSearch(
@@ -399,7 +388,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                 },
               ),
               ElevatedButton(
-                style: elevatedButtonStyle,
                 child: Text('Balancear cuentas'),
                 onPressed: () {},
               ),
@@ -461,12 +449,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       child: Card(
         child: ListTile(
           title: Text(member.id),
-          //trailing: Text(
-          //  "\$${expense.amount.toString()}",
-          //  style: TextStyle(
-          //    fontSize: 20,
-          //  ),
-          //),
           trailing: Text('\$${member.balance}'),
           onTap: () => Navigator.push(
             context,

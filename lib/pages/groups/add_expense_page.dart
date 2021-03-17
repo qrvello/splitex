@@ -3,9 +3,8 @@ import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
-import 'package:repartapp/styles/elevated_button_style.dart';
 
-import 'groups/details_group_page.dart';
+import 'details_group_page.dart';
 
 class AddExpensePage extends StatefulWidget {
   @override
@@ -42,7 +41,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     List<DropdownMenuItem<String>> items = [
       DropdownMenuItem(
         value: '',
-        child: Text('Selecciona un miembro'),
+        child: Text('Seleccioná'),
       ),
     ];
 
@@ -82,7 +81,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       Container(
                         margin: EdgeInsets.only(top: 20),
                         padding: EdgeInsets.only(top: 5),
-                        width: MediaQuery.of(context).size.width * 0.45,
+                        width: MediaQuery.of(context).size.width * 0.5,
                         height: 80,
                         child: DropdownButtonFormField<String>(
                           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -125,7 +124,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return Container(
       width: 120,
       child: ElevatedButton(
-        style: elevatedButtonStyle,
         child: Text(
           'Agregar',
           style: TextStyle(
@@ -148,12 +146,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
       cursorColor: Color(0xff264653),
       style: TextStyle(fontSize: 19),
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 14),
         helperText: 'Ejemplo: almuerzo',
         labelText: 'Descripción del gasto',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25.0),
-        ),
       ),
       onSaved: (value) => expense.description = value,
       controller: _expenseNameController,
@@ -168,17 +162,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       keyboardType: TextInputType.number,
-      textAlign: TextAlign.start,
-      cursorColor: Color(0xff264653),
       style: TextStyle(fontSize: 19),
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 0),
-        fillColor: Colors.white,
+        floatingLabelBehavior: FloatingLabelBehavior.never,
         prefixIcon: Icon(Icons.attach_money),
         labelText: 'Cantidad',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25.0),
-        ),
       ),
       controller: _expenseAmountController,
       onSaved: (value) => expense.amount = double.tryParse(value).toDouble(),

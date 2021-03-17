@@ -8,12 +8,12 @@ import 'package:repartapp/pages/groups/details_group_page.dart';
 
 import 'package:repartapp/providers/groups_provider.dart';
 
-class GroupsListTab extends StatefulWidget {
+class GroupsList extends StatefulWidget {
   @override
-  _GroupsListTabState createState() => _GroupsListTabState();
+  _GroupsListState createState() => _GroupsListState();
 }
 
-class _GroupsListTabState extends State<GroupsListTab> {
+class _GroupsListState extends State<GroupsList> {
   final groupProvider = GroupsProvider();
 
   final user = FirebaseAuth.instance.currentUser;
@@ -46,10 +46,14 @@ class _GroupsListTabState extends State<GroupsListTab> {
   }
 
   Stream<List<GroupModel>> getData() async* {
-    var userGroupsStream = databaseReference
-        .child('users_groups/${user.uid}/groups')
-        .orderByKey()
-        .onValue;
+    Stream<Event> userGroupsStream;
+    if (user.uid != null) {
+      userGroupsStream = databaseReference
+          .child('users_groups/${user.uid}/groups')
+          .orderByKey()
+          .onValue;
+    }
+
     List<GroupModel> foundGroups = [];
 
     await for (var userGroupsSnapshot in userGroupsStream) {
@@ -58,7 +62,7 @@ class _GroupsListTabState extends State<GroupsListTab> {
       Map dictionary = userGroupsSnapshot.snapshot.value;
       if (dictionary != null) {
         dictionary.forEach((id, group) {
-          var thisGroup = GroupModel.fromJson(group, id);
+          final GroupModel thisGroup = GroupModel.fromJson(group, id);
           foundGroups.add(thisGroup);
         });
 
@@ -154,13 +158,8 @@ class _GroupsListTabState extends State<GroupsListTab> {
 
   _successSnackbar(context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      new SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xff2a9d8f),
-        content: Text(
-          'Grupo eliminado satisfactoriamente',
-          style: TextStyle(color: Colors.white),
-        ),
+      SnackBar(
+        content: Text('Grupo eliminado satisfactoriamente'),
         action: SnackBarAction(
           textColor: Colors.white,
           label: 'Ok',
@@ -174,17 +173,10 @@ class _GroupsListTabState extends State<GroupsListTab> {
 
   _errorSnackbar(context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      new SnackBar(
-        behavior: SnackBarBehavior.floating,
+      SnackBar(
         backgroundColor: Color(0xffe63946),
-        content: Text(
-          'Error al eliminar el grupo debido a que no sos administrador/a del mismo',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
+        content: Text('Error al eliminar el grupo'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -198,10 +190,11 @@ class _GroupsListTabState extends State<GroupsListTab> {
 
   _deleteGroup(context, group) async {
     final result = await groupProvider.deleteGroup(group);
+    groups.remove(group);
 
     if (result == true) {
       Navigator.of(context).pop(true);
-
+      setState(() {});
       _successSnackbar(context);
     } else {
       Navigator.of(context).pop(false);

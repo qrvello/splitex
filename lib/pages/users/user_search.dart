@@ -83,18 +83,14 @@ class UserSearchDelegate extends SearchDelegate<User> {
         return ListTile(
           title: Text(user.email),
           subtitle: Text(user.name),
-          trailing: IconButton(
-            icon: Icon(Icons.add_rounded),
-            onPressed: () async {
-              final bool resp = await groupProvider.addUserToGroup(user, group);
-              if (resp == false) {
-                return _error(context);
-              }
-              return _success(context);
-            },
-          ),
-          onTap: () {
-            this.close(context, user);
+          trailing: Icon(Icons.add_rounded),
+          onTap: () async {
+            print('a');
+            final bool resp = await groupProvider.addUserToGroup(user, group);
+            if (resp == false) {
+              return _error(context);
+            }
+            return _success(context);
           },
         );
       },
@@ -104,14 +100,8 @@ class UserSearchDelegate extends SearchDelegate<User> {
   _success(context) {
     ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xff2a9d8f),
-        content: Text(
-          'Invitación enviada correctamente',
-          style: TextStyle(color: Colors.white),
-        ),
+        content: Text('Invitación enviada correctamente'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             // Back to the group details page
@@ -127,14 +117,9 @@ class UserSearchDelegate extends SearchDelegate<User> {
   _error(context) {
     ScaffoldMessenger.of(context).showSnackBar(
       new SnackBar(
-        behavior: SnackBarBehavior.floating,
         backgroundColor: Color(0xffe63946),
-        content: Text(
-          'Error invitando al usuario',
-          style: TextStyle(color: Colors.white),
-        ),
+        content: Text('Error invitando al usuario'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             // Back to group details page

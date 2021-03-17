@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:repartapp/styles/elevated_button_style.dart';
 
 class CreateGroupPage extends StatefulWidget {
   @override
@@ -75,7 +74,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     return Container(
       width: 120,
       child: ElevatedButton(
-        style: elevatedButtonStyle,
         child: Text(
           'Guardar',
           style: TextStyle(
@@ -92,31 +90,25 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   }
 
   Widget _inputCreateName() {
-    return Container(
-      height: 65,
-      child: TextFormField(
-        maxLength: 25,
-        cursorColor: Color(0xff264653),
-        style: TextStyle(fontSize: 18),
-        decoration: InputDecoration(
-          helperText: 'Ejemplo: Vacaciones a la costa',
-          labelText: 'Nombre del grupo',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25.0),
-          ),
-        ),
-        onSaved: (value) => group.name = value,
-        validator: (value) {
-          if (value.length < 1) {
-            return 'Ingrese el nombre del grupo';
-          } else if (value.length > 25) {
-            return 'Ingrese un nombre menor a 25 caracteres';
-          } else {
-            return null;
-          }
-        },
-        controller: _groupNameController,
+    return TextFormField(
+      maxLength: 25,
+      cursorColor: Color(0xff264653),
+      style: TextStyle(fontSize: 18),
+      decoration: InputDecoration(
+        helperText: 'Ejemplo: Vacaciones a la costa',
+        labelText: 'Nombre del grupo',
       ),
+      onSaved: (value) => group.name = value,
+      validator: (value) {
+        if (value.length < 1) {
+          return 'Ingrese el nombre del grupo';
+        } else if (value.length > 25) {
+          return 'Ingrese un nombre menor a 25 caracteres';
+        } else {
+          return null;
+        }
+      },
+      controller: _groupNameController,
     );
   }
 
@@ -145,15 +137,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
   _success(context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      new SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xff2a9d8f),
-        content: Text(
-          'Grupo creado satisfactoriamente',
-          style: TextStyle(color: Colors.white),
-        ),
+      SnackBar(
+        content: Text('Grupo creado satisfactoriamente'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             // Back to the home page
@@ -168,15 +154,10 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
   _error(context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      new SnackBar(
-        behavior: SnackBarBehavior.floating,
+      SnackBar(
         backgroundColor: Color(0xffe63946),
-        content: Text(
-          'Error al crear grupo',
-          style: TextStyle(color: Colors.white),
-        ),
+        content: Text('Error al crear grupo'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             // Back to the home page

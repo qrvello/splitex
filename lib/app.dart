@@ -1,14 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:repartapp/config/themes/dark_theme.dart';
+import 'package:repartapp/config/themes/light_theme.dart';
 import 'package:repartapp/providers/authentication_provider.dart';
 import 'package:repartapp/providers/google_sign_in_provider.dart';
-import 'package:repartapp/routes/routes.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:repartapp/config/routes/routes.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -20,31 +19,15 @@ class MyApp extends StatelessWidget {
         StreamProvider(
             initialData: [],
             create: (context) =>
-                context.read<AuthenticationProvider>().authStateChanges)
+                context.read<AuthenticationProvider>().authStateChanges),
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'DivideGastos',
+          title: 'RepartApp',
           initialRoute: '/home',
-          theme: ThemeData(
-            brightness: Brightness.light,
-            textTheme: GoogleFonts.workSansTextTheme(),
-            primaryColor: Color(0xff83C5BE),
-            accentColor: Color(0xff83C5BE),
-            floatingActionButtonTheme: FloatingActionButtonThemeData(
-              backgroundColor: Color(0xff83C5BE),
-            ),
-          ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            textTheme: GoogleFonts.workSansTextTheme(TextTheme().apply(
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
-            )),
-            primaryColor: Color(0xff006D77),
-            accentColor: Color(0xff83C5BE),
-          ),
-          themeMode: ThemeMode.dark,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: ThemeMode.system,
           routes: routes
           //darkTheme: ThemeData.dark(),
           ),

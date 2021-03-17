@@ -86,14 +86,14 @@ class GroupsProvider {
   }
 
   Future<bool> deleteGroup(GroupModel group) async {
-    // Valida que el admin del grupo sea el usuario que lo elimina
+    Map<String, dynamic> removeObj = {};
+
+    // Valida que el admin del grupo sea el usuario que lo elimina sino solo lo borra de mis grupos
     if (group.adminUser == user.uid) {
       final groupPath = databaseReference.child('/groups/${group.id}').path;
-
-      Map<String, dynamic> removeObj = {groupPath: null};
-
+      removeObj = {groupPath: null};
       final members =
-          await databaseReference.child('/groups/${group.id}/members').once();
+          await databaseReference.child('/groups/${group.id}/users').once();
 
       // Si las keys recibe null (por ejemplo si solo hay una key) entonces solo borra del único miembro que está en el grupo.
       if (members.value.keys != null) {
@@ -101,16 +101,20 @@ class GroupsProvider {
           removeObj.putIfAbsent(
               '/users_groups/$key/groups/${group.id}', () => null);
         });
-      } else {
-        removeObj.putIfAbsent(
-            '/users_groups/${user.uid}/groups/${group.id}', () => null);
       }
-
-      databaseReference.update(removeObj);
-
-      return true;
+    } else {
+      removeObj.putIfAbsent('/group/${group.id}/users/${user.uid}', () => null);
     }
-    return false;
+
+    removeObj.putIfAbsent(
+        '/users_groups/${user.uid}/groups/${group.id}', () => null);
+
+    databaseReference.update(removeObj).catchError((error) {
+      print('error al borrar o salir del grupo $error');
+      return false;
+    });
+
+    return true;
   }
 
   Future<bool> addExpense(GroupModel group, Expense expense) async {
@@ -167,24 +171,25 @@ class GroupsProvider {
   }
 
   Future<bool> addUserToGroup(User userToInvite, GroupModel group) async {
-    final snapshotMembers =
+    final DataSnapshot snapshotMembers =
         await databaseReference.child('groups/${group.id}/users').once();
 
-    List keysList = [];
+    if (snapshotMembers.value != null) {
+      List keysList = [];
+      snapshotMembers.value.forEach((key, value) {
+        if (key != null) {
+          keysList.add(key);
+        }
+      });
 
-    snapshotMembers.value.forEach((key, value) {
-      if (key != null) {
-        keysList.add(key);
-      }
-    });
-
-    // Verifica que no llegue data nula
-    if (keysList.length > 1) {
-      // Recorre las keys de los miembros para compararlas con el uid del usuario que se quiere agregar
-      Map keys = snapshotMembers.value.keys;
-      if (keys.containsKey(userToInvite.id)) {
-        // Si el usuario que se quiere agregar ya esta en el grupo entonces retorna falso.
-        return false;
+      // Verifica que no llegue data nula
+      if (keysList.length > 1) {
+        // Recorre las keys de los miembros para compararlas con el uid del usuario que se quiere agregar
+        Map keys = snapshotMembers.value.keys;
+        if (keys.containsKey(userToInvite.id)) {
+          // Si el usuario que se quiere agregar ya esta en el grupo entonces retorna falso.
+          return false;
+        }
       }
     }
     // Sino, se agrega al grupo
@@ -197,7 +202,11 @@ class GroupsProvider {
         'name': group.name,
         'invited_by': prefs.getString('displayName'),
       }
+    }).catchError((error) {
+      print('Error al invitar a usuario $error');
+      return false;
     });
+
     return true;
   }
 

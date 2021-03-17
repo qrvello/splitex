@@ -1,21 +1,25 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:repartapp/providers/authentication_provider.dart';
-import 'package:repartapp/widgets/google_sign_up_button_widget.dart';
+import 'package:repartapp/pages/users/widgets/google_sign_up_button_widget.dart';
 
-class FormLogIn extends StatefulWidget {
+import 'google_sign_up_button_widget.dart';
+
+class FormSignUp extends StatefulWidget {
   @override
-  _FormLogInState createState() => _FormLogInState();
+  _FormSignUpState createState() => _FormSignUpState();
 }
 
-class _FormLogInState extends State<FormLogIn> {
+class _FormSignUpState extends State<FormSignUp> {
   final _password = TextEditingController();
   final _email = TextEditingController();
+  final _name = TextEditingController();
 
   @override
   void dispose() {
     _password.dispose();
     _email.dispose();
+    _name.dispose();
     super.dispose();
   }
 
@@ -37,7 +41,7 @@ class _FormLogInState extends State<FormLogIn> {
         children: [
           SafeArea(
             child: Container(
-              height: size.height * 0.1,
+              height: size.height * 0.025,
             ),
           ),
           Container(
@@ -58,18 +62,18 @@ class _FormLogInState extends State<FormLogIn> {
             ),
             child: Column(
               children: <Widget>[
-                _error == true
+                _error != false
                     ? Container(
                         height: 32,
                         child: Text(
-                          'Error al iniciar sesión',
+                          'Error al iniciar sesión: $_error',
                           style:
                               TextStyle(color: Color(0xffe76f51), fontSize: 22),
                         ),
                       )
                     : SizedBox.shrink(),
                 Text(
-                  'Iniciá sesión',
+                  'Registrate',
                   style: TextStyle(
                     fontSize: 20.0,
                     color: Colors.black,
@@ -79,6 +83,8 @@ class _FormLogInState extends State<FormLogIn> {
                   key: _formKey,
                   child: Column(
                     children: [
+                      SizedBox(height: 30.0),
+                      _nameInput(),
                       SizedBox(height: 30.0),
                       _emailInput(),
                       SizedBox(height: 30.0),
@@ -96,9 +102,9 @@ class _FormLogInState extends State<FormLogIn> {
             width: size.width * 0.85,
             child: TextButton(
               onPressed: () =>
-                  Navigator.pushReplacementNamed(context, '/signup'),
+                  Navigator.pushReplacementNamed(context, '/login'),
               child: Text(
-                '¿Todavía no te registraste? Registrate acá',
+                '¿Ya te registraste? Iniciá sesión acá',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
@@ -110,8 +116,7 @@ class _FormLogInState extends State<FormLogIn> {
             ),
           ),
           TextButton(
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, '/register'),
+            onPressed: () => Navigator.pushReplacementNamed(context, '/'),
             child: Text(
               'Recuperá tu contraseña',
               textAlign: TextAlign.center,
@@ -138,9 +143,7 @@ class _FormLogInState extends State<FormLogIn> {
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xff83C5BE),
-            ),
+            borderSide: BorderSide(color: Color(0xff83C5BE)),
           ),
           icon: Icon(
             Icons.alternate_email_rounded,
@@ -163,15 +166,12 @@ class _FormLogInState extends State<FormLogIn> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
-        keyboardType: TextInputType.text,
         style: TextStyle(color: Colors.black),
         obscureText: _obscureText,
         decoration: InputDecoration(
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: Color(0xff83C5BE)),
           ),
-          fillColor: Colors.black,
-          focusColor: Colors.black,
           suffixIcon: IconButton(
             icon: Icon(
               _obscureText
@@ -179,11 +179,18 @@ class _FormLogInState extends State<FormLogIn> {
                   : Icons.visibility_rounded,
             ),
             color: Color(0xff006D77),
-            onPressed: _toggle,
+            onPressed: () {
+              _toggle();
+            },
           ),
-          icon: Icon(Icons.lock_outline_rounded, color: Color(0xff006D77)),
+          labelStyle: TextStyle(
+            color: Color(0xff006D77),
+          ),
+          icon: Icon(
+            Icons.lock_outline_rounded,
+            color: Color(0xff006D77),
+          ),
           labelText: 'Contraseña',
-          labelStyle: TextStyle(color: Color(0xff006D77)),
         ),
         validator: (value) {
           if (value.isEmpty) {
@@ -208,19 +215,14 @@ class _FormLogInState extends State<FormLogIn> {
           if (_formKey.currentState.validate()) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                backgroundColor: Color(0xff264653),
-                behavior: SnackBarBehavior.floating,
-                content: Text(
-                  'Iniciando sesión...',
-                  style: TextStyle(color: Colors.white),
-                ),
+                content: Text('Registrandose...'),
               ),
             );
             _submit();
           }
         },
         child: Text(
-          'Iniciar sesión',
+          'Registrarse',
           style: TextStyle(color: Colors.black87),
         ),
         style: OutlinedButton.styleFrom(
@@ -235,14 +237,38 @@ class _FormLogInState extends State<FormLogIn> {
     final firebaseInstance = FirebaseAuth.instance;
 
     final resp = await AuthenticationProvider(firebaseInstance)
-        .signIn(_email.text.trim(), _password.text.trim());
-    if (resp != false) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        .signUp(_email.text.trim(), _password.text, _name.text.trim());
 
-      Navigator.of(context).pushNamed('/home');
+    if (resp != true) {
+      _error = resp;
+      setState(() {});
+      return;
     }
-    _error = true;
-    setState(() {});
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    Navigator.of(context).pushNamed('/home');
+  }
+
+  Widget _nameInput() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: TextFormField(
+        style: TextStyle(color: Colors.black),
+        keyboardType: TextInputType.name,
+        decoration: InputDecoration(
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Color(0xff83C5BE)),
+          ),
+          icon: Icon(
+            Icons.person_rounded,
+            color: Color(0xff006D77),
+          ),
+          labelStyle: TextStyle(color: Color(0xff006D77)),
+          labelText: 'Nombre',
+        ),
+        validator: (value) => (value.isEmpty) ? 'Ingrese un nombre' : null,
+        controller: _name,
+      ),
+    );
   }
 }
 

@@ -116,15 +116,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   _successSnackbar(context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      new SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xff2a9d8f),
-        content: Text(
-          'Invitación aceptada satisfactoriamente',
-          style: TextStyle(color: Colors.white),
-        ),
+      SnackBar(
+        content: Text('Invitación aceptada satisfactoriamente'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();

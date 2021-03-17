@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:repartapp/widgets/background_form_widget.dart';
-import 'package:repartapp/widgets/form_log_in_widget.dart';
+import 'package:repartapp/pages/users/widgets/background_form_widget.dart';
+import 'package:repartapp/pages/users/widgets/form_log_in_widget.dart';
 
 class LoginPage extends StatelessWidget {
   @override

@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:repartapp/pages/home/tabs/groups_list_tab.dart';
-import 'package:repartapp/widgets/side_menu.dart';
+import 'package:repartapp/pages/home/groups_list.dart';
+import 'package:repartapp/pages/home/widgets/side_menu.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -23,10 +23,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: GroupsListTab(),
+      body: GroupsList(),
       drawer: SideMenu(),
       floatingActionButton: SpeedDial(
-        backgroundColor: Color(0xff006D77),
+        backgroundColor: Color(0xff284b63),
         overlayColor: Colors.black12,
         icon: Icons.add_rounded,
         activeIcon: Icons.add_rounded,

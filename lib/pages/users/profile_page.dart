@@ -35,7 +35,9 @@ class _ProfilePageState extends State<ProfilePage> {
         Provider.of<AuthenticationProvider>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('Perfil'),
+      ),
       body: ChangeNotifierProvider(
         create: (context) => GoogleSignInProvider(),
         child: StreamBuilder(
@@ -65,16 +67,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   SizedBox(height: 8),
                   ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          if (states.contains(MaterialState.pressed))
-                            return Color(0x00264653);
-                          return Color(
-                              0xff2a9d8f); // Use the component's default.
-                        },
-                      ),
-                    ),
                     onPressed: () async {
                       if (googleProvider.googleSignIn.currentUser != null) {
                         googleProvider.logout();
@@ -94,6 +86,4 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-  Widget buildLoading() => Center(child: CircularProgressIndicator());
 }

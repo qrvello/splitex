@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
-import 'package:repartapp/styles/elevated_button_style.dart';
 
 class EditGroupPage extends StatefulWidget {
   final GroupModel group;
@@ -66,7 +65,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
     return Container(
       width: 120,
       child: ElevatedButton(
-        style: elevatedButtonStyle,
         child: Text(
           'Guardar',
           style: TextStyle(
@@ -92,9 +90,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
         decoration: InputDecoration(
           helperText: 'Ejemplo: Vacaciones a la costa',
           labelText: 'Nombre del grupo',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25.0),
-          ),
         ),
         onSaved: (value) => group.name = value,
         validator: (value) {
@@ -138,15 +133,9 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
   _success(context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      new SnackBar(
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xff2a9d8f),
-        content: Text(
-          'Grupo editado satisfactoriamente',
-          style: TextStyle(color: Colors.white),
-        ),
+      SnackBar(
+        content: Text('Grupo editado satisfactoriamente'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             // Back to the home page
@@ -161,15 +150,10 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
   _error(context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      new SnackBar(
-        behavior: SnackBarBehavior.floating,
+      SnackBar(
         backgroundColor: Color(0xffe63946),
-        content: Text(
-          'Error al crear grupo',
-          style: TextStyle(color: Colors.white),
-        ),
+        content: Text('Error al crear grupo'),
         action: SnackBarAction(
-          textColor: Colors.white,
           label: 'Ok',
           onPressed: () {
             // Back to the home page

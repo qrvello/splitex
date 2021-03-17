@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:repartapp/pages/add_expense_page.dart';
+import 'package:repartapp/pages/groups/add_expense_page.dart';
 import 'package:repartapp/pages/groups/create_group_page.dart';
 import 'package:repartapp/pages/home/home_page.dart';
 import 'package:repartapp/pages/users/log_in_page.dart';
