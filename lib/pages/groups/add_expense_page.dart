@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
+
 import 'package:repartapp/providers/groups_provider.dart';
 
-import 'details_group_page.dart';
-
 class AddExpensePage extends StatefulWidget {
+  final GroupModel group;
+  AddExpensePage({this.group});
   @override
   _AddExpensePageState createState() => _AddExpensePageState();
 }
@@ -34,11 +35,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   Widget build(BuildContext context) {
-    final DetailsGroupPage args = ModalRoute.of(context).settings.arguments;
-
-    final List<Member> members = args.members;
-
-    List<DropdownMenuItem<String>> items = [
+    final List<DropdownMenuItem<String>> items = [
       DropdownMenuItem(
         value: '',
         child: Text('Seleccioná'),
@@ -47,7 +44,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     // Crea los items para el dropdown con los miembros.
 
-    for (Member member in members) {
+    for (Member member in widget.group.members) {
       items.add(
         DropdownMenuItem(
           value: member.id,
@@ -186,13 +183,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     formKey.currentState.save();
 
-    final DetailsGroupPage args = ModalRoute.of(context).settings.arguments;
+    //final DetailsGroupPage args = ModalRoute.of(context).settings.arguments;
 
-    GroupModel group = args.group;
+    //GroupModel group = args.group;
 
-    group.members = args.members.asMap();
+    //group.members = args.members.asMap();
 
-    final resp = await groupProvider.addExpense(group, expense);
+    final resp = await groupProvider.addExpense(widget.group, expense);
 
     if (resp != false) {
       error = false;

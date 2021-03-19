@@ -1,11 +1,7 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
-import 'package:repartapp/pages/groups/details_group_page.dart';
-
 import 'package:repartapp/providers/groups_provider.dart';
 
 class GroupsList extends StatefulWidget {
@@ -20,70 +16,32 @@ class _GroupsListState extends State<GroupsList> {
 
   final databaseReference = FirebaseDatabase.instance.reference();
 
-  StreamSubscription _streamSubscription;
-
   List<GroupModel> groups = [];
 
   @override
-  void initState() {
-    super.initState();
-
-    _streamSubscription = getData().listen((data) {
-      setState(() {
-        groups = data;
-      });
-    });
-
-    FirebaseDatabase().setPersistenceEnabled(true);
-    FirebaseDatabase().setPersistenceCacheSizeBytes(10000000);
-  }
-
-  @override
-  void dispose() {
-    _streamSubscription.cancel();
-
-    super.dispose();
-  }
-
-  Stream<List<GroupModel>> getData() async* {
-    Stream<Event> userGroupsStream;
-    if (user.uid != null) {
-      userGroupsStream = databaseReference
-          .child('users_groups/${user.uid}/groups')
-          .orderByKey()
-          .onValue;
-    }
-
-    List<GroupModel> foundGroups = [];
-
-    await for (var userGroupsSnapshot in userGroupsStream) {
-      foundGroups.clear();
-
-      Map dictionary = userGroupsSnapshot.snapshot.value;
-      if (dictionary != null) {
-        dictionary.forEach((id, group) {
-          final GroupModel thisGroup = GroupModel.fromJson(group, id);
-          foundGroups.add(thisGroup);
-        });
-
-        yield foundGroups;
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (groups.length > 0) {
-      return ListView.builder(
-        itemCount: groups.length,
-        itemBuilder: (context, i) => _createItem(context, groups[i]),
-      );
-    }
-    // ignore: todo
-    //TODO: Arreglar carga: que cuando esté cargando no aparezca el mensaje de no participas en ningun grupo sino que aparezca un circular progress indicator
+    return StreamBuilder(
+      stream: groupProvider.getGroupsList(),
+      builder:
+          (BuildContext context, AsyncSnapshot<List<GroupModel>> snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Ha ocurrido un error al cargar tus grupos.'),
+          );
+        }
 
-    return Center(
-      child: Text('No participás de ningún grupo.'),
+        if (snapshot.hasData) {
+          groups = snapshot.data;
+          return ListView.builder(
+            itemCount: groups.length,
+            itemBuilder: (context, i) => _createItem(context, groups[i]),
+          );
+        }
+
+        return Center(
+          child: Text('No participás de ningún grupo.'),
+        );
+      },
     );
   }
 
@@ -122,11 +80,10 @@ class _GroupsListState extends State<GroupsList> {
         child: ListTile(
           title: Text(group.name),
           trailing: Icon(Icons.drag_handle_rounded),
-          onTap: () => Navigator.push(
+          onTap: () => Navigator.pushNamed(
             context,
-            MaterialPageRoute(
-              builder: (context) => DetailsGroupPage(group: group),
-            ),
+            '/group_details',
+            arguments: group,
           ),
         ),
       ),

@@ -12,17 +12,64 @@ class GroupsProvider {
 
   final databaseReference = FirebaseDatabase.instance.reference();
 
+  Stream<GroupModel> getGroup(GroupModel group) async* {
+    GroupModel groupComplete;
+
+    DatabaseReference groupReference =
+        databaseReference.child('groups/${group.id}');
+
+    Stream<Event> groupStream = groupReference.orderByKey().onValue;
+
+    await for (Event event in groupStream) {
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.value != null) {
+        GroupModel thisGroup = GroupModel.fromMap(snapshot.value, snapshot.key);
+
+        groupComplete = thisGroup;
+      }
+
+      yield groupComplete;
+    }
+  }
+
+  Stream<List<GroupModel>> getGroupsList() async* {
+    final List<GroupModel> foundGroups = [];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String uid = prefs.getString('uid');
+
+    DatabaseReference userGroups =
+        databaseReference.child('users_groups/$uid/groups');
+
+    Stream<Event> userGroupsStream = userGroups.orderByKey().onValue;
+
+    await for (Event event in userGroupsStream) {
+      foundGroups.clear();
+
+      if (event.snapshot.value != null) {
+        Map<dynamic, dynamic> mapGroups = event.snapshot.value;
+
+        mapGroups.forEach((id, group) {
+          final GroupModel thisGroup = GroupModel.fromMap(group, id);
+          foundGroups.add(thisGroup);
+        });
+
+        yield foundGroups;
+      }
+    }
+  }
+
   Future<bool> createGroup(GroupModel group) async {
     // Guarda el id del creador del grupo
     group.adminUser = user.uid;
 
     // Crea la referencia con una key creada por firebase
 
-    final newChildGroupRef = databaseReference.child('groups').push();
+    final newChildGroupRef = databaseReference.child('/groups').push();
 
     // Crea la referencia en usuarios con la key anterior
     final newChildUserGroupsRef = databaseReference
-        .child('users_groups/${user.uid}/groups/${newChildGroupRef.key}');
+        .child('/users_groups/${user.uid}/groups/${newChildGroupRef.key}');
 
     // Guarda la data en un mapa
 
@@ -92,12 +139,12 @@ class GroupsProvider {
     if (group.adminUser == user.uid) {
       final groupPath = databaseReference.child('/groups/${group.id}').path;
       removeObj = {groupPath: null};
-      final members =
+      final users =
           await databaseReference.child('/groups/${group.id}/users').once();
 
       // Si las keys recibe null (por ejemplo si solo hay una key) entonces solo borra del único miembro que está en el grupo.
-      if (members.value.keys != null) {
-        members.value.keys.forEach((key) {
+      if (users.value != null) {
+        users.value.keys.forEach((key) {
           removeObj.putIfAbsent(
               '/users_groups/$key/groups/${group.id}', () => null);
         });
@@ -124,13 +171,17 @@ class GroupsProvider {
     final DatabaseReference groupReference =
         databaseReference.child('groups/${group.id}');
 
-    final List<Member> members = group.members.values.toList();
+    final List<Member> members = group.members;
 
     final int countMembers = members.length;
 
     Map<String, dynamic> updateObj = {
       '${newChildExpenseReference.path}': expense.toMap(),
     };
+
+    // Solo usa 2 decimales
+    final double debtForEach =
+        double.parse((expense.amount / countMembers).toStringAsFixed(2));
 
     members.forEach((member) {
       double updatedBalance = 0;
@@ -139,10 +190,9 @@ class GroupsProvider {
       // ya tiene en vez de restar
 
       if (member.id == expense.paidBy) {
-        updatedBalance =
-            member.balance + (expense.amount - expense.amount / countMembers);
+        updatedBalance = member.balance + (expense.amount - debtForEach);
       } else {
-        updatedBalance = member.balance - expense.amount / countMembers;
+        updatedBalance = member.balance - debtForEach;
       }
 
       updateObj.putIfAbsent(
@@ -249,12 +299,30 @@ class GroupsProvider {
     return true;
   }
 
-  addPersonToGroup(String name, GroupModel group) {
+  void addPersonToGroup(String name, GroupModel group) {
     final newChildMember =
         databaseReference.child('/groups/${group.id}/members/$name');
 
     newChildMember.update({
       "balance": 0,
     });
+  }
+
+  balanceDebts(List<Member> members) {
+    //members.for
+    members.asMap().forEach((name1, member1) {
+      List<Member> members2 = members;
+      members2.remove(member1);
+
+      members2.asMap().forEach((name2, member2) {
+        if (member2.balance >= member1.balance) {
+          member2.balance += member1.balance;
+          member1.balance += member2.balance;
+          print(member1.balance);
+        }
+      });
+    });
+    //print(member.first.balance);
+    //return member;
   }
 }

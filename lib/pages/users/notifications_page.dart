@@ -53,7 +53,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       Map dictionary = userGroupsSnapshot.snapshot.value;
       if (dictionary != null) {
         dictionary.forEach((id, group) {
-          var thisGroup = GroupModel.fromJson(group, id);
+          var thisGroup = GroupModel.fromMap(group, id);
 
           foundGroups.add(thisGroup);
         });

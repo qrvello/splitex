@@ -2,12 +2,10 @@
 //
 //     final expense = expenseFromJson(jsonString);
 
-import 'dart:convert';
-
 import 'package:firebase_database/firebase_database.dart';
 
-Expense expenseFromJson(String str, key) =>
-    Expense.fromJson(json.decode(str), key);
+//Expense expenseFromJson(String str, key) =>
+//    Expense.fromJson(json.decode(str), key);
 
 //String expenseToJson(Expense data) => json.encode(data.toJson());
 
@@ -19,18 +17,19 @@ class Expense {
     this.paidBy,
     this.timestamp,
   });
+
   String id;
   String description;
   dynamic amount;
   String paidBy;
   int timestamp;
 
-  factory Expense.fromJson(Map<dynamic, dynamic> json, key) => Expense(
-        id: key,
-        description: json["description"],
-        amount: json["amount"],
-        paidBy: json["paid_by"],
-        timestamp: json["timestamp"],
+  factory Expense.fromMap(Map<dynamic, dynamic> map, id) => Expense(
+        id: id,
+        description: map["description"],
+        amount: map["amount"],
+        paidBy: map["paid_by"],
+        timestamp: map["timestamp"],
       );
 
   Map<String, dynamic> toMap() => {

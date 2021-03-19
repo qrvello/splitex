@@ -38,7 +38,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.qrvello.repartapp"
+        applicationId "com.curvello.repartapp"
         minSdkVersion 23
         targetSdkVersion 29
         multiDexEnabled true
