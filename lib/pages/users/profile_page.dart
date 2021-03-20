@@ -13,7 +13,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String displayName = '';
   String email = '';
+  String photoURL = '';
 
+  final user = FirebaseAuth.instance.currentUser;
   @override
   void initState() {
     _getUserData();
@@ -24,11 +26,13 @@ class _ProfilePageState extends State<ProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     displayName = prefs.getString('displayName');
     email = prefs.getString('email');
+    if (user.photoURL != null) {
+      photoURL = user.photoURL;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     final googleProvider =
         Provider.of<GoogleSignInProvider>(context, listen: false);
     final authProvider =
@@ -51,10 +55,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                      maxRadius: 25,
-                      backgroundImage: (user.photoURL != null
-                          ? (NetworkImage(user.photoURL))
-                          : AssetImage('assets/blank-profile.jpg'))),
+                    maxRadius: 25,
+                    backgroundImage: (photoURL != '')
+                        ? (NetworkImage(photoURL))
+                        : AssetImage('assets/blank-profile.jpg'),
+                  ),
                   SizedBox(height: 8),
                   Text(
                     'Nombre: ' + displayName,
@@ -68,9 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () async {
-                      if (googleProvider.googleSignIn.currentUser != null) {
-                        googleProvider.logout();
-                      }
+                      googleProvider.logout();
 
                       authProvider.signOut();
 

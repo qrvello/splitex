@@ -1,4 +1,5 @@
 import 'package:repartapp/models/expense.dart';
+import 'package:repartapp/models/transaction_model.dart';
 
 import 'member_model.dart';
 
@@ -11,7 +12,8 @@ class GroupModel {
     this.invitedBy,
     this.members,
     this.expenses,
-    this.balanced = false,
+    this.transactions,
+    this.totalBalance,
   });
 
   String adminUser;
@@ -19,14 +21,20 @@ class GroupModel {
   String name;
   String invitedBy;
   int timestamp;
-  bool balanced = false;
+  double totalBalance;
   List<Member> members;
   List<Expense> expenses;
+  List<Transaction> transactions;
 
   factory GroupModel.fromMap(Map<dynamic, dynamic> map, key) {
     List<Member> members = [];
     List<Expense> expenses = [];
+    List<Transaction> transactions = [];
+    double totalBalance = 0;
 
+    if (map['total_balance'] != null) {
+      totalBalance = map["total_balance"].toDouble();
+    }
     if (map['members'] != null) {
       Map<dynamic, dynamic> membersMap = map['members'];
 
@@ -45,6 +53,15 @@ class GroupModel {
       });
     }
 
+    if (map['transactions'] != null) {
+      Map<dynamic, dynamic> transactionsMap = map['transactions'];
+
+      transactionsMap.forEach((id, value) {
+        Transaction thisTransaction = Transaction.fromMap(value, id);
+        transactions.add(thisTransaction);
+      });
+    }
+
     return GroupModel(
       id: key,
       name: map["name"],
@@ -52,8 +69,9 @@ class GroupModel {
       timestamp: map["timestamp"],
       members: members,
       expenses: expenses,
+      transactions: transactions,
       invitedBy: map["invited_by"],
-      balanced: map["balanced"],
+      totalBalance: totalBalance,
     );
   }
 
@@ -64,6 +82,7 @@ class GroupModel {
         "members": members,
         "expenses": expenses,
         "invited_by": invitedBy,
-        "balanced": balanced,
+        "total_balance": totalBalance,
+        "transactions": transactions,
       };
 }

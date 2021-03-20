@@ -134,10 +134,21 @@ class _FormLogInState extends State<FormLogIn> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
+          ),
           enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
+          ),
+          border: UnderlineInputBorder(
             borderSide: BorderSide(
               color: Color(0xff83C5BE),
             ),
@@ -152,8 +163,13 @@ class _FormLogInState extends State<FormLogIn> {
           hintText: 'ejemplo@correo.com',
           labelText: 'Correo electrónico',
         ),
-        validator: (input) =>
-            input.isValidEmail() ? null : "El email ingresado es incorrecto",
+        validator: (input) {
+          if (isValidEmail(input.trim())) {
+            return null;
+          } else {
+            return 'El email ingresado es incorrecto';
+          }
+        },
         controller: _email,
       ),
     );
@@ -167,11 +183,20 @@ class _FormLogInState extends State<FormLogIn> {
         style: TextStyle(color: Colors.black),
         obscureText: _obscureText,
         decoration: InputDecoration(
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
+          ),
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff83C5BE)),
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
           ),
           border: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff83C5BE)),
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
           ),
           fillColor: Colors.black,
           focusColor: Colors.black,
@@ -244,12 +269,10 @@ class _FormLogInState extends State<FormLogIn> {
     _error = true;
     setState(() {});
   }
-}
 
-extension EmailValidator on String {
-  bool isValidEmail() {
+  bool isValidEmail(String value) {
     return RegExp(
             r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-        .hasMatch(this);
+        .hasMatch(value);
   }
 }

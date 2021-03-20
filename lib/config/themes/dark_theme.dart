@@ -3,19 +3,23 @@ import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
-  textTheme: GoogleFonts.workSansTextTheme(
-    TextTheme().apply(
-      bodyColor: Colors.white.withOpacity(0.87),
-      displayColor: Colors.white.withOpacity(0.87),
-    ),
+  textTheme: GoogleFonts.montserratTextTheme().apply(
+    bodyColor: Colors.white.withOpacity(0.87),
+    displayColor: Colors.white.withOpacity(0.87),
   ),
   snackBarTheme: SnackBarThemeData(
-    behavior: SnackBarBehavior.floating,
-    backgroundColor: Color(0xff284B63),
+    behavior: SnackBarBehavior.fixed,
+    backgroundColor: Color(0xff001d3d),
     contentTextStyle: TextStyle(color: Colors.white.withOpacity(0.87)),
     actionTextColor: Colors.white.withOpacity(0.87),
   ),
   appBarTheme: AppBarTheme(
+    textTheme: GoogleFonts.montserratTextTheme(TextTheme(
+            headline6: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)))
+        .apply(
+      bodyColor: Colors.white.withOpacity(0.87),
+      displayColor: Colors.white.withOpacity(0.87),
+    ),
     centerTitle: true,
   ),
   cardTheme: CardTheme(
@@ -23,28 +27,29 @@ final ThemeData darkTheme = ThemeData(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   fixTextFieldOutlineLabel: true,
-  scaffoldBackgroundColor: Color(0xff121212),
+  scaffoldBackgroundColor: Color(0xff1c1e20),
   primaryColor: Color(0xff001d3d),
+  focusColor: Color(0xffd9d9d9),
   accentColor: Color(0xffd9d9d9),
   textSelectionTheme:
       TextSelectionThemeData(cursorColor: Colors.white.withOpacity(0.87)),
   inputDecorationTheme: InputDecorationTheme(
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(24.0),
+      borderRadius: BorderRadius.circular(16.0),
       borderSide: BorderSide(
         color: Color(0xff284b63),
         width: 3,
       ),
     ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(24.0),
+      borderRadius: BorderRadius.circular(16.0),
       borderSide: BorderSide(
         color: Colors.white.withOpacity(0.87),
         width: 1,
       ),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(24.0),
+      borderRadius: BorderRadius.circular(16.0),
       borderSide: BorderSide(
         color: Colors.white.withOpacity(0.87),
         width: 1,

@@ -100,9 +100,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       ),
       onSaved: (value) => group.name = value,
       validator: (value) {
-        if (value.length < 1) {
+        if (value.trim().length < 1) {
           return 'Ingrese el nombre del grupo';
-        } else if (value.length > 25) {
+        } else if (value.trim().length > 25) {
           return 'Ingrese un nombre menor a 25 caracteres';
         } else {
           return null;

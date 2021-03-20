@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
@@ -110,7 +111,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           isExpanded: true,
                           value: dropdownValue,
-                          style: TextStyle(color: Color(0xffEDF6F9)),
+                          style: GoogleFonts.montserrat(
+                            textStyle: TextStyle(
+                              color: Colors.white.withOpacity(0.87),
+                            ),
+                          ),
                           onChanged: (newValue) {
                             setState(() {
                               dropdownValue = newValue;
@@ -175,7 +180,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       onSaved: (value) => expense.description = value,
       controller: _expenseNameController,
       validator: (value) {
-        if (value.isEmpty) return 'Por favor ingresá una descripción';
+        if (value.trim().isEmpty) return 'Por favor ingresá una descripción';
         return null;
       },
     );
@@ -188,26 +193,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
       decoration: InputDecoration(
         prefixIcon: Icon(Icons.attach_money),
         labelText: 'Cantidad',
-        //suffixIcon: (_validated)
-        //    ? Icon(
-        //        Icons.check_circle_outline_rounded,
-        //        color: Colors.greenAccent,
-        //      )
-        //    : Icon(
-        //        Icons.error_outline_rounded,
-        //        color: Colors.redAccent,
-        //      ),
       ),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
       ],
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       controller: _expenseAmountController,
-      onSaved: (value) =>
-          expense.amount = double.tryParse(value).toDouble().roundToDouble(),
+      onSaved: (value) => expense.amount = double.tryParse(value).toDouble(),
       validator: (value) {
-        if (value.isEmpty) return 'Por favor ingresa un número';
-        if (_isNumeric(value) != false) {
+        if (value.trim().isEmpty) return 'Por favor ingresa un número';
+        if (_isNumeric(value.trim()) != false) {
           return null;
         } else {
           return 'Por favor ingresa solo números.';

@@ -92,7 +92,7 @@ class GroupsProvider {
         name: {"balance": 0}
       },
     );
-    data.putIfAbsent('balanced', () => false);
+    data.putIfAbsent('total_balance', () => 0);
 
     // Crea un mapa para usar multiple paths al insertar datos
     final Map<String, dynamic> mapRefs = {
@@ -167,25 +167,26 @@ class GroupsProvider {
   }
 
   Future<bool> addExpense(GroupModel group, Expense expense) async {
-    final DatabaseReference newChildExpenseReference =
-        databaseReference.child('groups/${group.id}/expenses').push();
-
     final DatabaseReference groupReference =
         databaseReference.child('groups/${group.id}');
+
+    final DatabaseReference newChildExpenseReference =
+        groupReference.child('expenses').push();
 
     final List<Member> members = group.members;
 
     final int countMembers = members.length;
 
     Map<String, dynamic> updateObj = {
-      '${newChildExpenseReference.path}': expense.toMap(),
+      '${groupReference.path}/total_balance':
+          group.totalBalance + expense.amount,
+      newChildExpenseReference.path: expense.toMap(),
     };
 
     // Solo usa 2 decimales
     double debtForEach = (expense.amount / countMembers);
 
     debtForEach = double.parse(debtForEach.toStringAsFixed(2));
-    print(debtForEach);
     members.forEach((member) {
       double updatedBalance = 0;
 
@@ -315,19 +316,32 @@ class GroupsProvider {
     });
   }
 
-  List<Transaction> balanceDebts(GroupModel group) {
+  List<Transaction> balanceDebts(List<Member> members2) {
     List<Transaction> transactions = [];
+    List<Member> members = [];
+
+    // Crea una nueva lista de miembros y copia la lista original para no modificar la original.
+
+    for (Member member in members2) {
+      Member member2 = Member();
+      member2.id = member.id;
+      member2.balance = member.balance;
+      members.add(member2);
+    }
 
     Iterable<Member> membersWithDebt =
-        group.members.where((member) => member.balance < 0);
+        members.where((member) => member.balance < 0);
 
     Iterable<Member> membersWithPositiveBalance =
-        group.members.where((member) => member.balance > 0);
+        members.where((member) => member.balance > 0);
 
     for (Member member1 in membersWithDebt) {
       for (Member member2 in membersWithPositiveBalance) {
         if (member1.balance.abs() <= member2.balance) {
           double toPay = member1.balance.abs();
+
+          member1.balance += toPay;
+          member2.balance -= toPay;
 
           Transaction transaction = Transaction();
 
@@ -342,6 +356,9 @@ class GroupsProvider {
 
         if (member1.balance.abs() > member2.balance) {
           double toPay = member2.balance;
+
+          member1.balance += toPay;
+          member2.balance -= toPay;
 
           Transaction transaction = Transaction();
 
@@ -359,8 +376,13 @@ class GroupsProvider {
 
   Future<bool> checkTransaction(
       Transaction transaction, GroupModel group) async {
-    String membersPath =
-        databaseReference.child('/groups/${group.id}/members/').path;
+    DatabaseReference groupReference =
+        databaseReference.child('/groups/${group.id}');
+
+    String groupMembersPath = groupReference.child('/members').path;
+
+    String newTransactionChildPath =
+        groupReference.child('transactions').push().path;
 
     Member memberToPay = group.members
         .firstWhere((member) => member.id == transaction.memberToPay.id);
@@ -372,8 +394,10 @@ class GroupsProvider {
     memberToReceive.balance -= transaction.amountToPay;
 
     Map<String, dynamic> updateObj = {
-      '$membersPath/${memberToPay.id}/balance': memberToPay.balance,
-      '$membersPath/${memberToReceive.id}/balance': memberToReceive.balance,
+      '$groupMembersPath/${memberToPay.id}/balance': memberToPay.balance,
+      '$groupMembersPath/${memberToReceive.id}/balance':
+          memberToReceive.balance,
+      newTransactionChildPath: transaction.toMap(),
     };
 
     await databaseReference.update(updateObj).catchError((onError) {

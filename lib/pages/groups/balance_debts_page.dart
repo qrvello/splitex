@@ -11,12 +11,14 @@ class BalanceDebtsPage extends StatefulWidget {
   _BalanceDebtsPageState createState() => _BalanceDebtsPageState();
 }
 
-final GroupsProvider groupProvider = GroupsProvider();
-
 class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
+  final GroupsProvider groupProvider = GroupsProvider();
+
   @override
   Widget build(BuildContext context) {
-    List<Transaction> transactions = groupProvider.balanceDebts(widget.group);
+    List<Transaction> transactions =
+        groupProvider.balanceDebts(widget.group.members);
+
     return Scaffold(
       appBar: AppBar(
         //leading: Container(),

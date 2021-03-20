@@ -17,8 +17,6 @@ class AuthenticationProvider with ChangeNotifier {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
-
-      print("Signed in");
     } on FirebaseAuthException catch (e) {
       print(e.message);
       return false;
@@ -62,6 +60,8 @@ class AuthenticationProvider with ChangeNotifier {
   Future<bool> signOut() async {
     try {
       await _firebaseAuth.signOut();
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      await preferences.clear();
       return true;
     } catch (e) {
       print(e.message);

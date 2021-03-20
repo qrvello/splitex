@@ -142,8 +142,20 @@ class _FormSignUpState extends State<FormSignUp> {
         style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
+          ),
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff83C5BE)),
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
+          ),
+          border: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
           ),
           icon: Icon(
             Icons.alternate_email_rounded,
@@ -155,8 +167,9 @@ class _FormSignUpState extends State<FormSignUp> {
           hintText: 'ejemplo@correo.com',
           labelText: 'Correo electrónico',
         ),
-        validator: (input) =>
-            input.isValidEmail() ? null : "El email ingresado es incorrecto",
+        validator: (input) => input.trim().isValidEmail()
+            ? null
+            : "El email ingresado es incorrecto",
         controller: _email,
       ),
     );
@@ -169,8 +182,20 @@ class _FormSignUpState extends State<FormSignUp> {
         style: TextStyle(color: Colors.black),
         obscureText: _obscureText,
         decoration: InputDecoration(
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
+          ),
           enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Color(0xff83C5BE)),
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
+          ),
+          border: UnderlineInputBorder(
+            borderSide: BorderSide(
+              color: Color(0xff83C5BE),
+            ),
           ),
           suffixIcon: IconButton(
             icon: Icon(
@@ -196,7 +221,7 @@ class _FormSignUpState extends State<FormSignUp> {
           if (value.isEmpty) {
             return 'Ingrese una contraseña';
           }
-          if (value.length < 6) {
+          if (value.trim().length < 6) {
             return 'Ingrese una contraseña mayor a 6 caracteres';
           }
           return null;
@@ -265,7 +290,8 @@ class _FormSignUpState extends State<FormSignUp> {
           labelStyle: TextStyle(color: Color(0xff006D77)),
           labelText: 'Nombre',
         ),
-        validator: (value) => (value.isEmpty) ? 'Ingrese un nombre' : null,
+        validator: (value) =>
+            (value.trim().isEmpty) ? 'Ingrese un nombre' : null,
         controller: _name,
       ),
     );
