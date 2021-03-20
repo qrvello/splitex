@@ -5,42 +5,52 @@ final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   textTheme: GoogleFonts.workSansTextTheme(
     TextTheme().apply(
-      bodyColor: Colors.white,
-      displayColor: Colors.white,
+      bodyColor: Colors.white.withOpacity(0.87),
+      displayColor: Colors.white.withOpacity(0.87),
     ),
   ),
   snackBarTheme: SnackBarThemeData(
     behavior: SnackBarBehavior.floating,
     backgroundColor: Color(0xff284B63),
-    contentTextStyle: TextStyle(color: Colors.white),
-    actionTextColor: Colors.white,
+    contentTextStyle: TextStyle(color: Colors.white.withOpacity(0.87)),
+    actionTextColor: Colors.white.withOpacity(0.87),
   ),
   appBarTheme: AppBarTheme(
     centerTitle: true,
   ),
   cardTheme: CardTheme(
-    color: Colors.black,
+    color: Color(0xff001d3d),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   fixTextFieldOutlineLabel: true,
-  scaffoldBackgroundColor: Color(0xff000000),
-  primaryColor: Color(0xff284b63),
+  scaffoldBackgroundColor: Color(0xff121212),
+  primaryColor: Color(0xff001d3d),
   accentColor: Color(0xffd9d9d9),
-  textSelectionTheme: TextSelectionThemeData(cursorColor: Color(0xff284B63)),
+  textSelectionTheme:
+      TextSelectionThemeData(cursorColor: Colors.white.withOpacity(0.87)),
   inputDecorationTheme: InputDecorationTheme(
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18.0),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(24.0),
       borderSide: BorderSide(
-        color: Colors.white,
+        color: Color(0xff284b63),
+        width: 3,
+      ),
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(24.0),
+      borderSide: BorderSide(
+        color: Colors.white.withOpacity(0.87),
+        width: 1,
       ),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(18.0),
+      borderRadius: BorderRadius.circular(24.0),
       borderSide: BorderSide(
-        color: Colors.white,
+        color: Colors.white.withOpacity(0.87),
+        width: 1,
       ),
     ),
-    labelStyle: TextStyle(color: Colors.white70),
+    labelStyle: TextStyle(color: Colors.white.withOpacity(0.87)),
     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
@@ -48,7 +58,7 @@ final ThemeData darkTheme = ThemeData(
       backgroundColor: MaterialStateProperty.resolveWith(
         (states) => (states.contains(MaterialState.pressed)
             ? Color(0xffd9d9d9)
-            : Color(0xff284b63)),
+            : Color(0xff001d3d)),
       ),
       shape: MaterialStateProperty.resolveWith(
         (states) => RoundedRectangleBorder(

@@ -4,6 +4,7 @@ import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:repartapp/models/member_model.dart';
+import 'package:repartapp/models/transaction_model.dart';
 import 'package:repartapp/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -91,6 +92,7 @@ class GroupsProvider {
         name: {"balance": 0}
       },
     );
+    data.putIfAbsent('balanced', () => false);
 
     // Crea un mapa para usar multiple paths al insertar datos
     final Map<String, dynamic> mapRefs = {
@@ -180,9 +182,10 @@ class GroupsProvider {
     };
 
     // Solo usa 2 decimales
-    final double debtForEach =
-        double.parse((expense.amount / countMembers).toStringAsFixed(2));
+    double debtForEach = (expense.amount / countMembers);
 
+    debtForEach = double.parse(debtForEach.toStringAsFixed(2));
+    print(debtForEach);
     members.forEach((member) {
       double updatedBalance = 0;
 
@@ -190,7 +193,7 @@ class GroupsProvider {
       // ya tiene en vez de restar
 
       if (member.id == expense.paidBy) {
-        updatedBalance = member.balance + (expense.amount - debtForEach);
+        updatedBalance = member.balance + expense.amount - debtForEach;
       } else {
         updatedBalance = member.balance - debtForEach;
       }
@@ -202,7 +205,7 @@ class GroupsProvider {
     });
 
     await databaseReference.update(updateObj).catchError((error) {
-      print(error);
+      print("Error al agregar gasto: ${error.message}");
       return false;
     });
 
@@ -210,13 +213,17 @@ class GroupsProvider {
   }
 
   Future<bool> deleteExpense(GroupModel group, Expense expense) async {
+    // ignore: todo
+    // TODO restar balance que se habia agregado previamente con el gasto
+
     await databaseReference
         .child('groups/${group.id}/expenses/${expense.id}')
         .remove()
         .catchError((onError) {
-      print('Error al borrar expensa $onError');
+      print('Error al borrar expensa ${onError.message}');
       return false;
     });
+
     return true;
   }
 
@@ -308,21 +315,72 @@ class GroupsProvider {
     });
   }
 
-  balanceDebts(List<Member> members) {
-    //members.for
-    members.asMap().forEach((name1, member1) {
-      List<Member> members2 = members;
-      members2.remove(member1);
+  List<Transaction> balanceDebts(GroupModel group) {
+    List<Transaction> transactions = [];
 
-      members2.asMap().forEach((name2, member2) {
-        if (member2.balance >= member1.balance) {
-          member2.balance += member1.balance;
-          member1.balance += member2.balance;
-          print(member1.balance);
+    Iterable<Member> membersWithDebt =
+        group.members.where((member) => member.balance < 0);
+
+    Iterable<Member> membersWithPositiveBalance =
+        group.members.where((member) => member.balance > 0);
+
+    for (Member member1 in membersWithDebt) {
+      for (Member member2 in membersWithPositiveBalance) {
+        if (member1.balance.abs() <= member2.balance) {
+          double toPay = member1.balance.abs();
+
+          Transaction transaction = Transaction();
+
+          transaction.amountToPay = toPay;
+          transaction.memberToPay = member1;
+          transaction.memberToReceive = member2;
+
+          transactions.add(transaction);
+
+          break;
         }
-      });
+
+        if (member1.balance.abs() > member2.balance) {
+          double toPay = member2.balance;
+
+          Transaction transaction = Transaction();
+
+          transaction.amountToPay = toPay;
+          transaction.memberToPay = member1;
+          transaction.memberToReceive = member2;
+
+          transactions.add(transaction);
+        }
+      }
+    }
+
+    return transactions;
+  }
+
+  Future<bool> checkTransaction(
+      Transaction transaction, GroupModel group) async {
+    String membersPath =
+        databaseReference.child('/groups/${group.id}/members/').path;
+
+    Member memberToPay = group.members
+        .firstWhere((member) => member.id == transaction.memberToPay.id);
+
+    Member memberToReceive = group.members
+        .firstWhere((member) => member.id == transaction.memberToReceive.id);
+
+    memberToPay.balance += transaction.amountToPay;
+    memberToReceive.balance -= transaction.amountToPay;
+
+    Map<String, dynamic> updateObj = {
+      '$membersPath/${memberToPay.id}/balance': memberToPay.balance,
+      '$membersPath/${memberToReceive.id}/balance': memberToReceive.balance,
+    };
+
+    await databaseReference.update(updateObj).catchError((onError) {
+      print('Error al chequear transacción: ${onError.message}');
+      return false;
     });
-    //print(member.first.balance);
-    //return member;
+
+    return true;
   }
 }

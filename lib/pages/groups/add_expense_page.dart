@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:repartapp/models/expense.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
@@ -66,6 +67,17 @@ class _AddExpensePageState extends State<AddExpensePage> {
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: <Widget>[
+                (error)
+                    ? Container(
+                        margin: EdgeInsets.only(bottom: 20, top: 5),
+                        child: Text(
+                          'Error al agregar gasto',
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                      )
+                    : SizedBox.shrink(),
                 _inputDescription(),
                 SizedBox(height: 10),
                 _inputAmount(),
@@ -81,6 +93,20 @@ class _AddExpensePageState extends State<AddExpensePage> {
                         width: MediaQuery.of(context).size.width * 0.5,
                         height: 80,
                         child: DropdownButtonFormField<String>(
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                                width: 1,
+                              ),
+                            ),
+                          ),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           isExpanded: true,
                           value: dropdownValue,
@@ -144,7 +170,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       style: TextStyle(fontSize: 19),
       decoration: InputDecoration(
         helperText: 'Ejemplo: almuerzo',
-        labelText: 'Descripción del gasto',
+        labelText: 'Descripción',
       ),
       onSaved: (value) => expense.description = value,
       controller: _expenseNameController,
@@ -158,15 +184,27 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Widget _inputAmount() {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      keyboardType: TextInputType.number,
       style: TextStyle(fontSize: 19),
       decoration: InputDecoration(
-        floatingLabelBehavior: FloatingLabelBehavior.never,
         prefixIcon: Icon(Icons.attach_money),
         labelText: 'Cantidad',
+        //suffixIcon: (_validated)
+        //    ? Icon(
+        //        Icons.check_circle_outline_rounded,
+        //        color: Colors.greenAccent,
+        //      )
+        //    : Icon(
+        //        Icons.error_outline_rounded,
+        //        color: Colors.redAccent,
+        //      ),
       ),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
+      ],
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
       controller: _expenseAmountController,
-      onSaved: (value) => expense.amount = double.tryParse(value).toDouble(),
+      onSaved: (value) =>
+          expense.amount = double.tryParse(value).toDouble().roundToDouble(),
       validator: (value) {
         if (value.isEmpty) return 'Por favor ingresa un número';
         if (_isNumeric(value) != false) {
@@ -178,26 +216,21 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  _submit(context) async {
+  void _submit(context) async {
     if (!formKey.currentState.validate()) return;
 
     formKey.currentState.save();
 
-    //final DetailsGroupPage args = ModalRoute.of(context).settings.arguments;
-
-    //GroupModel group = args.group;
-
-    //group.members = args.members.asMap();
-
-    final resp = await groupProvider.addExpense(widget.group, expense);
+    bool resp = await groupProvider.addExpense(widget.group, expense);
 
     if (resp != false) {
       error = false;
       Navigator.pop(context);
+    } else {
+      setState(() {
+        error = true;
+      });
     }
-    setState(() {
-      error = true;
-    });
   }
 
   bool _isNumeric(String str) {

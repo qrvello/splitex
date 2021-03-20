@@ -3,20 +3,23 @@ import 'package:repartapp/models/expense.dart';
 import 'member_model.dart';
 
 class GroupModel {
-  GroupModel(
-      {this.id,
-      this.name,
-      this.adminUser,
-      this.timestamp,
-      this.invitedBy,
-      this.members,
-      this.expenses});
+  GroupModel({
+    this.id,
+    this.name,
+    this.adminUser,
+    this.timestamp,
+    this.invitedBy,
+    this.members,
+    this.expenses,
+    this.balanced = false,
+  });
 
   String adminUser;
   String id;
   String name;
   String invitedBy;
   int timestamp;
+  bool balanced = false;
   List<Member> members;
   List<Expense> expenses;
 
@@ -50,6 +53,7 @@ class GroupModel {
       members: members,
       expenses: expenses,
       invitedBy: map["invited_by"],
+      balanced: map["balanced"],
     );
   }
 
@@ -60,5 +64,6 @@ class GroupModel {
         "members": members,
         "expenses": expenses,
         "invited_by": invitedBy,
+        "balanced": balanced,
       };
 }

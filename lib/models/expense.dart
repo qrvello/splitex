@@ -20,14 +20,14 @@ class Expense {
 
   String id;
   String description;
-  dynamic amount;
+  double amount;
   String paidBy;
   int timestamp;
 
   factory Expense.fromMap(Map<dynamic, dynamic> map, id) => Expense(
         id: id,
         description: map["description"],
-        amount: map["amount"],
+        amount: map["amount"].toDouble(),
         paidBy: map["paid_by"],
         timestamp: map["timestamp"],
       );

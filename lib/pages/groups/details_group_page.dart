@@ -31,19 +31,22 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   StreamSubscription _streamSubscription;
 
-  List<Expense> expenses = [];
-  List<Member> members = [];
-
   @override
   void initState() {
     super.initState();
-
+    if (widget.group.balanced == null) {
+      widget.group.balanced = false;
+    }
     _streamSubscription = groupProvider.getGroup(widget.group).listen((data) {
       setState(() {
         // Si la data (groupo) que se recibe es distinta de la que se tiene entonces se remplaza
-
+        if (widget.group.balanced != data.balanced) {
+          widget.group.balanced = data.balanced;
+        }
         if (widget.group.expenses != data.expenses) {
           widget.group.expenses = data.expenses;
+          widget.group.expenses
+              .sort((a, b) => b.timestamp.compareTo(a.timestamp));
         }
         if (widget.group.members != data.members) {
           widget.group.members = data.members;
@@ -71,7 +74,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           length: 2,
           child: Scaffold(
             floatingActionButton: SpeedDial(
-              backgroundColor: Color(0xff284b63),
+              backgroundColor: Color(0xff001d3d),
               overlayColor: Colors.black12,
               icon: Icons.add_rounded,
               activeIcon: Icons.add_rounded,
@@ -272,7 +275,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           subtitle: Text('Pagado por ${expense.paidBy}'),
           title: Text(expense.description),
           trailing: Text(
-            "\$${expense.amount.toString()}",
+            "\$${expense.amount.toStringAsFixed(2)}",
             style: TextStyle(
               fontSize: 20,
             ),
@@ -308,19 +311,26 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         SliverAppBar(
           backgroundColor: Colors.transparent,
           automaticallyImplyLeading: false,
-          title: Text(
-            'Cuentas saldadas',
-            style: TextStyle(
-              fontSize: 14,
-            ),
-          ),
+          title: (widget.group.balanced)
+              ? Text(
+                  'Cuentas saldadas',
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
+                )
+              : Text(
+                  'Cuentas sin saldar',
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
+                ),
           centerTitle: true,
           floating: true,
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate(
-            (context, i) => _createItem(context, expenses[i]),
-            childCount: expenses.length,
+            (context, i) => _createItem(context, widget.group.expenses[i]),
+            childCount: widget.group.expenses.length,
           ),
         ),
       ],
@@ -349,10 +359,8 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
               ),
               ElevatedButton(
                 child: Text('Balancear cuentas'),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/balance_debts',
-                      arguments: widget.group);
-                },
+                onPressed: () => Navigator.pushNamed(context, '/balance_debts',
+                    arguments: widget.group),
               ),
             ],
           ),
@@ -379,45 +387,16 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   }
 
   Widget _listMembers(BuildContext context, Member member) {
-    return Dismissible(
-      confirmDismiss: (direction) {
-        return showDialog(
-          context: context,
-          builder: (_) {
-            // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
-            return;
-          },
-        );
-      },
-      onDismissed: (_) {
-        setState(() {});
-      },
-      key: UniqueKey(),
-      background: Container(
-        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Color(0xffE29578),
-        ),
-        alignment: AlignmentDirectional.centerEnd,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-          child: Icon(
-            Icons.delete,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      direction: DismissDirection.endToStart,
-      child: Card(
-        child: ListTile(
-          title: Text(member.id),
-          trailing: Text('\$${member.balance}'),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => DetailsGroupPage(group: widget.group),
-            ),
+    return Card(
+      child: ListTile(
+        title: Text(member.id),
+        trailing: Text(
+          '\$${member.balance.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color:
+                (member.balance >= 0) ? Colors.greenAccent : Colors.redAccent,
           ),
         ),
       ),

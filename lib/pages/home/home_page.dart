@@ -26,7 +26,7 @@ class _HomePageState extends State<HomePage> {
       body: GroupsList(),
       drawer: SideMenu(),
       floatingActionButton: SpeedDial(
-        backgroundColor: Color(0xff284b63),
+        backgroundColor: Color(0xff001d3d),
         overlayColor: Colors.black12,
         icon: Icons.add_rounded,
         activeIcon: Icons.add_rounded,

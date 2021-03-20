@@ -31,7 +31,9 @@ class _GroupsListState extends State<GroupsList> {
         }
 
         if (snapshot.hasData) {
-          groups = snapshot.data;
+          List<GroupModel> groups = snapshot.data;
+          groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
           return ListView.builder(
             itemCount: groups.length,
             itemBuilder: (context, i) => _createItem(context, groups[i]),
@@ -147,14 +149,14 @@ class _GroupsListState extends State<GroupsList> {
 
   _deleteGroup(context, group) async {
     final result = await groupProvider.deleteGroup(group);
-    groups.remove(group);
 
     if (result == true) {
-      Navigator.of(context).pop(true);
+      groups.remove(group);
+      Navigator.of(context).pop(result);
       setState(() {});
       _successSnackbar(context);
     } else {
-      Navigator.of(context).pop(false);
+      Navigator.of(context).pop(result);
 
       _errorSnackbar(context);
     }
