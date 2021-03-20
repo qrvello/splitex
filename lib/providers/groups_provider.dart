@@ -407,4 +407,11 @@ class GroupsProvider {
 
     return true;
   }
+
+  void deleteMember(GroupModel group, Member member) async {
+    await databaseReference
+        .child('/groups/${group.id}/members/${member.id}')
+        .remove();
+    return;
+  }
 }

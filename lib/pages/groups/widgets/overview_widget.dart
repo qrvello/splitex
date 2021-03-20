@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/pages/users/user_search.dart';
+import 'package:repartapp/providers/groups_provider.dart';
 
 class OverviewWidget extends StatefulWidget {
   final GroupModel group;
@@ -12,6 +13,7 @@ class OverviewWidget extends StatefulWidget {
 }
 
 class _OverviewWidgetState extends State<OverviewWidget> {
+  final GroupsProvider groupProvider = GroupsProvider();
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -52,19 +54,105 @@ class _OverviewWidgetState extends State<OverviewWidget> {
   }
 
   Widget _listMembers(BuildContext context, Member member) {
-    return Card(
-      child: ListTile(
-        title: Text(member.id),
-        trailing: Text(
-          '\$${member.balance.toStringAsFixed(2)}',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color:
-                (member.balance >= 0) ? Colors.greenAccent : Colors.redAccent,
+    return Dismissible(
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: (_) {
+            if (member.balance == 0) {
+              // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
+              return _confirmDeleteDialog(context, member);
+            }
+            return ErrorDialog(member: member);
+          },
+        );
+      },
+      onDismissed: (_) {
+        setState(() {
+          widget.group.members.remove(member);
+        });
+      },
+      key: UniqueKey(),
+      background: Container(
+        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Color(0xffE29578),
+        ),
+        alignment: AlignmentDirectional.centerEnd,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
           ),
         ),
       ),
+      direction: DismissDirection.endToStart,
+      child: Card(
+        child: ListTile(
+          title: Text(member.id),
+          trailing: Text(
+            '\$${member.balance.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color:
+                  (member.balance >= 0) ? Colors.greenAccent : Colors.redAccent,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _confirmDeleteDialog(context, member) {
+    return AlertDialog(
+      title: Text('Confirmar eliminación'),
+      content: Text('¿Seguro/a deseas borrar del grupo a ${member.id}?'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(
+            'Cancelar',
+            style: TextStyle(
+              color: Color(0xffe76f51),
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            groupProvider.deleteMember(widget.group, member);
+            Navigator.of(context).pop(true);
+          },
+          child: Text(
+            'Confirmar',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ErrorDialog extends StatelessWidget {
+  final Member member;
+  const ErrorDialog({
+    Key key,
+    this.member,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Confirmar eliminación'),
+      content: Text(
+          'Para borrar al miembro ${member.id} primero balancea sus cuentas.'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text('Aceptar'),
+        ),
+      ],
     );
   }
 }

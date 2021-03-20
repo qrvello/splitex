@@ -36,15 +36,15 @@ class _ActivityWidgetState extends State<ActivityWidget> {
           automaticallyImplyLeading: false,
           title: (widget.group.totalBalance > 0)
               ? Text(
-                  'Gasto total: ${widget.group.totalBalance}',
+                  'Gasto total: \$${widget.group.totalBalance}',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                   ),
                 )
               : Text(
                   'Sin gastos',
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                   ),
                 ),
           centerTitle: true,
