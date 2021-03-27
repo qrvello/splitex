@@ -11,8 +11,9 @@ import 'package:repartapp/pages/groups/widgets/activity_widget.dart';
 import 'package:repartapp/pages/groups/widgets/overview_widget.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
+// ignore: must_be_immutable
 class DetailsGroupPage extends StatefulWidget {
-  final GroupModel group;
+  Group group;
   DetailsGroupPage({this.group});
 
   @override
@@ -31,23 +32,13 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   @override
   void initState() {
     super.initState();
-    _streamSubscription = groupProvider.getGroup(widget.group).listen((data) {
+    _streamSubscription =
+        groupProvider.getGroup(widget.group).listen((Group data) {
       setState(() {
         // Si la data (groupo) que se recibe es distinta de la que se tiene entonces se remplaza
-        if (widget.group.totalBalance != data.totalBalance) {
-          widget.group.totalBalance = data.totalBalance;
-        }
-        if (widget.group.expenses != data.expenses) {
-          widget.group.expenses = data.expenses;
-          widget.group.expenses
-              .sort((a, b) => b.timestamp.compareTo(a.timestamp));
-        }
-        if (widget.group.members != data.members) {
-          widget.group.members = data.members;
-        }
-        if (widget.group.transactions != data.transactions) {
-          widget.group.transactions = data.transactions;
-        }
+        widget.group = data;
+        widget.group.expenses
+            .sort((a, b) => b.timestamp.compareTo(a.timestamp));
       });
     });
   }
@@ -147,75 +138,73 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
             'Nueva persona',
             style: TextStyle(fontSize: 18),
           ),
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(18.0),
-                    ),
-                  ),
-                  content: Container(
-                    height: 65,
-                    child: Form(
-                      key: formKey,
-                      child: TextFormField(
-                        autofocus: true,
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        maxLength: 20,
-                        cursorColor: Color(0xff264653),
-                        style: TextStyle(fontSize: 18),
-                        decoration: InputDecoration(
-                          errorMaxLines: 3,
-                          labelText: 'Nombre',
-                        ),
-                        validator: (value) {
-                          if (value.trim().length < 1) {
-                            return 'Ingrese el nombre del nuevo miembro';
-                          } else if (value.trim().length > 20) {
-                            return 'Ingrese un nombre menor a 20 caracteres';
-                          } else {
-                            if (widget.group.members
-                                .asMap()
-                                .containsKey(value.trim())) {
-                              return 'Ya existe un miembro con ese nombre. Elegí otro nombre por favor.';
-                            }
-                            return null;
-                          }
-                        },
-                        controller: _newMemberName,
-                      ),
-                    ),
-                  ),
-                  actions: [
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.resolveWith(
-                          (states) => (states.contains(MaterialState.pressed)
-                              ? Color(0xffFFDDD2)
-                              : Color(0xffE29578)),
-                        ),
-                      ),
-                      child: Text('Cancelar'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ElevatedButton(
-                      child: Text('Guardar'),
-                      onPressed: () {
-                        _addNewMember();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
+          onTap: () => dialogAddMember(context),
         ),
       ],
+    );
+  }
+
+  Future dialogAddMember(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(18.0),
+            ),
+          ),
+          content: Container(
+            height: 65,
+            child: Form(
+              key: formKey,
+              child: TextFormField(
+                autofocus: true,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                maxLength: 20,
+                cursorColor: Color(0xff264653),
+                style: TextStyle(fontSize: 18),
+                decoration: InputDecoration(
+                  errorMaxLines: 3,
+                  labelText: 'Nombre',
+                ),
+                validator: (value) {
+                  if (value.trim().length < 1) {
+                    return 'Ingrese el nombre del nuevo miembro';
+                  } else if (value.trim().length > 20) {
+                    return 'Ingrese un nombre menor a 20 caracteres';
+                  } else {
+                    if (widget.group.members
+                        .asMap()
+                        .containsKey(value.trim())) {
+                      return 'Ya existe un miembro con ese nombre. Elegí otro nombre por favor.';
+                    }
+                    return null;
+                  }
+                },
+                controller: _newMemberName,
+              ),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.resolveWith(
+                  (states) => (states.contains(MaterialState.pressed)
+                      ? Color(0xffE29578)
+                      : Color(0xffee6c4d)),
+                ),
+              ),
+              child: Text('Cancelar'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            ElevatedButton(
+              child: Text('Agregar'),
+              onPressed: () => _addNewMember(),
+            ),
+          ],
+        );
+      },
     );
   }
 

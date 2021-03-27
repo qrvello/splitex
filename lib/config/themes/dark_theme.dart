@@ -14,9 +14,11 @@ final ThemeData darkTheme = ThemeData(
     actionTextColor: Colors.white.withOpacity(0.87),
   ),
   appBarTheme: AppBarTheme(
-    textTheme: GoogleFonts.montserratTextTheme(TextTheme(
-            headline6: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)))
-        .apply(
+    textTheme: GoogleFonts.montserratTextTheme(
+      TextTheme(
+        headline6: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+      ),
+    ).apply(
       bodyColor: Colors.white.withOpacity(0.87),
       displayColor: Colors.white.withOpacity(0.87),
     ),
@@ -37,7 +39,7 @@ final ThemeData darkTheme = ThemeData(
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16.0),
       borderSide: BorderSide(
-        color: Color(0xff284b63),
+        color: Color(0xff3d5a80),
         width: 3,
       ),
     ),
@@ -71,5 +73,8 @@ final ThemeData darkTheme = ThemeData(
         ),
       ),
     ),
+  ),
+  dialogTheme: DialogTheme(
+    backgroundColor: Color(0xff212529),
   ),
 );

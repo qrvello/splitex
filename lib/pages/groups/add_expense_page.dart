@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:repartapp/models/expense.dart';
+import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
 
 import 'package:repartapp/providers/groups_provider.dart';
 
 class AddExpensePage extends StatefulWidget {
-  final GroupModel group;
+  final Group group;
   AddExpensePage({this.group});
   @override
   _AddExpensePageState createState() => _AddExpensePageState();

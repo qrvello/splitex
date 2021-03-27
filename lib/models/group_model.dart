@@ -1,10 +1,10 @@
-import 'package:repartapp/models/expense.dart';
+import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/transaction_model.dart';
 
 import 'member_model.dart';
 
-class GroupModel {
-  GroupModel({
+class Group {
+  Group({
     this.id,
     this.name,
     this.adminUser,
@@ -14,19 +14,21 @@ class GroupModel {
     this.expenses,
     this.transactions,
     this.totalBalance,
+    this.link,
   });
 
   String adminUser;
   String id;
   String name;
   String invitedBy;
+  String link;
   int timestamp;
   double totalBalance;
   List<Member> members;
   List<Expense> expenses;
   List<Transaction> transactions;
 
-  factory GroupModel.fromMap(Map<dynamic, dynamic> map, key) {
+  factory Group.fromMap(Map<dynamic, dynamic> map, key) {
     List<Member> members = [];
     List<Expense> expenses = [];
     List<Transaction> transactions = [];
@@ -62,7 +64,7 @@ class GroupModel {
       });
     }
 
-    return GroupModel(
+    return Group(
       id: key,
       name: map["name"],
       adminUser: map["admin_user"],
@@ -72,6 +74,7 @@ class GroupModel {
       transactions: transactions,
       invitedBy: map["invited_by"],
       totalBalance: totalBalance,
+      link: map['link'],
     );
   }
 
@@ -84,5 +87,6 @@ class GroupModel {
         "invited_by": invitedBy,
         "total_balance": totalBalance,
         "transactions": transactions,
+        "link": link
       };
 }

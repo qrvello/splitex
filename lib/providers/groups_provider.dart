@@ -1,6 +1,7 @@
 //import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:repartapp/models/expense.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:repartapp/models/member_model.dart';
@@ -13,19 +14,19 @@ class GroupsProvider {
 
   final databaseReference = FirebaseDatabase.instance.reference();
 
-  Stream<GroupModel> getGroup(GroupModel group) async* {
-    GroupModel groupComplete;
+  Stream<Group> getGroup(Group group) async* {
+    Group groupComplete;
 
     DatabaseReference groupReference =
         databaseReference.child('groups/${group.id}');
 
-    Stream<Event> groupStream = groupReference.orderByKey().onValue;
+    Stream<Event> groupStream = groupReference.onValue;
 
     await for (Event event in groupStream) {
       DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.value != null) {
-        GroupModel thisGroup = GroupModel.fromMap(snapshot.value, snapshot.key);
+        Group thisGroup = Group.fromMap(snapshot.value, snapshot.key);
 
         groupComplete = thisGroup;
       }
@@ -34,8 +35,8 @@ class GroupsProvider {
     }
   }
 
-  Stream<List<GroupModel>> getGroupsList() async* {
-    final List<GroupModel> foundGroups = [];
+  Stream<List<Group>> getGroupsList() async* {
+    final List<Group> foundGroups = [];
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String uid = prefs.getString('uid');
 
@@ -51,7 +52,7 @@ class GroupsProvider {
         Map<dynamic, dynamic> mapGroups = event.snapshot.value;
 
         mapGroups.forEach((id, group) {
-          final GroupModel thisGroup = GroupModel.fromMap(group, id);
+          final Group thisGroup = Group.fromMap(group, id);
           foundGroups.add(thisGroup);
         });
 
@@ -60,7 +61,7 @@ class GroupsProvider {
     }
   }
 
-  Future<bool> createGroup(GroupModel group) async {
+  Future<bool> createGroup(Group group) async {
     // Guarda el id del creador del grupo
     group.adminUser = user.uid;
 
@@ -80,19 +81,42 @@ class GroupsProvider {
       'timestamp': ServerValue.timestamp,
     };
 
-    final data = Map.from(dataUser);
-
     final prefs = await SharedPreferences.getInstance();
 
     final name = prefs.getString('displayName');
 
-    data.putIfAbsent(
-      'members',
-      () => {
-        name: {"balance": 0}
-      },
+    final DynamicLinkParameters parameters = DynamicLinkParameters(
+      uriPrefix: 'https://repartapp2.page.link/',
+      link:
+          Uri.parse('https://repartapp2.page.link/?id=${newChildGroupRef.key}'),
+      androidParameters: AndroidParameters(
+        packageName: 'com.curvello.repartapp',
+        minimumVersion: 1,
+      ),
+      socialMetaTagParameters: SocialMetaTagParameters(
+        title: 'Link para unirse a ${group.name}',
+        description: 'This link works whether app is installed or not!',
+      ),
+      navigationInfoParameters: NavigationInfoParameters(
+        forcedRedirectEnabled: true,
+      ),
     );
-    data.putIfAbsent('total_balance', () => 0);
+
+    final ShortDynamicLink shortDynamicLink = await parameters.buildShortLink();
+
+    final Uri shortUrl = shortDynamicLink.shortUrl;
+
+    final Map<String, dynamic> data = {
+      'members': {
+        name: {
+          "balance": 0,
+        },
+      },
+      'total_balance': 0,
+      'link': shortUrl.toString(),
+    };
+
+    data.addAll(dataUser);
 
     // Crea un mapa para usar multiple paths al insertar datos
     final Map<String, dynamic> mapRefs = {
@@ -108,7 +132,7 @@ class GroupsProvider {
     return true;
   }
 
-  Future<bool> updateGroup(GroupModel group) async {
+  Future<bool> updateGroup(Group group) async {
     Map<String, dynamic> updateObj = {};
     // Obtiene la referencia
 
@@ -134,7 +158,7 @@ class GroupsProvider {
     return true;
   }
 
-  Future<bool> deleteGroup(GroupModel group) async {
+  Future<bool> deleteGroup(Group group) async {
     Map<String, dynamic> removeObj = {};
 
     // Valida que el admin del grupo sea el usuario que lo elimina sino solo lo borra de mis grupos
@@ -166,7 +190,7 @@ class GroupsProvider {
     return true;
   }
 
-  Future<bool> addExpense(GroupModel group, Expense expense) async {
+  Future<bool> addExpense(Group group, Expense expense) async {
     final DatabaseReference groupReference =
         databaseReference.child('groups/${group.id}');
 
@@ -213,7 +237,7 @@ class GroupsProvider {
     return true;
   }
 
-  Future<bool> deleteExpense(GroupModel group, Expense expense) async {
+  Future<bool> deleteExpense(Group group, Expense expense) async {
     // ignore: todo
     // TODO restar balance que se habia agregado previamente con el gasto
 
@@ -228,7 +252,7 @@ class GroupsProvider {
     return true;
   }
 
-  Future<bool> addUserToGroup(User userToInvite, GroupModel group) async {
+  Future<bool> addUserToGroup(User userToInvite, Group group) async {
     final DataSnapshot snapshotMembers =
         await databaseReference.child('groups/${group.id}/users').once();
 
@@ -268,7 +292,16 @@ class GroupsProvider {
     return true;
   }
 
-  Future<bool> acceptInvitationGroup(GroupModel group) async {
+  Future<dynamic> acceptInvitationGroup(String groupId) async {
+    DataSnapshot snapshot =
+        await databaseReference.child('groups/$groupId').once();
+
+    Group group;
+
+    if (snapshot.value != null) {
+      group = Group.fromMap(snapshot.value, snapshot.key);
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     final requestUserPath = databaseReference
@@ -288,7 +321,6 @@ class GroupsProvider {
 
     final Map<String, dynamic> data = {
       'name': group.name,
-      'admin_user': group.adminUser,
       'timestamp': group.timestamp,
     };
 
@@ -304,10 +336,10 @@ class GroupsProvider {
       return false;
     });
 
-    return true;
+    return group;
   }
 
-  void addPersonToGroup(String name, GroupModel group) {
+  void addPersonToGroup(String name, Group group) {
     final newChildMember =
         databaseReference.child('/groups/${group.id}/members/$name');
 
@@ -374,8 +406,7 @@ class GroupsProvider {
     return transactions;
   }
 
-  Future<bool> checkTransaction(
-      Transaction transaction, GroupModel group) async {
+  Future<bool> checkTransaction(Transaction transaction, Group group) async {
     DatabaseReference groupReference =
         databaseReference.child('/groups/${group.id}');
 
@@ -408,7 +439,7 @@ class GroupsProvider {
     return true;
   }
 
-  void deleteMember(GroupModel group, Member member) async {
+  void deleteMember(Group group, Member member) async {
     await databaseReference
         .child('/groups/${group.id}/members/${member.id}')
         .remove();

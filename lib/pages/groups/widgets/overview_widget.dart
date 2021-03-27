@@ -1,11 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
-import 'package:repartapp/pages/users/user_search.dart';
 import 'package:repartapp/providers/groups_provider.dart';
+import 'package:share/share.dart';
 
 class OverviewWidget extends StatefulWidget {
-  final GroupModel group;
+  final Group group;
 
   const OverviewWidget({Key key, this.group}) : super(key: key);
   @override
@@ -14,6 +15,8 @@ class OverviewWidget extends StatefulWidget {
 
 class _OverviewWidgetState extends State<OverviewWidget> {
   final GroupsProvider groupProvider = GroupsProvider();
+  final User user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -28,11 +31,9 @@ class _OverviewWidgetState extends State<OverviewWidget> {
             children: [
               ElevatedButton(
                 child: Text('Invitar a miembros'),
-                onPressed: () async {
-                  await showSearch(
-                    context: context,
-                    delegate: UserSearchDelegate(widget.group),
-                  );
+                onPressed: () {
+                  Share.share(
+                      'Unite a mi grupo de RepartApp: ${widget.group.link}');
                 },
               ),
               ElevatedButton(
@@ -54,51 +55,59 @@ class _OverviewWidgetState extends State<OverviewWidget> {
   }
 
   Widget _listMembers(BuildContext context, Member member) {
-    return Dismissible(
-      confirmDismiss: (direction) {
-        return showDialog(
-          context: context,
-          builder: (_) {
-            if (member.balance == 0) {
-              // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
-              return _confirmDeleteDialog(context, member);
-            }
-            return ErrorDialog(member: member);
-          },
-        );
-      },
-      onDismissed: (_) {
-        setState(() {
-          widget.group.members.remove(member);
-        });
-      },
-      key: UniqueKey(),
-      background: Container(
-        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Color(0xffE29578),
-        ),
-        alignment: AlignmentDirectional.centerEnd,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-          child: Icon(
-            Icons.delete,
-            color: Colors.white,
+    // Si el usuario actual no es el admin entonces no se le permite borrar miembros
+
+    return AbsorbPointer(
+      absorbing: (user.uid != widget.group.adminUser) ? true : false,
+      child: Dismissible(
+        confirmDismiss: (direction) {
+          return showDialog(
+            context: context,
+            builder: (_) {
+              if (member.balance == 0) {
+                // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
+                return _confirmDeleteDialog(context, member);
+              }
+              return ErrorDialog(member: member);
+            },
+          );
+        },
+        onDismissed: (_) {
+          setState(() {
+            widget.group.members.remove(member);
+          });
+        },
+        key: UniqueKey(),
+        background: Container(
+          margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Color(0xffE29578),
+          ),
+          alignment: AlignmentDirectional.centerEnd,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+            child: Icon(
+              Icons.delete,
+              color: Colors.white,
+            ),
           ),
         ),
-      ),
-      direction: DismissDirection.endToStart,
-      child: Card(
-        child: ListTile(
-          title: Text(member.id),
-          trailing: Text(
-            '\$${member.balance.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color:
-                  (member.balance >= 0) ? Colors.greenAccent : Colors.redAccent,
+        direction: DismissDirection.endToStart,
+        child: Card(
+          color: Color(0xff003566),
+          child: ListTile(
+            dense: true,
+            title: Text(member.id),
+            trailing: Text(
+              '\$${member.balance.toStringAsFixed(2)}',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: (member.balance >= 0)
+                    ? Colors.greenAccent
+                    : Colors.redAccent,
+              ),
             ),
           ),
         ),

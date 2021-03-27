@@ -3,7 +3,7 @@ import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
 class EditGroupPage extends StatefulWidget {
-  final GroupModel group;
+  final Group group;
 
   EditGroupPage({@required this.group});
 
@@ -36,7 +36,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   Widget build(BuildContext context) {
-    GroupModel group = widget.group;
+    Group group = widget.group;
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(

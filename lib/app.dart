@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'RepartApp',
-        initialRoute: '/home',
+        initialRoute: '/',
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: ThemeMode.system,

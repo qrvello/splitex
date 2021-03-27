@@ -7,7 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthenticationProvider with ChangeNotifier {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn googleSignIn = GoogleSignIn();
-  final databaseReference = FirebaseDatabase.instance.reference();
+  final DatabaseReference databaseReference =
+      FirebaseDatabase.instance.reference();
 
   AuthenticationProvider(this._firebaseAuth);
 

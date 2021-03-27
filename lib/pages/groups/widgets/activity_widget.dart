@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:repartapp/models/expense.dart';
+import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/transaction_model.dart';
 
 class ActivityWidget extends StatefulWidget {
-  final GroupModel group;
+  final Group group;
 
   const ActivityWidget({Key key, this.group}) : super(key: key);
   @override

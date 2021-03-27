@@ -1,13 +1,4 @@
-// To parse this JSON data, do
-//
-//     final expense = expenseFromJson(jsonString);
-
 import 'package:firebase_database/firebase_database.dart';
-
-//Expense expenseFromJson(String str, key) =>
-//    Expense.fromJson(json.decode(str), key);
-
-//String expenseToJson(Expense data) => json.encode(data.toJson());
 
 class Expense {
   Expense({

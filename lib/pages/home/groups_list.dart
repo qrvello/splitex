@@ -10,20 +10,20 @@ class GroupsList extends StatefulWidget {
 }
 
 class _GroupsListState extends State<GroupsList> {
-  final groupProvider = GroupsProvider();
+  final GroupsProvider groupProvider = GroupsProvider();
 
-  final user = FirebaseAuth.instance.currentUser;
+  final User user = FirebaseAuth.instance.currentUser;
 
-  final databaseReference = FirebaseDatabase.instance.reference();
+  final DatabaseReference databaseReference =
+      FirebaseDatabase.instance.reference();
 
-  List<GroupModel> groups = [];
+  List<Group> groups = [];
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: groupProvider.getGroupsList(),
-      builder:
-          (BuildContext context, AsyncSnapshot<List<GroupModel>> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<List<Group>> snapshot) {
         if (snapshot.hasError) {
           return Center(
             child: Text('Ha ocurrido un error al cargar tus grupos.'),
@@ -31,12 +31,16 @@ class _GroupsListState extends State<GroupsList> {
         }
 
         if (snapshot.hasData) {
-          List<GroupModel> groups = snapshot.data;
+          groups = snapshot.data;
+
           groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
-          return ListView.builder(
-            itemCount: groups.length,
-            itemBuilder: (context, i) => _createItem(context, groups[i]),
+          return Padding(
+            padding: EdgeInsets.only(top: 5),
+            child: ListView.builder(
+              itemCount: groups.length,
+              itemBuilder: (_, i) => _createItem(context, groups[i]),
+            ),
           );
         }
 
@@ -47,7 +51,7 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  Widget _createItem(BuildContext context, GroupModel group) {
+  Widget _createItem(BuildContext context, Group group) {
     return Dismissible(
       confirmDismiss: (direction) {
         return showDialog(
@@ -63,7 +67,7 @@ class _GroupsListState extends State<GroupsList> {
       },
       key: UniqueKey(),
       background: Container(
-        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           color: Color(0xffE29578),
@@ -78,10 +82,13 @@ class _GroupsListState extends State<GroupsList> {
         ),
       ),
       direction: DismissDirection.endToStart,
-      child: Container(
+      child: Card(
+        color: Color(0xff003566),
         child: ListTile(
+          //tileColor: Colors.white,
+          dense: true,
           title: Text(group.name),
-          trailing: Icon(Icons.drag_handle_rounded),
+          //trailing: Icon(Icons.drag_handle_rounded),
           onTap: () => Navigator.pushNamed(
             context,
             '/group_details',
