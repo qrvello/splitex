@@ -1,9 +1,3 @@
-import 'dart:convert';
-
-//User userFromJson(String str) => User.fromJson(json.decode(str));
-
-String userToJson(User data) => json.encode(data.toJson());
-
 class User {
   User({
     this.email,
@@ -15,13 +9,13 @@ class User {
   String name;
   String id;
 
-  factory User.fromJson(Map<dynamic, dynamic> json, key) => User(
+  factory User.fromMap(Map<dynamic, dynamic> json, key) => User(
         email: json["email"],
         name: json["name"],
         id: key,
       );
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
         "email": email,
         "name": name,
         "id": id,

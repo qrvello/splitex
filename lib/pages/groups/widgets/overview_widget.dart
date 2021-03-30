@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
@@ -19,6 +20,8 @@ class _OverviewWidgetState extends State<OverviewWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
@@ -27,27 +30,57 @@ class _OverviewWidgetState extends State<OverviewWidget> {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ElevatedButton(
-                child: Text('Invitar a miembros'),
-                onPressed: () {
-                  Share.share(
-                      'Unite a mi grupo de RepartApp: ${widget.group.link}');
-                },
+              Container(
+                width: size.width * 0.45,
+                child: ElevatedButton(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text('Invitar a miembros'),
+                      SizedBox(width: 5),
+                      Icon(
+                        Icons.share_rounded,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                  onPressed: () {
+                    Share.share(
+                        'Unite a mi grupo de RepartApp: ${widget.group.link}');
+                  },
+                ),
               ),
-              ElevatedButton(
-                child: Text('Balancear cuentas'),
-                onPressed: () => Navigator.pushNamed(context, '/balance_debts',
-                    arguments: widget.group),
+              Container(
+                width: size.width * 0.45,
+                child: ElevatedButton(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text('Balancear cuentas'),
+                      SizedBox(width: 5),
+                      Icon(
+                        FontAwesomeIcons.balanceScale,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                  onPressed: () => Navigator.pushNamed(
+                      context, '/balance_debts',
+                      arguments: widget.group),
+                ),
               ),
             ],
           ),
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, i) => _listMembers(context, widget.group.members[i]),
-            childCount: widget.group.members.length,
+        SliverPadding(
+          padding: EdgeInsets.only(bottom: size.height * 0.1),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, i) => _listMembers(context, widget.group.members[i]),
+              childCount: widget.group.members.length,
+            ),
           ),
         ),
       ],
@@ -95,18 +128,16 @@ class _OverviewWidgetState extends State<OverviewWidget> {
         ),
         direction: DismissDirection.endToStart,
         child: Card(
-          color: Color(0xff003566),
           child: ListTile(
-            dense: true,
             title: Text(member.id),
             trailing: Text(
               '\$${member.balance.toStringAsFixed(2)}',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: (member.balance >= 0)
-                    ? Colors.greenAccent
-                    : Colors.redAccent,
+                    ? Color(0xff25C0B7)
+                    : Color(0xffF4a74d),
               ),
             ),
           ),

@@ -22,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
   }
 
-  _getUserData() async {
+  void _getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     displayName = prefs.getString('displayName');
     email = prefs.getString('email');
@@ -33,9 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final googleProvider =
-        Provider.of<GoogleSignInProvider>(context, listen: false);
-    final authProvider =
+    final AuthenticationProvider authProvider =
         Provider.of<AuthenticationProvider>(context, listen: false);
 
     return Scaffold(
@@ -73,11 +71,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () async {
-                      googleProvider.logout();
+                      await authProvider.signOut();
 
-                      authProvider.signOut();
-
-                      Navigator.of(context).pushNamed('/home');
+                      Navigator.of(context).pushNamed('/');
                     },
                     child: Text('Cerrar sesión'),
                   ),

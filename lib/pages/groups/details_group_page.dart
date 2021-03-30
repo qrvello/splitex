@@ -78,6 +78,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
+      backgroundColor: Color(0xff262e36),
       actions: [
         IconButton(
           icon: Icon(Icons.settings_rounded),
@@ -113,10 +114,9 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   SpeedDial buildSpeedDial(BuildContext context) {
     return SpeedDial(
-      backgroundColor: Color(0xff001d3d),
+      backgroundColor: Color(0xff0076FF).withOpacity(0.87),
       overlayColor: Colors.black12,
       icon: Icons.add_rounded,
-      activeIcon: Icons.add_rounded,
       visible: true,
       children: [
         SpeedDialChild(
@@ -162,7 +162,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                 autofocus: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 maxLength: 20,
-                cursorColor: Color(0xff264653),
                 style: TextStyle(fontSize: 18),
                 decoration: InputDecoration(
                   errorMaxLines: 3,

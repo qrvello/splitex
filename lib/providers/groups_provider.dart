@@ -112,6 +112,9 @@ class GroupsProvider {
           "balance": 0,
         },
       },
+      'users': {
+        user.uid: true,
+      },
       'total_balance': 0,
       'link': shortUrl.toString(),
     };
@@ -133,21 +136,19 @@ class GroupsProvider {
   }
 
   Future<bool> updateGroup(Group group) async {
-    Map<String, dynamic> updateObj = {};
     // Obtiene la referencia
 
-    final groupRef = databaseReference.child('groups/${group.id}/');
+    final DatabaseReference groupRef =
+        databaseReference.child('groups/${group.id}/');
 
     // Crea un mapa para usar multiple paths al insertar datos
-    updateObj = {
+    Map<String, dynamic> updateObj = {
       "${groupRef.path}/name": group.name,
     };
-    final members =
-        await databaseReference.child('groups/${group.id}/members').once();
 
-    members.value.keys.forEach((key) {
+    group.users.keys.forEach((user) {
       updateObj.putIfAbsent(
-          'users_groups/$key/groups/${group.id}/name', () => group.name);
+          'users_groups/$user/groups/${group.id}/name', () => group.name);
     });
 
     databaseReference.update(updateObj).catchError((onError) {
@@ -163,9 +164,10 @@ class GroupsProvider {
 
     // Valida que el admin del grupo sea el usuario que lo elimina sino solo lo borra de mis grupos
     if (group.adminUser == user.uid) {
-      final groupPath = databaseReference.child('/groups/${group.id}').path;
+      final String groupPath =
+          databaseReference.child('/groups/${group.id}').path;
       removeObj = {groupPath: null};
-      final users =
+      final DataSnapshot users =
           await databaseReference.child('/groups/${group.id}/users').once();
 
       // Si las keys recibe null (por ejemplo si solo hay una key) entonces solo borra del único miembro que está en el grupo.

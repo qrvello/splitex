@@ -21,6 +21,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
         groupProvider.balanceDebts(widget.group.members);
 
     return Scaffold(
+      backgroundColor: Color(0xff1c1e20),
       appBar: AppBar(
         //leading: Container(),
         title: Text('Balancear cuentas'),
@@ -33,7 +34,32 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
                   _createItem(transactions[i], i, animation),
             )
           : Center(
-              child: Text('No hay nada que balancear.'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 35,
+                    color: Color(0xff25c0b7),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Color(0xff25c0b7),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Cuentas balanceadas',
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }
@@ -49,7 +75,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
           subtitle: Text(
             '\$${transaction.amountToPay.toStringAsFixed(2)}',
             style: TextStyle(
-                color: Colors.greenAccent,
+                color: Color(0xff25C0B7),
                 fontSize: 16,
                 fontWeight: FontWeight.bold),
           ),
@@ -83,7 +109,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
           trailing: IconButton(
             icon: Icon(
               Icons.check_circle_outline_rounded,
-              color: Colors.greenAccent,
+              color: Color(0xff25C0B7),
               size: 32,
             ),
             onPressed: () async {

@@ -81,28 +81,24 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   Widget _inputEditName(group) {
-    return Container(
-      height: 65,
-      child: TextFormField(
-        maxLength: 25,
-        cursorColor: Color(0xff264653),
-        style: TextStyle(fontSize: 18),
-        decoration: InputDecoration(
-          helperText: 'Ejemplo: Vacaciones a la costa',
-          labelText: 'Nombre del grupo',
-        ),
-        onSaved: (value) => group.name = value,
-        validator: (value) {
-          if (value.trim().length < 1) {
-            return 'Ingrese el nombre del grupo';
-          } else if (value.trim().length > 25) {
-            return 'Ingrese un nombre menor a 25 caracteres';
-          } else {
-            return null;
-          }
-        },
-        controller: _groupNameController,
+    return TextFormField(
+      maxLength: 25,
+      style: TextStyle(fontSize: 18),
+      decoration: InputDecoration(
+        helperText: 'Ejemplo: Vacaciones a la costa',
+        labelText: 'Nombre del grupo',
       ),
+      onSaved: (value) => group.name = value,
+      validator: (value) {
+        if (value.trim().length < 1) {
+          return 'Ingrese el nombre del grupo';
+        } else if (value.trim().length > 25) {
+          return 'Ingrese un nombre menor a 25 caracteres';
+        } else {
+          return null;
+        }
+      },
+      controller: _groupNameController,
     );
   }
 
@@ -111,20 +107,9 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
     formKey.currentState.save();
 
-    setState(() {
-      _guardando = true;
-    });
+    bool resp = await groupProvider.updateGroup(group);
 
-    group.simplifyGroupDebts = isSwitched;
-
-    final resp = await groupProvider.updateGroup(group);
-
-    setState(() {
-      _guardando = false;
-    });
-
-    if (resp) {
-      _groupNameController.text = '';
+    if (resp == true) {
       return _success(context);
     } else {
       return _error(context);
@@ -132,7 +117,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   _success(context) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Grupo editado satisfactoriamente'),
         action: SnackBarAction(
@@ -153,14 +138,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
       SnackBar(
         backgroundColor: Color(0xffe63946),
         content: Text('Error al crear grupo'),
-        action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-            // Back to the home page
-            Navigator.of(context)..pop();
-            return;
-          },
-        ),
       ),
     );
   }

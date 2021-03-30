@@ -262,7 +262,7 @@ class _FormLogInState extends State<FormLogIn> {
     if (resp != false) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-      Navigator.of(context).pushNamed('/home');
+      Navigator.of(context).pushNamed('/');
 
       return;
     }

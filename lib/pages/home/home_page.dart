@@ -60,7 +60,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Grupos')),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        title: Text('Grupos'),
+        actions: [
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: FlutterLogo(),
+          ),
+        ],
+      ),
       body: GroupsList(),
       drawer: SideMenu(),
       floatingActionButton: speedDial(context),
@@ -69,7 +79,7 @@ class _HomePageState extends State<HomePage> {
 
   SpeedDial speedDial(BuildContext context) {
     return SpeedDial(
-      backgroundColor: Color(0xff001d3d),
+      backgroundColor: Color(0xff0076FF).withOpacity(0.87),
       overlayColor: Colors.black12,
       icon: Icons.add_rounded,
       activeIcon: Icons.add_rounded,
@@ -123,7 +133,6 @@ class _HomePageState extends State<HomePage> {
                 autofocus: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 maxLength: 20,
-                cursorColor: Color(0xff264653),
                 style: TextStyle(fontSize: 18),
                 decoration: InputDecoration(
                   errorMaxLines: 3,
@@ -200,7 +209,6 @@ class _HomePageState extends State<HomePage> {
                 autofocus: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 maxLength: 20,
-                cursorColor: Color(0xff264653),
                 style: TextStyle(fontSize: 18),
                 decoration: InputDecoration(
                   errorMaxLines: 3,

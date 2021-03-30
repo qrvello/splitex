@@ -270,7 +270,7 @@ class _FormSignUpState extends State<FormSignUp> {
       return;
     }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    Navigator.of(context).pushNamed('/home');
+    Navigator.of(context).pushNamed('/');
   }
 
   Widget _nameInput() {

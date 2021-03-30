@@ -1,6 +1,5 @@
 import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/transaction_model.dart';
-
 import 'member_model.dart';
 
 class Group {
@@ -15,6 +14,7 @@ class Group {
     this.transactions,
     this.totalBalance,
     this.link,
+    this.users,
   });
 
   String adminUser;
@@ -27,6 +27,7 @@ class Group {
   List<Member> members;
   List<Expense> expenses;
   List<Transaction> transactions;
+  Map<dynamic, dynamic> users;
 
   factory Group.fromMap(Map<dynamic, dynamic> map, key) {
     List<Member> members = [];
@@ -37,6 +38,7 @@ class Group {
     if (map['total_balance'] != null) {
       totalBalance = map["total_balance"].toDouble();
     }
+
     if (map['members'] != null) {
       Map<dynamic, dynamic> membersMap = map['members'];
 
@@ -72,6 +74,7 @@ class Group {
       members: members,
       expenses: expenses,
       transactions: transactions,
+      users: map["users"],
       invitedBy: map["invited_by"],
       totalBalance: totalBalance,
       link: map['link'],
@@ -86,6 +89,7 @@ class Group {
         "expenses": expenses,
         "invited_by": invitedBy,
         "total_balance": totalBalance,
+        "users": users,
         "transactions": transactions,
         "link": link
       };

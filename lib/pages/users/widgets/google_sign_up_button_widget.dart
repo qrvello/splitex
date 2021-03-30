@@ -15,7 +15,7 @@ class GoogleSignUpButtonWidget extends StatelessWidget {
         onPressed: () async {
           await provider
               .login()
-              .then((value) => Navigator.of(context).pushNamed('/home'))
+              .then((value) => Navigator.of(context).pushNamed('/'))
               .catchError((onError) {
             print(onError);
           });

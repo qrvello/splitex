@@ -8,12 +8,14 @@ final ThemeData darkTheme = ThemeData(
     displayColor: Colors.white.withOpacity(0.87),
   ),
   snackBarTheme: SnackBarThemeData(
+    backgroundColor: Color(0xff0076ff),
     behavior: SnackBarBehavior.fixed,
-    backgroundColor: Color(0xff001d3d),
     contentTextStyle: TextStyle(color: Colors.white.withOpacity(0.87)),
     actionTextColor: Colors.white.withOpacity(0.87),
   ),
   appBarTheme: AppBarTheme(
+    shadowColor: Colors.transparent,
+    backgroundColor: Colors.transparent,
     textTheme: GoogleFonts.montserratTextTheme(
       TextTheme(
         headline6: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
@@ -25,22 +27,21 @@ final ThemeData darkTheme = ThemeData(
     centerTitle: true,
   ),
   cardTheme: CardTheme(
-    color: Color(0xff001d3d),
+    color: Color(0xff262e36),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   fixTextFieldOutlineLabel: true,
-  scaffoldBackgroundColor: Color(0xff1c1e20),
-  primaryColor: Color(0xff001d3d),
-  focusColor: Color(0xffd9d9d9),
-  accentColor: Color(0xffd9d9d9),
-  textSelectionTheme:
-      TextSelectionThemeData(cursorColor: Colors.white.withOpacity(0.87)),
+  scaffoldBackgroundColor: Color(0xff262e36),
+  primaryColor: Color(0xff0076ff),
+  focusColor: Color(0xff0076ff),
+  accentColor: Color(0xff0076ff),
+  textSelectionTheme: TextSelectionThemeData(cursorColor: Color(0xff0076ff)),
   inputDecorationTheme: InputDecorationTheme(
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(16.0),
       borderSide: BorderSide(
-        color: Color(0xff3d5a80),
-        width: 3,
+        color: Color(0xff0076ff),
+        width: 2,
       ),
     ),
     border: OutlineInputBorder(
@@ -64,8 +65,8 @@ final ThemeData darkTheme = ThemeData(
     style: ButtonStyle(
       backgroundColor: MaterialStateProperty.resolveWith(
         (states) => (states.contains(MaterialState.pressed)
-            ? Color(0xffd9d9d9)
-            : Color(0xff001d3d)),
+            ? Color(0xff001d3d).withOpacity(0.87)
+            : Color(0xff0076ff).withOpacity(0.87)),
       ),
       shape: MaterialStateProperty.resolveWith(
         (states) => RoundedRectangleBorder(

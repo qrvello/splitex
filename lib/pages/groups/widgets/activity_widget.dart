@@ -29,31 +29,43 @@ class _ActivityWidgetState extends State<ActivityWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
           backgroundColor: Colors.transparent,
           automaticallyImplyLeading: false,
-          title: (widget.group.totalBalance > 0)
-              ? Text(
-                  'Gasto total: \$${widget.group.totalBalance}',
-                  style: TextStyle(
-                    fontSize: 16,
+          title: Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              color: Color(0xff0076ff).withOpacity(0.87),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: (widget.group.totalBalance > 0)
+                ? Text(
+                    'Gasto total: \$${widget.group.totalBalance}',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  )
+                : Text(
+                    'Sin gastos',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
-                )
-              : Text(
-                  'Sin gastos',
-                  style: TextStyle(
-                    fontSize: 16,
-                  ),
-                ),
+          ),
           centerTitle: true,
           floating: true,
         ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (_, i) => _createItem(actions[i]),
-            childCount: actions.length,
+        SliverPadding(
+          padding: EdgeInsets.only(bottom: size.height * 0.1),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (_, i) => _createItem(actions[i]),
+              childCount: actions.length,
+            ),
           ),
         ),
       ],
@@ -68,7 +80,7 @@ class _ActivityWidgetState extends State<ActivityWidget> {
           //subtitle: Text('Pagado por ${expense.paidBy}'),
           subtitle: RichText(
             text: TextSpan(
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 14),
               children: [
                 TextSpan(
                   text: 'Pagado por ',
@@ -96,8 +108,16 @@ class _ActivityWidgetState extends State<ActivityWidget> {
             "\$${expense.amount.toStringAsFixed(2)}",
             style: TextStyle(
               fontSize: 16,
-              color: Colors.redAccent,
+              color: Color(0xffF4a74d),
               fontWeight: FontWeight.w600,
+            ),
+          ),
+          leading: Container(
+            margin: EdgeInsets.only(left: 10),
+            height: double.infinity,
+            child: Icon(
+              Icons.shopping_bag_rounded,
+              color: Color(0xff0076FF),
             ),
           ),
         ),
@@ -108,7 +128,7 @@ class _ActivityWidgetState extends State<ActivityWidget> {
       child: ListTile(
         title: RichText(
           text: TextSpan(
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(fontSize: 14),
             children: [
               TextSpan(
                 text: transaction.memberToPay.id,
@@ -136,9 +156,17 @@ class _ActivityWidgetState extends State<ActivityWidget> {
         trailing: Text(
           '\$${transaction.amountToPay.toStringAsFixed(2)}',
           style: TextStyle(
-            color: Colors.greenAccent,
+            color: Color(0xff06d6a0),
             fontSize: 16,
             fontWeight: FontWeight.w600,
+          ),
+        ),
+        leading: Container(
+          margin: EdgeInsets.only(left: 10),
+          height: double.infinity,
+          child: Icon(
+            Icons.sync_alt_rounded,
+            color: Color(0xff0076FF),
           ),
         ),
       ),

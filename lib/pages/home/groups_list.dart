@@ -21,6 +21,8 @@ class _GroupsListState extends State<GroupsList> {
 
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
     return StreamBuilder(
       stream: groupProvider.getGroupsList(),
       builder: (BuildContext context, AsyncSnapshot<List<Group>> snapshot) {
@@ -35,12 +37,19 @@ class _GroupsListState extends State<GroupsList> {
 
           groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
-          return Padding(
-            padding: EdgeInsets.only(top: 5),
-            child: ListView.builder(
-              itemCount: groups.length,
-              itemBuilder: (_, i) => _createItem(context, groups[i]),
-            ),
+          return Column(
+            children: [
+              Divider(
+                height: 1,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.only(bottom: size.height * 0.1),
+                  itemCount: groups.length,
+                  itemBuilder: (context, i) => _createItem(context, groups[i]),
+                ),
+              ),
+            ],
           );
         }
 
@@ -52,50 +61,54 @@ class _GroupsListState extends State<GroupsList> {
   }
 
   Widget _createItem(BuildContext context, Group group) {
-    return Dismissible(
-      confirmDismiss: (direction) {
-        return showDialog(
-          context: context,
-          builder: (_) {
-            // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
-            return _confirmDeleteDialog(context, group);
+    return Column(
+      children: [
+        Dismissible(
+          confirmDismiss: (direction) {
+            return showDialog(
+              context: context,
+              builder: (_) {
+                // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
+                return _confirmDeleteDialog(context, group);
+              },
+            );
           },
-        );
-      },
-      onDismissed: (_) {
-        setState(() {});
-      },
-      key: UniqueKey(),
-      background: Container(
-        margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Color(0xffE29578),
-        ),
-        alignment: AlignmentDirectional.centerEnd,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-          child: Icon(
-            Icons.delete,
-            color: Colors.white,
+          onDismissed: (_) {
+            setState(() {});
+          },
+          key: UniqueKey(),
+          background: Container(
+            decoration: BoxDecoration(
+              color: Color(0xffE29578),
+            ),
+            alignment: AlignmentDirectional.centerEnd,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          direction: DismissDirection.endToStart,
+          child: ListTile(
+            title: Text(group.name),
+            onTap: () => Navigator.pushNamed(
+              context,
+              '/group_details',
+              arguments: group,
+            ),
+            trailing: Icon(
+              Icons.circle,
+              size: 10,
+              color: Color(0xff06d6a0),
+            ),
           ),
         ),
-      ),
-      direction: DismissDirection.endToStart,
-      child: Card(
-        color: Color(0xff003566),
-        child: ListTile(
-          //tileColor: Colors.white,
-          dense: true,
-          title: Text(group.name),
-          //trailing: Icon(Icons.drag_handle_rounded),
-          onTap: () => Navigator.pushNamed(
-            context,
-            '/group_details',
-            arguments: group,
-          ),
+        Divider(
+          height: 0,
         ),
-      ),
+      ],
     );
   }
 
@@ -122,7 +135,7 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  _successSnackbar(context) {
+  void _successSnackbar(context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Grupo eliminado satisfactoriamente'),
@@ -137,7 +150,7 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  _errorSnackbar(context) {
+  void _errorSnackbar(context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Color(0xffe63946),
@@ -154,7 +167,7 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  _deleteGroup(context, group) async {
+  void _deleteGroup(context, group) async {
     final result = await groupProvider.deleteGroup(group);
 
     if (result == true) {

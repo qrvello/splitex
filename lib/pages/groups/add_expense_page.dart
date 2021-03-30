@@ -57,91 +57,86 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     return Scaffold(
       key: scaffoldKey,
-      appBar: AppBar(
-        title: Text('Agregar gasto'),
-        centerTitle: true,
-      ),
-      body: Builder(
-        builder: (context) => Form(
-          key: formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: <Widget>[
-                (error)
-                    ? Container(
-                        margin: EdgeInsets.only(bottom: 20, top: 5),
-                        child: Text(
-                          'Error al agregar gasto',
-                          style: TextStyle(
-                            color: Colors.red,
-                          ),
-                        ),
-                      )
-                    : SizedBox.shrink(),
-                _inputDescription(),
-                SizedBox(height: 10),
-                _inputAmount(),
-                SizedBox(height: 12),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text('Pagado por'),
-                      Container(
-                        margin: EdgeInsets.only(top: 20),
-                        padding: EdgeInsets.only(top: 5),
-                        width: MediaQuery.of(context).size.width * 0.5,
-                        height: 80,
-                        child: DropdownButtonFormField<String>(
-                          decoration: InputDecoration(
-                            border: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                                width: 1,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.white,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          isExpanded: true,
-                          value: dropdownValue,
-                          style: GoogleFonts.montserrat(
-                            textStyle: TextStyle(
-                              color: Colors.white.withOpacity(0.87),
-                            ),
-                          ),
-                          onChanged: (newValue) {
-                            setState(() {
-                              dropdownValue = newValue;
-                            });
-                          },
-                          onSaved: (value) => expense.paidBy = value,
-                          items: items,
-                          validator: (value) {
-                            if (value == '') {
-                              return 'Seleccione un miembro';
-                            }
-                            return null;
-                          },
+      appBar: AppBar(title: Text('Agregar gasto')),
+      body: Form(
+        key: formKey,
+        child: Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Column(
+            children: <Widget>[
+              (error)
+                  ? Container(
+                      margin: EdgeInsets.only(bottom: 20, top: 5),
+                      child: Text(
+                        'Error al agregar gasto',
+                        style: TextStyle(
+                          color: Colors.red,
                         ),
                       ),
-                    ],
-                  ),
+                    )
+                  : SizedBox.shrink(),
+              _inputDescription(),
+              SizedBox(height: 10),
+              _inputAmount(),
+              SizedBox(height: 12),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text('Pagado por'),
+                    Container(
+                      margin: EdgeInsets.only(top: 20),
+                      padding: EdgeInsets.only(top: 5),
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      height: 80,
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          border: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.white,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        isExpanded: true,
+                        value: dropdownValue,
+                        style: GoogleFonts.montserrat(
+                          textStyle: TextStyle(
+                            color: Colors.white.withOpacity(0.87),
+                          ),
+                        ),
+                        onChanged: (newValue) {
+                          setState(() {
+                            dropdownValue = newValue;
+                          });
+                        },
+                        onSaved: (value) => expense.paidBy = value,
+                        items: items,
+                        validator: (value) {
+                          if (value == '') {
+                            return 'Seleccione un miembro';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-                Container(
-                  child: Text('Dividido de forma igualitaria'),
-                ),
-                SizedBox(height: 16),
-                _button(context),
-              ],
-            ),
+              ),
+              SizedBox(height: 10),
+              Container(
+                child: Text('Dividido de forma igualitaria'),
+              ),
+              SizedBox(height: 16),
+              _button(context),
+            ],
           ),
         ),
       ),
@@ -169,10 +164,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Widget _inputDescription() {
     return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       autofocus: true,
       maxLength: 25,
-      cursorColor: Color(0xff264653),
-      style: TextStyle(fontSize: 19),
+      style: TextStyle(fontSize: 20),
       decoration: InputDecoration(
         helperText: 'Ejemplo: almuerzo',
         labelText: 'Descripción',
@@ -189,7 +184,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Widget _inputAmount() {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      style: TextStyle(fontSize: 19),
+      style: TextStyle(fontSize: 20),
       decoration: InputDecoration(
         prefixIcon: Icon(Icons.attach_money),
         labelText: 'Cantidad',
