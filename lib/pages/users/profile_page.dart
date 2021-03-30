@@ -47,7 +47,6 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (context, snapshot) {
             return Container(
               alignment: Alignment.center,
-              color: Color(0xff264653),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,

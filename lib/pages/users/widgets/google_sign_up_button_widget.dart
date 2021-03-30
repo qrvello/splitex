@@ -11,7 +11,7 @@ class GoogleSignUpButtonWidget extends StatelessWidget {
     return Container(
       width: 250,
       padding: EdgeInsets.all(4),
-      child: OutlinedButton.icon(
+      child: ElevatedButton.icon(
         onPressed: () async {
           await provider
               .login()
@@ -22,19 +22,18 @@ class GoogleSignUpButtonWidget extends StatelessWidget {
         },
         icon: FaIcon(
           FontAwesomeIcons.google,
-          color: Color(0xffe76f51),
+          color: Colors.white,
           size: 18,
         ),
         label: Text(
           'Inicia sesión con Google',
-          style: TextStyle(color: Colors.black87),
+          style: TextStyle(color: Colors.white),
         ),
         style: ButtonStyle(
-          shape: MaterialStateProperty.resolveWith(
-            (Set<MaterialState> states) => StadiumBorder(),
-          ),
-          side: MaterialStateProperty.resolveWith(
-            (Set<MaterialState> states) => BorderSide(color: Colors.black38),
+          backgroundColor: MaterialStateProperty.resolveWith(
+            (states) => (states.contains(MaterialState.pressed)
+                ? Color(0xffef233c).withOpacity(0.3)
+                : Color(0xffef233c).withOpacity(0.87)),
           ),
         ),
       ),

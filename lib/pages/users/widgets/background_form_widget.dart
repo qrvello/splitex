@@ -11,8 +11,8 @@ class BackgroundFormWidget extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: <Color>[
-            Color(0xff264653),
-            Color(0xff2a9d8f),
+            Color(0xaa0076ff).withOpacity(0.3),
+            Color(0xff0076ff).withOpacity(0.6),
           ],
         ),
       ),

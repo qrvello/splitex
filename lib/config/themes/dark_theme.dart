@@ -65,8 +65,8 @@ final ThemeData darkTheme = ThemeData(
     style: ButtonStyle(
       backgroundColor: MaterialStateProperty.resolveWith(
         (states) => (states.contains(MaterialState.pressed)
-            ? Color(0xff001d3d).withOpacity(0.87)
-            : Color(0xff0076ff).withOpacity(0.87)),
+            ? Color(0xff0076ff).withOpacity(0.3)
+            : Color(0xff0076ff)),
       ),
       shape: MaterialStateProperty.resolveWith(
         (states) => RoundedRectangleBorder(

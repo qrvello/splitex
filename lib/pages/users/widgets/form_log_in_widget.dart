@@ -134,31 +134,30 @@ class _FormLogInState extends State<FormLogIn> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20.0),
       child: TextFormField(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
         style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Color(0xff83C5BE),
+              color: Color(0xff0076ff),
             ),
           ),
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Color(0xff83C5BE),
+              color: Color(0xff0076ff),
             ),
           ),
           border: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Color(0xff83C5BE),
+              color: Color(0xff0076ff),
             ),
           ),
           icon: Icon(
             Icons.alternate_email_rounded,
-            color: Color(0xff006D77),
+            color: Color(0xff0076ff),
           ),
           labelStyle: TextStyle(
-            color: Color(0xff006D77),
+            color: Color(0xff0076ff),
           ),
           hintText: 'ejemplo@correo.com',
           labelText: 'Correo electrónico',
@@ -185,17 +184,17 @@ class _FormLogInState extends State<FormLogIn> {
         decoration: InputDecoration(
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Color(0xff83C5BE),
+              color: Color(0xff0076ff),
             ),
           ),
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Color(0xff83C5BE),
+              color: Color(0xff0076ff),
             ),
           ),
           border: UnderlineInputBorder(
             borderSide: BorderSide(
-              color: Color(0xff83C5BE),
+              color: Color(0xff0076ff),
             ),
           ),
           fillColor: Colors.black,
@@ -206,12 +205,12 @@ class _FormLogInState extends State<FormLogIn> {
                   ? Icons.visibility_off_rounded
                   : Icons.visibility_rounded,
             ),
-            color: Color(0xff006D77),
+            color: Color(0xff0076ff),
             onPressed: _toggle,
           ),
-          icon: Icon(Icons.lock_outline_rounded, color: Color(0xff006D77)),
+          icon: Icon(Icons.lock_outline_rounded, color: Color(0xff0076ff)),
           labelText: 'Contraseña',
-          labelStyle: TextStyle(color: Color(0xff006D77)),
+          labelStyle: TextStyle(color: Color(0xff0076ff)),
         ),
         validator: (value) {
           if (value.isEmpty) {
@@ -231,7 +230,7 @@ class _FormLogInState extends State<FormLogIn> {
     return Container(
       width: 250,
       padding: EdgeInsets.all(4),
-      child: OutlinedButton(
+      child: ElevatedButton(
         onPressed: () {
           if (_formKey.currentState.validate()) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -242,14 +241,7 @@ class _FormLogInState extends State<FormLogIn> {
             _submit();
           }
         },
-        child: Text(
-          'Iniciar sesión',
-          style: TextStyle(color: Colors.black87),
-        ),
-        style: OutlinedButton.styleFrom(
-          shape: StadiumBorder(),
-          side: BorderSide(color: Colors.black38),
-        ),
+        child: Text('Iniciar sesión'),
       ),
     );
   }
