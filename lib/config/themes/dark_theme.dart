@@ -15,7 +15,7 @@ final ThemeData darkTheme = ThemeData(
   ),
   appBarTheme: AppBarTheme(
     shadowColor: Colors.transparent,
-    backgroundColor: Colors.transparent,
+    backgroundColor: Color(0xff212529),
     textTheme: GoogleFonts.montserratTextTheme(
       TextTheme(
         headline6: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
@@ -27,7 +27,7 @@ final ThemeData darkTheme = ThemeData(
     centerTitle: true,
   ),
   cardTheme: CardTheme(
-    color: Color(0xff262e36),
+    color: Color(0xff212529),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   fixTextFieldOutlineLabel: true,

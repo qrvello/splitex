@@ -21,7 +21,6 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
         groupProvider.balanceDebts(widget.group.members);
 
     return Scaffold(
-      backgroundColor: Color(0xff1c1e20),
       appBar: AppBar(
         //leading: Container(),
         title: Text('Balancear cuentas'),
@@ -85,23 +84,12 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
               children: [
                 TextSpan(
                   text: transaction.memberToPay.id,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white.withOpacity(0.87),
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                TextSpan(
-                  text: ' le tiene que pagar a ',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                  ),
-                ),
+                TextSpan(text: ' le tiene que pagar a '),
                 TextSpan(
                   text: transaction.memberToReceive.id,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white.withOpacity(0.87),
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
@@ -11,8 +10,6 @@ class GroupsList extends StatefulWidget {
 
 class _GroupsListState extends State<GroupsList> {
   final GroupsProvider groupProvider = GroupsProvider();
-
-  final User user = FirebaseAuth.instance.currentUser;
 
   final DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference();

@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/pages/groups/edit_group_page.dart';
 import 'package:repartapp/pages/groups/widgets/activity_widget.dart';
@@ -52,16 +51,14 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    //final size = MediaQuery.of(context).size;
 
     return Stack(
       children: [
-        _background(size),
         DefaultTabController(
           length: 2,
           child: Scaffold(
             floatingActionButton: buildSpeedDial(context),
-            backgroundColor: Colors.transparent,
             extendBodyBehindAppBar: true,
             appBar: buildAppBar(context),
             body: TabBarView(
@@ -78,7 +75,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Color(0xff262e36),
       actions: [
         IconButton(
           icon: Icon(Icons.settings_rounded),
@@ -96,16 +92,10 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         isScrollable: false,
         tabs: [
           Tab(
-            child: Text(
-              'Resumen',
-              style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
-            ),
+            child: Text('Resumen'),
           ),
           Tab(
-            child: Text(
-              'Actividad',
-              style: GoogleFonts.workSans(fontWeight: FontWeight.w600),
-            ),
+            child: Text('Actividad'),
           ),
         ],
       ),
@@ -115,13 +105,13 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   SpeedDial buildSpeedDial(BuildContext context) {
     return SpeedDial(
       backgroundColor: Color(0xff0076FF).withOpacity(0.87),
-      overlayColor: Colors.black12,
+      overlayColor: Theme.of(context).scaffoldBackgroundColor,
       icon: Icons.add_rounded,
       visible: true,
       children: [
         SpeedDialChild(
           child: Icon(Icons.shopping_bag_rounded),
-          backgroundColor: Colors.white10,
+          backgroundColor: Theme.of(context).accentColor,
           labelWidget: Text(
             'Agregar gasto',
             style: TextStyle(fontSize: 18),
@@ -133,7 +123,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         ),
         SpeedDialChild(
           child: Icon(Icons.person_add_rounded),
-          backgroundColor: Colors.white10,
+          backgroundColor: Theme.of(context).accentColor,
           labelWidget: Text(
             'Nueva persona',
             style: TextStyle(fontSize: 18),
@@ -204,27 +194,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           ],
         );
       },
-    );
-  }
-
-  Widget _background(size) {
-    final gradient = Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: FractionalOffset(0.0, 0.3),
-          end: FractionalOffset(0.0, 1.0),
-          colors: [
-            Color(0xff1c1e20),
-            Color(0xff000000),
-          ],
-        ),
-      ),
-    );
-
-    return Stack(
-      children: [gradient],
     );
   }
 

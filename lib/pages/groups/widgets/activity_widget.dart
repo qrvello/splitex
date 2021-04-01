@@ -45,15 +45,11 @@ class _ActivityWidgetState extends State<ActivityWidget> {
             child: (widget.group.totalBalance > 0)
                 ? Text(
                     'Gasto total: \$${widget.group.totalBalance}',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   )
                 : Text(
                     'Sin gastos',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
           ),
           centerTitle: true,
@@ -78,25 +74,7 @@ class _ActivityWidgetState extends State<ActivityWidget> {
       return Card(
         child: ListTile(
           //subtitle: Text('Pagado por ${expense.paidBy}'),
-          subtitle: RichText(
-            text: TextSpan(
-              style: TextStyle(fontSize: 14),
-              children: [
-                TextSpan(
-                  text: 'Pagado por ',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
-                  ),
-                ),
-                TextSpan(
-                  text: expense.paidBy,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.87),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          subtitle: Text('Pagado por ${expense.paidBy}'),
           title: Text(
             expense.description,
             style: TextStyle(
@@ -126,37 +104,12 @@ class _ActivityWidgetState extends State<ActivityWidget> {
     Transaction transaction = action;
     return Card(
       child: ListTile(
-        title: RichText(
-          text: TextSpan(
-            style: TextStyle(fontSize: 14),
-            children: [
-              TextSpan(
-                text: transaction.memberToPay.id,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.87),
-                ),
-              ),
-              TextSpan(
-                text: ' le pagó a ',
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.6),
-                ),
-              ),
-              TextSpan(
-                text: transaction.memberToReceive.id,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.87),
-                ),
-              ),
-            ],
-          ),
-        ),
+        title: Text(
+            '${transaction.memberToPay.id} le pagó a ${transaction.memberToReceive.id}'),
         trailing: Text(
           '\$${transaction.amountToPay.toStringAsFixed(2)}',
           style: TextStyle(
-            color: Color(0xff06d6a0),
+            color: Color(0xff25C0B7),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

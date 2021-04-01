@@ -37,28 +37,29 @@ class GroupsProvider {
 
   Stream<List<Group>> getGroupsList() async* {
     final List<Group> foundGroups = [];
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String uid = prefs.getString('uid');
 
-    DatabaseReference userGroups =
-        databaseReference.child('users_groups/$uid/groups');
+    if (user != null) {
+      DatabaseReference userGroups =
+          databaseReference.child('users_groups/${user.uid}/groups');
 
-    Stream<Event> userGroupsStream = userGroups.orderByKey().onValue;
+      Stream<Event> userGroupsStream = userGroups.orderByKey().onValue;
 
-    await for (Event event in userGroupsStream) {
-      foundGroups.clear();
+      await for (Event event in userGroupsStream) {
+        foundGroups.clear();
 
-      if (event.snapshot.value != null) {
-        Map<dynamic, dynamic> mapGroups = event.snapshot.value;
+        if (event.snapshot.value != null) {
+          Map<dynamic, dynamic> mapGroups = event.snapshot.value;
 
-        mapGroups.forEach((id, group) {
-          final Group thisGroup = Group.fromMap(group, id);
-          foundGroups.add(thisGroup);
-        });
+          mapGroups.forEach((id, group) {
+            final Group thisGroup = Group.fromMap(group, id);
+            foundGroups.add(thisGroup);
+          });
 
-        yield foundGroups;
+          yield foundGroups;
+        }
       }
     }
+    yield foundGroups;
   }
 
   Future<bool> createGroup(Group group) async {
@@ -216,13 +217,10 @@ class GroupsProvider {
     members.forEach((member) {
       double updatedBalance = 0;
 
-      // Si el id del miembro es igual a el que pagó la expensa entonces suma el balance que
-      // ya tiene en vez de restar
-
       if (member.id == expense.paidBy) {
-        updatedBalance = member.balance + expense.amount - debtForEach;
+        updatedBalance = member.balance + expense.amount - member.amountToPay;
       } else {
-        updatedBalance = member.balance - debtForEach;
+        updatedBalance = member.balance - member.amountToPay;
       }
 
       updateObj.putIfAbsent(

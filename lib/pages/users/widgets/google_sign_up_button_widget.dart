@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:repartapp/providers/google_sign_in_provider.dart';
+import 'package:repartapp/providers/authentication_provider.dart';
+
 import 'package:provider/provider.dart';
 
 class GoogleSignUpButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
+    final AuthenticationProvider provider =
+        Provider.of<AuthenticationProvider>(context, listen: false);
 
     return Container(
       width: 250,
@@ -14,7 +16,7 @@ class GoogleSignUpButtonWidget extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: () async {
           await provider
-              .login()
+              .signInWithGoogle()
               .then((value) => Navigator.of(context).pushNamed('/'))
               .catchError((onError) {
             print(onError);

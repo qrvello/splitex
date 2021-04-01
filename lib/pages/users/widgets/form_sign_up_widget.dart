@@ -11,9 +11,9 @@ class FormSignUp extends StatefulWidget {
 }
 
 class _FormSignUpState extends State<FormSignUp> {
-  final _password = TextEditingController();
-  final _email = TextEditingController();
-  final _name = TextEditingController();
+  final TextEditingController _password = TextEditingController();
+  final TextEditingController _email = TextEditingController();
+  final TextEditingController _name = TextEditingController();
 
   @override
   void dispose() {
@@ -49,16 +49,8 @@ class _FormSignUpState extends State<FormSignUp> {
             margin: EdgeInsets.symmetric(vertical: 30.0),
             padding: EdgeInsets.symmetric(vertical: 50.0),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color(0xfff8f9fa),
               borderRadius: BorderRadius.circular(18.0),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: Colors.white60,
-                  blurRadius: 0.5,
-                  offset: Offset(0.0, 1.0),
-                  spreadRadius: 1.0,
-                ),
-              ],
             ),
             child: Column(
               children: <Widget>[
@@ -108,7 +100,6 @@ class _FormSignUpState extends State<FormSignUp> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.white,
                   fontSize: 17,
                   letterSpacing: 1,
                 ),
@@ -122,7 +113,6 @@ class _FormSignUpState extends State<FormSignUp> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: Colors.white,
                 fontSize: 17,
                 letterSpacing: 1,
               ),

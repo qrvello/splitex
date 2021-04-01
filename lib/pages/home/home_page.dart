@@ -61,8 +61,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
         title: Text('Grupos'),
         actions: [
           Padding(
@@ -80,7 +78,7 @@ class _HomePageState extends State<HomePage> {
   SpeedDial speedDial(BuildContext context) {
     return SpeedDial(
       backgroundColor: Color(0xff0076FF).withOpacity(0.87),
-      overlayColor: Colors.black12,
+      overlayColor: Theme.of(context).scaffoldBackgroundColor,
       icon: Icons.add_rounded,
       activeIcon: Icons.add_rounded,
       visible: true,
@@ -94,7 +92,7 @@ class _HomePageState extends State<HomePage> {
   SpeedDialChild buttonJoinGroup(BuildContext context) {
     return SpeedDialChild(
       child: Icon(Icons.keyboard_arrow_right_rounded),
-      backgroundColor: Colors.white10,
+      backgroundColor: Theme.of(context).accentColor,
       labelWidget: Text(
         'Unirse a un grupo',
         style: TextStyle(fontSize: 18),
@@ -105,7 +103,7 @@ class _HomePageState extends State<HomePage> {
   SpeedDialChild buttonCreateGroup(BuildContext context) {
     return SpeedDialChild(
       child: Icon(Icons.group_rounded),
-      backgroundColor: Colors.white10,
+      backgroundColor: Theme.of(context).accentColor,
       labelWidget: Text(
         'Crear grupo',
         style: TextStyle(fontSize: 18),
@@ -119,12 +117,6 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: Color(0xff212529),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(18.0),
-            ),
-          ),
           content: Container(
             height: 65,
             child: Form(
