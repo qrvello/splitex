@@ -175,6 +175,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 ? Text(widget.group.members[index].amountToPay.toString())
                 : advancedDivision(size, index),
             activeColor: Color(0xff0076ff),
+            tileColor: Theme.of(context).scaffoldBackgroundColor,
             controlAffinity: ListTileControlAffinity.leading,
             checkColor: Colors.white,
             title: Text(widget.group.members[index].id),
@@ -200,10 +201,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Row advancedDivision(Size size, int index) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
+          margin: EdgeInsets.only(bottom: 8),
           width: size.width * 0.1,
+          height: 40,
           child: TextFormField(
             maxLength: 3,
             keyboardType: TextInputType.number,
@@ -211,13 +215,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
               FilteringTextInputFormatter.digitsOnly
             ],
             onChanged: (String value) {
-              if (value == '') return;
-
-              int weigth = int.tryParse(value);
-
-              if (weigth == 0) {
+              if (value == '') {
                 widget.group.members[index].amountToPay = 0;
+                widget.group.members[index].weight = 0;
               } else {
+                int weigth = int.tryParse(value);
                 widget.group.members[index].weight = weigth;
               }
               calculateDivision();
@@ -335,9 +337,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           // para obtener el peso total
 
           payingMembers.forEach((member) {
-            if (member.weight != null) {
-              weightTotal += member.weight;
-            }
+            weightTotal += member.weight;
           });
 
           // Si el peso total es distinto de null y 0 realiza el cálculo, sino

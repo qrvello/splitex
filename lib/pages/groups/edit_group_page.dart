@@ -38,6 +38,12 @@ class _EditGroupPageState extends State<EditGroupPage> {
   Widget build(BuildContext context) {
     Group group = widget.group;
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.check_rounded),
+        onPressed: () {
+          _submit(context);
+        },
+      ),
       key: scaffoldKey,
       appBar: AppBar(
         centerTitle: true,
@@ -50,9 +56,10 @@ class _EditGroupPageState extends State<EditGroupPage> {
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: <Widget>[
-                _inputEditName(group),
-                SizedBox(height: 12.0),
-                _button(context, group),
+                _inputEditName(),
+                //Expanded(
+                //  child: ListView.builder(itemBuilder:
+                //  ),
               ],
             ),
           ),
@@ -61,26 +68,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
     );
   }
 
-  Widget _button(context, group) {
-    return Container(
-      width: 120,
-      child: ElevatedButton(
-        child: Text(
-          'Guardar',
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        onPressed: (_guardando)
-            ? null
-            : () {
-                _submit(context, group);
-              },
-      ),
-    );
-  }
-
-  Widget _inputEditName(group) {
+  Widget _inputEditName() {
     return TextFormField(
       maxLength: 25,
       style: TextStyle(fontSize: 18),
@@ -88,7 +76,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
         helperText: 'Ejemplo: Vacaciones a la costa',
         labelText: 'Nombre del grupo',
       ),
-      onSaved: (value) => group.name = value,
+      onSaved: (value) => widget.group.name = value,
       validator: (value) {
         if (value.trim().length < 1) {
           return 'Ingrese el nombre del grupo';
@@ -102,21 +90,21 @@ class _EditGroupPageState extends State<EditGroupPage> {
     );
   }
 
-  _submit(context, group) async {
+  void _submit(context) async {
     if (!formKey.currentState.validate()) return;
 
     formKey.currentState.save();
 
-    bool resp = await groupProvider.updateGroup(group);
+    bool resp = await groupProvider.updateGroup(widget.group);
 
     if (resp == true) {
-      return _success(context);
+      _success(context);
     } else {
-      return _error(context);
+      _error(context);
     }
   }
 
-  _success(context) {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> _success(context) {
     return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Grupo editado satisfactoriamente'),
@@ -133,11 +121,11 @@ class _EditGroupPageState extends State<EditGroupPage> {
     );
   }
 
-  _error(context) {
-    ScaffoldMessenger.of(context).showSnackBar(
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> _error(context) {
+    return ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: Color(0xffe63946),
-        content: Text('Error al crear grupo'),
+        content: Text('Error al actualizar grupo'),
       ),
     );
   }

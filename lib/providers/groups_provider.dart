@@ -215,18 +215,20 @@ class GroupsProvider {
 
     debtForEach = double.parse(debtForEach.toStringAsFixed(2));
     members.forEach((member) {
-      double updatedBalance = 0;
+      if (member.amountToPay != 0) {
+        double updatedBalance = 0;
 
-      if (member.id == expense.paidBy) {
-        updatedBalance = member.balance + expense.amount - member.amountToPay;
-      } else {
-        updatedBalance = member.balance - member.amountToPay;
+        if (member.id == expense.paidBy) {
+          updatedBalance = member.balance + expense.amount - member.amountToPay;
+        } else {
+          updatedBalance = member.balance - member.amountToPay;
+        }
+
+        updateObj.putIfAbsent(
+          '${groupReference.path}/members/${member.id}/',
+          () => {"balance": updatedBalance},
+        );
       }
-
-      updateObj.putIfAbsent(
-        '${groupReference.path}/members/${member.id}/',
-        () => {"balance": updatedBalance},
-      );
     });
 
     await databaseReference.update(updateObj).catchError((error) {
