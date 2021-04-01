@@ -4,11 +4,13 @@ class Member {
     this.balance,
     this.checked = true,
     this.amountToPay = 0.00,
+    this.weight = 1,
   });
 
   String id;
   double balance;
   double amountToPay;
+  int weight;
   bool checked;
 
   factory Member.fromMap(Map<dynamic, dynamic> json, id) => Member(

@@ -14,24 +14,42 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final groupProvider = new GroupsProvider();
+  final GroupsProvider groupProvider = GroupsProvider();
 
-  final _expenseNameController = new TextEditingController();
-  final _expenseAmountController = new TextEditingController();
+  final TextEditingController _expenseNameController = TextEditingController();
+  final TextEditingController _expenseAmountController =
+      TextEditingController();
 
-  final formKey = GlobalKey<FormState>();
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+  final List<DropdownMenuItem<String>> items = [];
 
   Expense expense = new Expense();
-  bool _guardando = false;
   bool error = false;
-  String dropdownValue = '';
   bool allCheckbox = true;
+  String dropdownValue = '';
   List<Member> payingMembers = [];
+  bool advanced = false;
 
   @override
   void initState() {
     payingMembers = List.from(widget.group.members);
+    items.add(DropdownMenuItem(
+      value: '',
+      child: Text('Seleccioná'),
+    ));
+
+    // Crea los items para el dropdown con los miembros.
+
+    for (Member member in widget.group.members) {
+      items.add(
+        DropdownMenuItem(
+          value: member.id,
+          child: Text(member.id),
+        ),
+      );
+    }
     super.initState();
   }
 
@@ -45,24 +63,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-
-    final List<DropdownMenuItem<String>> items = [
-      DropdownMenuItem(
-        value: '',
-        child: Text('Seleccioná'),
-      ),
-    ];
-
-    // Crea los items para el dropdown con los miembros.
-
-    for (Member member in widget.group.members) {
-      items.add(
-        DropdownMenuItem(
-          value: member.id,
-          child: Text(member.id),
-        ),
-      );
-    }
 
     return Scaffold(
       key: scaffoldKey,
@@ -127,9 +127,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
               controlAffinity: ListTileControlAffinity.leading,
               checkColor: Colors.white,
               secondary: TextButton(
-                child: Text('Avanzado'),
+                child: (advanced == false) ? Text('Avanzado') : Text('Simple'),
                 onPressed: () {
-                  // TODO Division de gastos avanzada
+                  setState(() {
+                    advanced = !advanced;
+                    calculateDivision();
+                  });
                 },
               ),
               tileColor: Color(0xff1c1e20).withOpacity(0.3),
@@ -153,41 +156,98 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 calculateDivision();
               },
             ),
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.only(bottom: size.height * 0.01),
-                itemCount: widget.group.members.length,
-                itemBuilder: (context, index) {
-                  return CheckboxListTile(
-                    secondary: Text(
-                        widget.group.members[index].amountToPay.toString()),
-                    activeColor: Color(0xff0076ff),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    checkColor: Colors.white,
-                    title: Text(widget.group.members[index].id),
-                    value: widget.group.members[index].checked,
-                    onChanged: (value) {
-                      setState(() {
-                        widget.group.members[index].checked = value;
-                        if (value == true) {
-                          payingMembers.add(widget.group.members[index]);
-                        } else {
-                          widget.group.members[index].amountToPay = 0;
-                          payingMembers.remove(widget.group.members[index]);
-                        }
-                      });
-                      calculateDivision();
-                    },
-                  );
-                },
-              ),
-            ),
-            SizedBox(
-              height: size.height * 0.1,
-            )
+            membersList(size),
+            SizedBox(height: size.height * 0.1)
           ],
         ),
       ),
+    );
+  }
+
+  Expanded membersList(Size size) {
+    return Expanded(
+      child: ListView.builder(
+        padding: EdgeInsets.only(bottom: size.height * 0.01),
+        itemCount: widget.group.members.length,
+        itemBuilder: (context, index) {
+          return CheckboxListTile(
+            secondary: (advanced == false)
+                ? Text(widget.group.members[index].amountToPay.toString())
+                : advancedDivision(size, index),
+            activeColor: Color(0xff0076ff),
+            controlAffinity: ListTileControlAffinity.leading,
+            checkColor: Colors.white,
+            title: Text(widget.group.members[index].id),
+            value: widget.group.members[index].checked,
+            onChanged: (value) {
+              setState(() {
+                widget.group.members[index].checked = value;
+                if (value == true) {
+                  payingMembers.add(widget.group.members[index]);
+                } else {
+                  widget.group.members[index].amountToPay = 0;
+                  payingMembers.remove(widget.group.members[index]);
+                }
+              });
+              calculateDivision();
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Row advancedDivision(Size size, int index) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Container(
+          width: size.width * 0.1,
+          child: TextFormField(
+            maxLength: 3,
+            keyboardType: TextInputType.number,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            onChanged: (String value) {
+              if (value == '') return;
+
+              int weigth = int.tryParse(value);
+
+              if (weigth == 0) {
+                widget.group.members[index].amountToPay = 0;
+              } else {
+                widget.group.members[index].weight = weigth;
+              }
+              calculateDivision();
+            },
+            textAlign: TextAlign.center,
+            initialValue: widget.group.members[index].weight.toString(),
+            decoration: InputDecoration(
+              counterText: '',
+              contentPadding: EdgeInsets.all(4),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xff0076ff),
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xff0076ff),
+                ),
+              ),
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xff0076ff),
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 10),
+        Text(widget.group.members[index].amountToPay.toString())
+      ],
     );
   }
 
@@ -212,6 +272,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Widget _inputAmount() {
     return TextFormField(
+      maxLength: 10,
+      textAlign: TextAlign.end,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       style: TextStyle(fontSize: 20),
       decoration: InputDecoration(
@@ -263,15 +325,59 @@ class _AddExpensePageState extends State<AddExpensePage> {
   }
 
   void calculateDivision() {
-    setState(() {
-      double debtForEach = (double.tryParse(_expenseAmountController.text) /
-          payingMembers.length);
+    if (_expenseAmountController.text != '') {
+      setState(() {
+        // Si 'advanced' es true entonces hace un cálculo distinto
+        if (advanced == true) {
+          int weightTotal = 0;
 
-      debtForEach = double.parse(debtForEach.toStringAsFixed(2));
+          // Recorre todos los miembros que tienen que pagar y todo el peso
+          // para obtener el peso total
 
-      payingMembers.forEach((member) {
-        member.amountToPay = debtForEach;
+          payingMembers.forEach((member) {
+            if (member.weight != null) {
+              weightTotal += member.weight;
+            }
+          });
+
+          // Si el peso total es distinto de null y 0 realiza el cálculo, sino
+          // marca que todos tienen que pagar 0.
+          if (weightTotal != null && weightTotal != 0) {
+            // Se obtiene cuanto vale una unidad de peso diviendo la cantidad
+            // a gastar por el total del peso
+
+            double debtForWeight =
+                (double.tryParse(_expenseAmountController.text) / weightTotal);
+
+            // Se convierte a double y solo se queda con 2 decimales
+            debtForWeight = double.parse(debtForWeight.toStringAsFixed(2));
+
+            // Se asigna el valor que tienen que pagar a los miembros
+            // multiplicando la unidad de peso por el peso que tiene el miembro
+            payingMembers.forEach((member) {
+              member.amountToPay = double.parse(
+                  (debtForWeight * member.weight).toStringAsFixed(2));
+            });
+          } else {
+            payingMembers.forEach((member) {
+              member.amountToPay = 0;
+            });
+          }
+        } else {
+          // Se obtiene cuanto tiene que pagar cada miembro
+          // diviendo la cantidad del gasto por la cantidad de miembros
+          double debtForEach = (double.tryParse(_expenseAmountController.text) /
+              payingMembers.length);
+
+          // Se convierte a double y solo se queda con 2 decimales
+          debtForEach = double.parse(debtForEach.toStringAsFixed(2));
+
+          // Se asigna el valor que tienen que pagar a los miembros
+          payingMembers.forEach((member) {
+            member.amountToPay = debtForEach;
+          });
+        }
       });
-    });
+    }
   }
 }
