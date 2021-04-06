@@ -6,7 +6,7 @@ import 'package:repartapp/models/group_model.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/models/transaction_model.dart';
-import 'package:repartapp/models/user_model.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GroupsProvider {
@@ -127,7 +127,7 @@ class GroupsProvider {
       newChildGroupRef.path: data,
       newChildUserGroupsRef.path: dataUser,
     };
-
+    print(mapRefs);
     databaseReference.update(mapRefs).catchError((onError) {
       print("Error al crear nuevo grupo: $onError");
       return false;
@@ -248,46 +248,6 @@ class GroupsProvider {
         .remove()
         .catchError((onError) {
       print('Error al borrar expensa ${onError.message}');
-      return false;
-    });
-
-    return true;
-  }
-
-  Future<bool> addUserToGroup(User userToInvite, Group group) async {
-    final DataSnapshot snapshotMembers =
-        await databaseReference.child('groups/${group.id}/users').once();
-
-    if (snapshotMembers.value != null) {
-      List keysList = [];
-      snapshotMembers.value.forEach((key, value) {
-        if (key != null) {
-          keysList.add(key);
-        }
-      });
-
-      // Verifica que no llegue data nula
-      if (keysList.length > 1) {
-        // Recorre las keys de los miembros para compararlas con el uid del usuario que se quiere agregar
-        Map keys = snapshotMembers.value.keys;
-        if (keys.containsKey(userToInvite.id)) {
-          // Si el usuario que se quiere agregar ya esta en el grupo entonces retorna falso.
-          return false;
-        }
-      }
-    }
-    // Sino, se agrega al grupo
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    await databaseReference
-        .child('users_requests/${userToInvite.id}/groups')
-        .update({
-      group.id: {
-        'name': group.name,
-        'invited_by': prefs.getString('displayName'),
-      }
-    }).catchError((error) {
-      print('Error al invitar a usuario $error');
       return false;
     });
 

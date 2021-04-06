@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/config/themes/dark_theme.dart';
 import 'package:repartapp/config/themes/light_theme.dart';
 import 'package:repartapp/providers/authentication_provider.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, theme, child) {
-          return MaterialApp(
+          return GetMaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'RepartApp',
             initialRoute: '/',

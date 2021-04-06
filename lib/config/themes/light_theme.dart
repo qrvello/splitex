@@ -62,6 +62,7 @@ final ThemeData lightTheme = ThemeData(
         width: 1,
       ),
     ),
+    fillColor: Colors.black12,
     labelStyle: TextStyle(color: Colors.black.withOpacity(0.87)),
     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
   ),

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Member {
   Member({
     this.id,
@@ -5,6 +7,7 @@ class Member {
     this.checked = true,
     this.amountToPay = 0.00,
     this.weight = 1,
+    this.controller,
   });
 
   String id;
@@ -12,6 +15,7 @@ class Member {
   double amountToPay;
   int weight;
   bool checked;
+  TextEditingController controller = TextEditingController();
 
   factory Member.fromMap(Map<dynamic, dynamic> json, id) => Member(
         id: id,

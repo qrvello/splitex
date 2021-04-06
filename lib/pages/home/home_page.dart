@@ -1,7 +1,7 @@
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/pages/home/groups_list.dart';
 import 'package:repartapp/pages/home/widgets/side_menu.dart';
@@ -18,8 +18,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<FormState> formKeyCreateGroup = GlobalKey<FormState>();
   final GlobalKey<FormState> formKeyJoinGroup = GlobalKey<FormState>();
 
-  final TextEditingController _groupNameController = TextEditingController();
-  final TextEditingController _linkController = TextEditingController();
+  Group group = Group();
 
   @override
   void initState() {
@@ -71,44 +70,11 @@ class _HomePageState extends State<HomePage> {
       ),
       body: GroupsList(),
       drawer: SideMenu(),
-      floatingActionButton: speedDial(context),
-    );
-  }
-
-  SpeedDial speedDial(BuildContext context) {
-    return SpeedDial(
-      backgroundColor: Color(0xff0076FF).withOpacity(0.87),
-      overlayColor: Theme.of(context).scaffoldBackgroundColor,
-      icon: Icons.add_rounded,
-      activeIcon: Icons.add_rounded,
-      visible: true,
-      children: [
-        buttonCreateGroup(context),
-        buttonJoinGroup(context),
-      ],
-    );
-  }
-
-  SpeedDialChild buttonJoinGroup(BuildContext context) {
-    return SpeedDialChild(
-      child: Icon(Icons.keyboard_arrow_right_rounded),
-      backgroundColor: Theme.of(context).accentColor,
-      labelWidget: Text(
-        'Unirse a un grupo',
-        style: TextStyle(fontSize: 18),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add_rounded),
+        onPressed: () => dialogCreateGroup(context),
       ),
-    );
-  }
-
-  SpeedDialChild buttonCreateGroup(BuildContext context) {
-    return SpeedDialChild(
-      child: Icon(Icons.group_rounded),
-      backgroundColor: Theme.of(context).accentColor,
-      labelWidget: Text(
-        'Crear grupo',
-        style: TextStyle(fontSize: 18),
-      ),
-      onTap: () => dialogCreateGroup(context),
     );
   }
 
@@ -122,6 +88,9 @@ class _HomePageState extends State<HomePage> {
             child: Form(
               key: formKeyCreateGroup,
               child: TextFormField(
+                onSaved: (value) {
+                  group.name = value.trim();
+                },
                 autofocus: true,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 maxLength: 20,
@@ -139,7 +108,6 @@ class _HomePageState extends State<HomePage> {
                   }
                   return null;
                 },
-                controller: _groupNameController,
               ),
             ),
           ),
@@ -155,26 +123,11 @@ class _HomePageState extends State<HomePage> {
               child: Text('Cancelar'),
               onPressed: () {
                 Navigator.pop(context);
-                _groupNameController.clear();
               },
             ),
             ElevatedButton(
               child: Text('Guardar'),
-              onPressed: () async {
-                if (!formKeyCreateGroup.currentState.validate()) return;
-
-                Group group = Group();
-
-                group.name = _groupNameController.text.trim();
-
-                bool resp = await groupsProvider.createGroup(group);
-
-                _groupNameController.clear();
-                Navigator.pop(context);
-
-                (resp == true) ? success(context) : error(context);
-                setState(() {});
-              },
+              onPressed: _submit,
             ),
           ],
         );
@@ -182,76 +135,56 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future dialogJoinGroup(BuildContext context) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Color(0xff212529),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(18.0),
-            ),
-          ),
-          content: Container(
-            height: 65,
-            child: Form(
-              key: formKeyJoinGroup,
-              child: TextFormField(
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                maxLength: 20,
-                style: TextStyle(fontSize: 18),
-                decoration: InputDecoration(
-                  errorMaxLines: 3,
-                  labelText: 'Link del grupo a unirse',
-                ),
-                validator: (value) {
-                  if (value.trim().length < 1) {
-                    return 'Ingrese el link del grupo';
-                  }
-                  // TODO expresion regular para aceptar links validos
-                  return null;
-                },
-                controller: _linkController,
-              ),
-            ),
-          ),
-          actions: [
-            ElevatedButton(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.resolveWith(
-                  (states) => (states.contains(MaterialState.pressed)
-                      ? Color(0xffE29578)
-                      : Color(0xffee6c4d)),
-                ),
-              ),
-              child: Text('Cancelar'),
-              onPressed: () {
-                Navigator.pop(context);
-                _linkController.clear();
-              },
-            ),
-            ElevatedButton(
-              child: Text('Guardar'),
-              onPressed: () async {
-                //if (!formKeyJoinGroup.currentState.validate()) return;
+  void _submit() async {
+    if (!formKeyCreateGroup.currentState.validate()) return;
 
-                //String groupId = deepLink.queryParameters['id'];
+    formKeyCreateGroup.currentState.save();
+    Get.back();
 
-                //Group group =
-                //    await groupsProvider.acceptInvitationGroup(groupId);
+    bool resp = await groupsProvider
+        .createGroup(group)
+        .timeout(Duration(seconds: 5), onTimeout: () {
+      Get.snackbar(
+        'Error',
+        'Error al crear el grupo',
+        icon: Icon(
+          Icons.check_circle_outline_rounded,
+          color: Color(0xff25C0B7),
+        ),
+        snackPosition: SnackPosition.BOTTOM,
+        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+        backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+      );
+      return;
+    });
 
-                //Navigator.pushNamed(context, '/group_details',
-                //    arguments: group);
-
-                // TODO Join group
-              },
-            ),
-          ],
-        );
-      },
-    );
+    if (resp == true) {
+      Get.snackbar(
+        'Acción exitosa',
+        'Grupo creado satisfactoriamente',
+        icon: Icon(
+          Icons.check_circle_outline_rounded,
+          color: Color(0xff25C0B7),
+        ),
+        snackPosition: SnackPosition.BOTTOM,
+        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+      );
+      setState(() {});
+      return;
+    } else {
+      Get.snackbar(
+        'Error',
+        'Error al crear el grupo',
+        icon: Icon(
+          Icons.check_circle_outline_rounded,
+          color: Color(0xffee6c4d),
+        ),
+        snackPosition: SnackPosition.BOTTOM,
+        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+        backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+      );
+    }
   }
 
   void success(context) {

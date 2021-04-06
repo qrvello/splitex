@@ -22,7 +22,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
   bool isSwitched = false;
 
-  bool _guardando = false;
   @override
   void initState() {
     super.initState();
@@ -36,7 +35,6 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   Widget build(BuildContext context) {
-    Group group = widget.group;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check_rounded),

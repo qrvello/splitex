@@ -76,6 +76,11 @@ final ThemeData darkTheme = ThemeData(
     ),
   ),
   dialogTheme: DialogTheme(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(
+        Radius.circular(12.0),
+      ),
+    ),
     backgroundColor: Color(0xff212529),
   ),
 );

@@ -139,11 +139,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(18.0),
-            ),
-          ),
           content: Container(
             height: 65,
             child: Form(

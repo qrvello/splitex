@@ -107,6 +107,7 @@ class AuthenticationProvider with ChangeNotifier {
       //await _googleSignIn.disconnect();
       SharedPreferences preferences = await SharedPreferences.getInstance();
       await preferences.clear();
+      notifyListeners();
       return true;
     } catch (e) {
       print(e.message);

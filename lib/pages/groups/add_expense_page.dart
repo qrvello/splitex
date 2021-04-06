@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
@@ -27,6 +28,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Expense expense = new Expense();
   bool error = false;
+  bool errorNotMatchTotalExpenditure = false;
   bool allCheckbox = true;
   String dropdownValue = '';
   List<Member> payingMembers = [];
@@ -43,6 +45,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
     // Crea los items para el dropdown con los miembros.
 
     for (Member member in widget.group.members) {
+      member.controller =
+          TextEditingController(text: member.amountToPay.toString());
       items.add(
         DropdownMenuItem(
           value: member.id,
@@ -166,48 +170,61 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Expanded membersList(Size size) {
     return Expanded(
-      child: ListView.builder(
+      child: ListView.separated(
+        separatorBuilder: (context, index) => Divider(
+          height: 1,
+        ),
         padding: EdgeInsets.only(bottom: size.height * 0.01),
         itemCount: widget.group.members.length,
         itemBuilder: (context, index) {
-          return CheckboxListTile(
-            secondary: (advanced == false)
-                ? Text(widget.group.members[index].amountToPay.toString())
-                : advancedDivision(size, index),
-            activeColor: Color(0xff0076ff),
-            tileColor: Theme.of(context).scaffoldBackgroundColor,
-            controlAffinity: ListTileControlAffinity.leading,
-            checkColor: Colors.white,
-            title: Text(widget.group.members[index].id),
-            value: widget.group.members[index].checked,
-            onChanged: (value) {
-              setState(() {
-                widget.group.members[index].checked = value;
-                if (value == true) {
-                  payingMembers.add(widget.group.members[index]);
-                } else {
-                  widget.group.members[index].amountToPay = 0;
-                  payingMembers.remove(widget.group.members[index]);
-                }
-              });
-              calculateDivision();
-            },
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Container(
+                width: size.width * 0.5,
+                child: CheckboxListTile(
+                  activeColor: Color(0xff0076ff),
+                  tileColor: Theme.of(context).scaffoldBackgroundColor,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  checkColor: Colors.white,
+                  title: Text(widget.group.members[index].id),
+                  value: widget.group.members[index].checked,
+                  onChanged: (value) {
+                    setState(() {
+                      widget.group.members[index].checked = value;
+                      if (value == true) {
+                        payingMembers.add(widget.group.members[index]);
+                      } else {
+                        widget.group.members[index].amountToPay = 0;
+                        payingMembers.remove(widget.group.members[index]);
+                      }
+                    });
+                    calculateDivision();
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(right: 20),
+                child: (advanced == false)
+                    ? Text(widget.group.members[index].amountToPay.toString())
+                    : advancedDivision(size, index),
+              )
+            ],
           );
         },
       ),
     );
   }
 
-  Row advancedDivision(Size size, int index) {
+  Widget advancedDivision(Size size, int index) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          margin: EdgeInsets.only(bottom: 8),
           width: size.width * 0.1,
-          height: 40,
           child: TextFormField(
             maxLength: 3,
             keyboardType: TextInputType.number,
@@ -219,14 +236,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 widget.group.members[index].amountToPay = 0;
                 widget.group.members[index].weight = 0;
               } else {
-                int weigth = int.tryParse(value);
-                widget.group.members[index].weight = weigth;
+                int weight = int.tryParse(value);
+
+                widget.group.members[index].weight = weight;
               }
               calculateDivision();
             },
             textAlign: TextAlign.center,
             initialValue: widget.group.members[index].weight.toString(),
             decoration: InputDecoration(
+              isCollapsed: true,
               counterText: '',
               contentPadding: EdgeInsets.all(4),
               focusedBorder: UnderlineInputBorder(
@@ -247,16 +266,53 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
           ),
         ),
-        SizedBox(width: 10),
-        Text(widget.group.members[index].amountToPay.toString())
+        SizedBox(width: 15),
+        Container(
+          width: size.width * 0.2,
+          child: TextFormField(
+            maxLength: 10,
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
+            ],
+            onChanged: (String value) {
+              if (value != '') {
+                double amountToPay = double.tryParse(value);
+                calculateDivisionForAmount(
+                    amountToPay, widget.group.members[index]);
+              }
+            },
+            controller: widget.group.members[index].controller,
+            textAlign: TextAlign.center,
+            decoration: InputDecoration(
+              isCollapsed: true,
+              counterText: '',
+              contentPadding: EdgeInsets.all(4),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xff0076ff),
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xff0076ff),
+                ),
+              ),
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color(0xff0076ff),
+                ),
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _inputDescription() {
+  TextFormField _inputDescription() {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      autofocus: true,
       maxLength: 25,
       style: TextStyle(fontSize: 20),
       decoration: InputDecoration(
@@ -285,12 +341,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
       ],
-      onChanged: (_) {
+      onChanged: (value) {
+        expense.amount = double.tryParse(value).toDouble();
         calculateDivision();
       },
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       controller: _expenseAmountController,
-      onSaved: (value) => expense.amount = double.tryParse(value).toDouble(),
       validator: (value) {
         if (value.trim().isEmpty) return 'Por favor ingresa un número';
         if (_isNumeric(value.trim()) != false) {
@@ -303,6 +359,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
   }
 
   void _submit(context) async {
+    if (errorNotMatchTotalExpenditure == true) {
+      Get.snackbar(
+        'Error',
+        'La división de gastos entre miembros no concuerda con el gasto total',
+        snackPosition: SnackPosition.BOTTOM,
+        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+        backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+      );
+      return;
+    }
     if (!formKey.currentState.validate()) return;
 
     formKey.currentState.save();
@@ -346,8 +412,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             // Se obtiene cuanto vale una unidad de peso diviendo la cantidad
             // a gastar por el total del peso
 
-            double debtForWeight =
-                (double.tryParse(_expenseAmountController.text) / weightTotal);
+            double debtForWeight = expense.amount / weightTotal;
 
             // Se convierte a double y solo se queda con 2 decimales
             debtForWeight = double.parse(debtForWeight.toStringAsFixed(2));
@@ -355,6 +420,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
             // Se asigna el valor que tienen que pagar a los miembros
             // multiplicando la unidad de peso por el peso que tiene el miembro
             payingMembers.forEach((member) {
+              member.controller.text =
+                  (debtForWeight * member.weight).toStringAsFixed(2);
               member.amountToPay = double.parse(
                   (debtForWeight * member.weight).toStringAsFixed(2));
             });
@@ -366,8 +433,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         } else {
           // Se obtiene cuanto tiene que pagar cada miembro
           // diviendo la cantidad del gasto por la cantidad de miembros
-          double debtForEach = (double.tryParse(_expenseAmountController.text) /
-              payingMembers.length);
+          double debtForEach = expense.amount / payingMembers.length;
 
           // Se convierte a double y solo se queda con 2 decimales
           debtForEach = double.parse(debtForEach.toStringAsFixed(2));
@@ -378,6 +444,22 @@ class _AddExpensePageState extends State<AddExpensePage> {
           });
         }
       });
+    }
+  }
+
+  void calculateDivisionForAmount(double amountToPay, Member member) {
+    member.amountToPay = double.tryParse(amountToPay.toStringAsFixed(2));
+
+    double totalExpense = 0;
+
+    widget.group.members.forEach((element) {
+      totalExpense += element.amountToPay;
+    });
+
+    if (totalExpense.roundToDouble() != expense.amount.roundToDouble()) {
+      errorNotMatchTotalExpenditure = true;
+    } else {
+      errorNotMatchTotalExpenditure = false;
     }
   }
 }

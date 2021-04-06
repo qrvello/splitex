@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
+import '../../locator.dart';
+
 class GroupsList extends StatefulWidget {
   @override
   _GroupsListState createState() => _GroupsListState();
 }
 
 class _GroupsListState extends State<GroupsList> {
-  final GroupsProvider groupProvider = GroupsProvider();
+  //final GroupsProvider groupProvider = GroupsProvider();
 
   final DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference();
@@ -21,7 +23,7 @@ class _GroupsListState extends State<GroupsList> {
     final Size size = MediaQuery.of(context).size;
 
     return StreamBuilder(
-      stream: groupProvider.getGroupsList(),
+      stream: locator.get<GroupsProvider>().getGroupsList(),
       builder: (BuildContext context, AsyncSnapshot<List<Group>> snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -165,7 +167,7 @@ class _GroupsListState extends State<GroupsList> {
   }
 
   void _deleteGroup(context, group) async {
-    final result = await groupProvider.deleteGroup(group);
+    final result = await locator.get<GroupsProvider>().deleteGroup(group);
 
     if (result == true) {
       groups.remove(group);
