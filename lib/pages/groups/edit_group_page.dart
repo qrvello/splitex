@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
+
+import '../../locator.dart';
 
 class EditGroupPage extends StatefulWidget {
   final Group group;
@@ -16,7 +19,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final groupProvider = new GroupsProvider();
+  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
 
   var _groupNameController = new TextEditingController();
 
@@ -93,38 +96,40 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
     formKey.currentState.save();
 
-    bool resp = await groupProvider.updateGroup(widget.group);
+    bool resp = await groupsProvider.updateGroup(widget.group);
 
     if (resp == true) {
-      _success(context);
+      snackbarSuccess();
     } else {
-      _error(context);
+      snackbarError();
     }
   }
 
-  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> _success(context) {
-    return ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Grupo editado satisfactoriamente'),
-        action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-            // Back to the home page
-            Navigator.pop(context);
-
-            return;
-          },
-        ),
+  void snackbarSuccess() {
+    return Get.snackbar(
+      'Acción exitosa',
+      'Grupo editado satisfactoriamente',
+      icon: Icon(
+        Icons.check_circle_outline_rounded,
+        color: Color(0xff25C0B7),
       ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
     );
   }
 
-  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> _error(context) {
-    return ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Color(0xffe63946),
-        content: Text('Error al actualizar grupo'),
+  void snackbarError() {
+    return Get.snackbar(
+      'Error',
+      'Error al editar el grupo',
+      icon: Icon(
+        Icons.error_outline_rounded,
+        color: Color(0xffee6c4d),
       ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
     );
   }
 }

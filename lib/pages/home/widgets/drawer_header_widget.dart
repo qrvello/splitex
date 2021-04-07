@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get/get.dart';
+import 'package:repartapp/controllers/authentication_controller.dart';
 
 class DrawerHeaderWidget extends StatefulWidget {
   @override
@@ -8,35 +9,21 @@ class DrawerHeaderWidget extends StatefulWidget {
 }
 
 class _DrawerHeaderWidgetState extends State<DrawerHeaderWidget> {
-  String displayName = '';
-
-  String email = '';
-
-  @override
-  void initState() {
-    _getUserData();
-    super.initState();
-  }
-
-  _getUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    displayName = prefs.getString('displayName');
-    email = prefs.getString('email');
-  }
+  final AuthController authController = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
+    User user = authController.getUserData();
     return Column(
       children: <Widget>[
         UserAccountsDrawerHeader(
           currentAccountPicture: CircleAvatar(
-            backgroundImage: (user.photoURL != null
+            backgroundImage: (user.photoURL != null)
                 ? (NetworkImage(user.photoURL))
-                : AssetImage('assets/blank-profile.jpg')),
+                : AssetImage('assets/blank-profile.jpg'),
           ),
-          accountName: Text(displayName),
-          accountEmail: Text(email),
+          accountName: Text(user.displayName),
+          accountEmail: Text(user.email),
         ),
         ListTile(
           leading: Icon(Icons.person_rounded),

@@ -3,24 +3,28 @@ import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:repartapp/controllers/authentication_controller.dart';
 import 'package:repartapp/locator.dart';
-
+import 'package:repartapp/models/user_model.dart';
 import 'app.dart';
 
 Future<void> main() async {
-  setup();
-
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseDatabase().setPersistenceEnabled(true);
+
+  FirebaseDatabase().setPersistenceCacheSizeBytes(10000000);
+  setup();
 
   final Directory appDocumentDir = await getApplicationDocumentsDirectory();
   Hive.init(appDocumentDir.path);
   await Hive.openBox('theme');
-  await Firebase.initializeApp();
+  await Hive.openBox('user');
+  Hive.registerAdapter(UserAdapter());
 
-  FirebaseDatabase().setPersistenceEnabled(true);
-  FirebaseDatabase().setPersistenceCacheSizeBytes(10000000);
-
+  Get.put(AuthController());
   runApp(MyApp());
 }

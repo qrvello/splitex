@@ -7,6 +7,8 @@ import 'package:repartapp/models/member_model.dart';
 
 import 'package:repartapp/providers/groups_provider.dart';
 
+import '../../locator.dart';
+
 class AddExpensePage extends StatefulWidget {
   final Group group;
   AddExpensePage({this.group});
@@ -15,7 +17,7 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final GroupsProvider groupProvider = GroupsProvider();
+  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
 
   final TextEditingController _expenseNameController = TextEditingController();
   final TextEditingController _expenseAmountController =
@@ -27,12 +29,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
   final List<DropdownMenuItem<String>> items = [];
 
   Expense expense = new Expense();
-  bool error = false;
   bool errorNotMatchTotalExpenditure = false;
   bool allCheckbox = true;
   String dropdownValue = '';
   List<Member> payingMembers = [];
   bool advanced = false;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -74,7 +76,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check_rounded),
         onPressed: () {
-          _submit(context);
+          _submit();
         },
       ),
       appBar: AppBar(title: Text('Agregar gasto')),
@@ -86,17 +88,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
               padding: EdgeInsets.all(12),
               child: Column(
                 children: [
-                  (error)
-                      ? Container(
-                          margin: EdgeInsets.only(bottom: 20, top: 5),
-                          child: Text(
-                            'Error al agregar gasto',
-                            style: TextStyle(
-                              color: Colors.red,
-                            ),
-                          ),
-                        )
-                      : SizedBox.shrink(),
                   _inputDescription(),
                   SizedBox(height: 12),
                   _inputAmount(),
@@ -198,6 +189,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
                         payingMembers.add(widget.group.members[index]);
                       } else {
                         widget.group.members[index].amountToPay = 0;
+                        widget.group.members[index].controller.text = '0';
+
                         payingMembers.remove(widget.group.members[index]);
                       }
                     });
@@ -342,8 +335,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
         FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
       ],
       onChanged: (value) {
-        expense.amount = double.tryParse(value).toDouble();
-        calculateDivision();
+        if (value != null) {
+          expense.amount = double.tryParse(value).toDouble();
+          calculateDivision();
+        } else {
+          expense.amount = 0;
+          calculateDivision();
+        }
       },
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       controller: _expenseAmountController,
@@ -358,31 +356,32 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  void _submit(context) async {
+  void _submit() async {
+    if (_saving == true) return;
+    _saving = true;
     if (errorNotMatchTotalExpenditure == true) {
-      Get.snackbar(
-        'Error',
-        'La división de gastos entre miembros no concuerda con el gasto total',
-        snackPosition: SnackPosition.BOTTOM,
-        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-        backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
-      );
+      snackbarError(
+          'La división de gastos entre miembros no concuerda con el gasto total');
+      _saving = false;
+
       return;
     }
-    if (!formKey.currentState.validate()) return;
+    if (!formKey.currentState.validate()) {
+      _saving = false;
+      return;
+    }
 
     formKey.currentState.save();
 
-    bool resp = await groupProvider.addExpense(widget.group, expense);
+    bool resp = await groupsProvider.addExpense(widget.group, expense);
 
-    if (resp != false) {
-      error = false;
-      Navigator.pop(context);
+    if (resp == true) {
+      Get.back();
+      snackbarSuccess();
     } else {
-      setState(() {
-        error = true;
-      });
+      snackbarError('Error al agregar gasto al grupo');
     }
+    _saving = false;
   }
 
   bool _isNumeric(String str) {
@@ -425,6 +424,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
               member.amountToPay = double.parse(
                   (debtForWeight * member.weight).toStringAsFixed(2));
             });
+
+            errorNotMatchTotalExpenditure = false;
           } else {
             payingMembers.forEach((member) {
               member.amountToPay = 0;
@@ -442,6 +443,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
           payingMembers.forEach((member) {
             member.amountToPay = debtForEach;
           });
+
+          errorNotMatchTotalExpenditure = false;
         }
       });
     }
@@ -461,5 +464,33 @@ class _AddExpensePageState extends State<AddExpensePage> {
     } else {
       errorNotMatchTotalExpenditure = false;
     }
+  }
+
+  void snackbarSuccess() {
+    return Get.snackbar(
+      'Acción exitosa',
+      'Gasto agregado satisfactoriamente',
+      icon: Icon(
+        Icons.check_circle_outline_rounded,
+        color: Color(0xff25C0B7),
+      ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+    );
+  }
+
+  void snackbarError(String message) {
+    return Get.snackbar(
+      'Error',
+      message,
+      icon: Icon(
+        Icons.error_outline_rounded,
+        color: Color(0xffee6c4d),
+      ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+    );
   }
 }

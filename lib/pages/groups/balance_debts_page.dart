@@ -3,6 +3,8 @@ import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/transaction_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
+import '../../locator.dart';
+
 class BalanceDebtsPage extends StatefulWidget {
   final Group group;
   BalanceDebtsPage({this.group});
@@ -13,12 +15,12 @@ class BalanceDebtsPage extends StatefulWidget {
 
 class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
-  final GroupsProvider groupProvider = GroupsProvider();
+  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
 
   @override
   Widget build(BuildContext context) {
     List<Transaction> transactions =
-        groupProvider.balanceDebts(widget.group.members);
+        groupsProvider.balanceDebts(widget.group.members);
 
     return Scaffold(
       appBar: AppBar(
@@ -66,9 +68,12 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
   Widget _createItem(Transaction transaction, int index, Animation animation) {
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(-1, 0),
+        begin: Offset(-1, 0),
         end: Offset(0, 0),
-      ).animate(animation),
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeInOut,
+      )),
       child: Card(
         child: ListTile(
           subtitle: Text(
@@ -101,7 +106,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
               size: 32,
             ),
             onPressed: () async {
-              await groupProvider.checkTransaction(transaction, widget.group);
+              await groupsProvider.checkTransaction(transaction, widget.group);
 
               listKey.currentState.removeItem(
                 index,

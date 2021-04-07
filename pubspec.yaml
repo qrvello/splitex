@@ -29,6 +29,7 @@ dependencies:
     path_provider: ^2.0.1
     get: ^4.1.3
     get_it: ^6.0.0
+    connectivity: ^3.0.3
     
 dev_dependencies:
     flutter_test:

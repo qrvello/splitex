@@ -1,5 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
@@ -11,7 +12,7 @@ class GroupsList extends StatefulWidget {
 }
 
 class _GroupsListState extends State<GroupsList> {
-  //final GroupsProvider groupProvider = GroupsProvider();
+  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
 
   final DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference();
@@ -23,7 +24,7 @@ class _GroupsListState extends State<GroupsList> {
     final Size size = MediaQuery.of(context).size;
 
     return StreamBuilder(
-      stream: locator.get<GroupsProvider>().getGroupsList(),
+      stream: groupsProvider.getGroupsList(),
       builder: (BuildContext context, AsyncSnapshot<List<Group>> snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -33,27 +34,38 @@ class _GroupsListState extends State<GroupsList> {
 
         if (snapshot.hasData) {
           groups = snapshot.data;
-
           groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
-          return Column(
-            children: [
-              Divider(
-                height: 1,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.only(bottom: size.height * 0.1),
-                  itemCount: groups.length,
-                  itemBuilder: (context, i) => _createItem(context, groups[i]),
+          if (groups.length > 0) {
+            return Column(
+              children: [
+                Divider(
+                  height: 1,
                 ),
-              ),
-            ],
-          );
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.only(bottom: size.height * 0.1),
+                    itemCount: groups.length,
+                    itemBuilder: (context, i) =>
+                        _createItem(context, groups[i]),
+                  ),
+                ),
+              ],
+            );
+          }
         }
 
         return Center(
-          child: Text('No participás de ningún grupo.'),
+          child: Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'No participás de ningún grupo',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         );
       },
     );
@@ -91,7 +103,13 @@ class _GroupsListState extends State<GroupsList> {
           ),
           direction: DismissDirection.endToStart,
           child: ListTile(
-            title: Text(group.name),
+            title: Hero(
+              child: Text(
+                group.name,
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              tag: group.id,
+            ),
             onTap: () => Navigator.pushNamed(
               context,
               '/group_details',
@@ -134,50 +152,44 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  void _successSnackbar(context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Grupo eliminado satisfactoriamente'),
-        action: SnackBarAction(
-          textColor: Colors.white,
-          label: 'Ok',
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-      ),
-    );
-  }
-
-  void _errorSnackbar(context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Color(0xffe63946),
-        content: Text('Error al eliminar el grupo'),
-        action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-            return;
-          },
-        ),
-      ),
-    );
-  }
-
   void _deleteGroup(context, group) async {
-    final result = await locator.get<GroupsProvider>().deleteGroup(group);
+    final result = await groupsProvider.deleteGroup(group);
 
     if (result == true) {
-      groups.remove(group);
       Navigator.of(context).pop(result);
-      setState(() {});
-      _successSnackbar(context);
+      snackbarSuccess();
     } else {
       Navigator.of(context).pop(result);
 
-      _errorSnackbar(context);
+      snackbarError();
     }
+  }
+
+  void snackbarSuccess() {
+    return Get.snackbar(
+      'Acción exitosa',
+      'Grupo borrado satisfactoriamente',
+      icon: Icon(
+        Icons.check_circle_outline_rounded,
+        color: Color(0xff25C0B7),
+      ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+    );
+  }
+
+  void snackbarError() {
+    return Get.snackbar(
+      'Error',
+      'Error al borrar el grupo',
+      icon: Icon(
+        Icons.error_outline_rounded,
+        color: Color(0xffee6c4d),
+      ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+    );
   }
 }

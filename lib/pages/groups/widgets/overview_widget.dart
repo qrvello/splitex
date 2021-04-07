@@ -7,6 +7,8 @@ import 'package:repartapp/providers/groups_provider.dart';
 
 import 'package:share/share.dart';
 
+import '../../../locator.dart';
+
 class OverviewWidget extends StatefulWidget {
   final Group group;
 
@@ -16,7 +18,8 @@ class OverviewWidget extends StatefulWidget {
 }
 
 class _OverviewWidgetState extends State<OverviewWidget> {
-  final GroupsProvider groupProvider = GroupsProvider();
+  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
+
   final User user = FirebaseAuth.instance.currentUser;
 
   @override
@@ -163,7 +166,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
         ),
         TextButton(
           onPressed: () {
-            groupProvider.deleteMember(widget.group, member);
+            groupsProvider.deleteMember(widget.group, member);
             Navigator.of(context).pop(true);
           },
           child: Text(

@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:repartapp/pages/home/widgets/drawer_header_widget.dart';
+import 'package:repartapp/pages/users/widgets/google_sign_up_button_widget.dart';
 import 'package:repartapp/providers/theme_provider.dart';
 
 class SideMenu extends StatefulWidget {
@@ -62,14 +63,10 @@ class _SideMenuState extends State<SideMenu> {
       builder: (context, snapshot) {
         if (FirebaseAuth.instance.currentUser == null) {
           return DrawerHeader(
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 50, horizontal: 40),
-              child: ElevatedButton(
-                onPressed: () => Navigator.of(context).pushNamed('/login'),
-                child: Text(
-                  'Iniciar sesión',
-                  style: TextStyle(color: Colors.white),
-                ),
+            child: Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                child: GoogleSignUpButtonWidget(),
               ),
             ),
           );

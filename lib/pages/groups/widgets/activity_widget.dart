@@ -114,11 +114,12 @@ class _ActivityWidgetState extends State<ActivityWidget> {
             fontWeight: FontWeight.w600,
           ),
         ),
+        //subtitle: Text(transaction.timestamp.toString()), TODO timestamp
         leading: Container(
           margin: EdgeInsets.only(left: 10),
           height: double.infinity,
           child: Icon(
-            Icons.sync_alt_rounded,
+            Icons.arrow_right_alt_rounded,
             color: Color(0xff0076FF),
           ),
         ),

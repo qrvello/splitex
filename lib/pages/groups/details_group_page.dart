@@ -4,11 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/pages/groups/edit_group_page.dart';
 import 'package:repartapp/pages/groups/widgets/activity_widget.dart';
 import 'package:repartapp/pages/groups/widgets/overview_widget.dart';
 import 'package:repartapp/providers/groups_provider.dart';
+
+import '../../locator.dart';
 
 // ignore: must_be_immutable
 class DetailsGroupPage extends StatefulWidget {
@@ -22,17 +25,18 @@ class DetailsGroupPage extends StatefulWidget {
 class _DetailsGroupPageState extends State<DetailsGroupPage> {
   final user = FirebaseAuth.instance.currentUser;
   final databaseReference = FirebaseDatabase.instance.reference();
-  final groupProvider = GroupsProvider();
   final _newMemberName = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
 
+  String newMember;
   StreamSubscription _streamSubscription;
 
   @override
   void initState() {
     super.initState();
     _streamSubscription =
-        groupProvider.getGroup(widget.group).listen((Group data) {
+        groupsProvider.getGroup(widget.group).listen((Group data) {
       setState(() {
         // Si la data (groupo) que se recibe es distinta de la que se tiene entonces se remplaza
         widget.group = data;
@@ -87,7 +91,13 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         ),
       ],
       elevation: 0,
-      title: Text(widget.group.name),
+      title: Hero(
+        child: Text(
+          widget.group.name,
+          style: Theme.of(context).textTheme.headline5,
+        ),
+        tag: widget.group.id,
+      ),
       bottom: TabBar(
         isScrollable: false,
         tabs: [
@@ -166,7 +176,9 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                     return null;
                   }
                 },
-                controller: _newMemberName,
+                onSaved: (value) {
+                  newMember = value.trim();
+                },
               ),
             ),
           ),
@@ -192,14 +204,47 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     );
   }
 
-  void _addNewMember() {
+  void _addNewMember() async {
     if (!formKey.currentState.validate()) return;
 
     formKey.currentState.save();
 
-    groupProvider.addPersonToGroup(_newMemberName.text.trim(), widget.group);
-    _newMemberName.text = '';
-    Navigator.pop(context);
-    setState(() {});
+    Get.back();
+    bool result =
+        await groupsProvider.addPersonToGroup(newMember, widget.group);
+
+    if (result == true) {
+      snackbarSuccess();
+    } else {
+      snackbarError();
+    }
+  }
+
+  void snackbarSuccess() {
+    return Get.snackbar(
+      'Acción exitosa',
+      'Miembro agregado satisfactoriamente',
+      icon: Icon(
+        Icons.check_circle_outline_rounded,
+        color: Color(0xff25C0B7),
+      ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+    );
+  }
+
+  void snackbarError() {
+    return Get.snackbar(
+      'Error',
+      'Error al agregar miembro al grupo',
+      icon: Icon(
+        Icons.error_outline_rounded,
+        color: Color(0xffee6c4d),
+      ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+    );
   }
 }

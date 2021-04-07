@@ -1,16 +1,15 @@
 //import 'package:firebase_database/firebase_database.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/group_model.dart';
-import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/models/transaction_model.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 class GroupsProvider {
-  final user = auth.FirebaseAuth.instance.currentUser;
+  final user = FirebaseAuth.instance.currentUser;
 
   final databaseReference = FirebaseDatabase.instance.reference();
 
@@ -63,6 +62,10 @@ class GroupsProvider {
   }
 
   Future<bool> createGroup(Group group) async {
+    if (await _checkConnection() == false) {
+      return false;
+    }
+
     // Guarda el id del creador del grupo
     group.adminUser = user.uid;
 
@@ -81,10 +84,6 @@ class GroupsProvider {
       'admin_user': group.adminUser,
       'timestamp': ServerValue.timestamp,
     };
-
-    final prefs = await SharedPreferences.getInstance();
-
-    final name = prefs.getString('displayName');
 
     final DynamicLinkParameters parameters = DynamicLinkParameters(
       uriPrefix: 'https://repartapp2.page.link/',
@@ -109,7 +108,7 @@ class GroupsProvider {
 
     final Map<String, dynamic> data = {
       'members': {
-        name: {
+        user.displayName: {
           "balance": 0,
         },
       },
@@ -127,8 +126,8 @@ class GroupsProvider {
       newChildGroupRef.path: data,
       newChildUserGroupsRef.path: dataUser,
     };
-    print(mapRefs);
-    databaseReference.update(mapRefs).catchError((onError) {
+
+    await databaseReference.update(mapRefs).catchError((onError) {
       print("Error al crear nuevo grupo: $onError");
       return false;
     });
@@ -137,8 +136,11 @@ class GroupsProvider {
   }
 
   Future<bool> updateGroup(Group group) async {
-    // Obtiene la referencia
+    if (await _checkConnection() == false) {
+      return false;
+    }
 
+    // Obtiene la referencia
     final DatabaseReference groupRef =
         databaseReference.child('groups/${group.id}/');
 
@@ -161,6 +163,10 @@ class GroupsProvider {
   }
 
   Future<bool> deleteGroup(Group group) async {
+    if (await _checkConnection() == false) {
+      return false;
+    }
+
     Map<String, dynamic> removeObj = {};
 
     // Valida que el admin del grupo sea el usuario que lo elimina sino solo lo borra de mis grupos
@@ -194,6 +200,10 @@ class GroupsProvider {
   }
 
   Future<bool> addExpense(Group group, Expense expense) async {
+    if (await _checkConnection() == false) {
+      return false;
+    }
+
     final DatabaseReference groupReference =
         databaseReference.child('groups/${group.id}');
 
@@ -240,6 +250,10 @@ class GroupsProvider {
   }
 
   Future<bool> deleteExpense(Group group, Expense expense) async {
+    if (await _checkConnection() == false) {
+      return false;
+    }
+
     // ignore: todo
     // TODO restar balance que se habia agregado previamente con el gasto
 
@@ -264,8 +278,6 @@ class GroupsProvider {
       group = Group.fromMap(snapshot.value, snapshot.key);
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
     final requestUserPath = databaseReference
         .child('users_requests/${user.uid}/groups/${group.id}/')
         .path;
@@ -274,7 +286,7 @@ class GroupsProvider {
         databaseReference.child('groups/${group.id}/users/${user.uid}').path;
 
     final membersGroupPath = databaseReference
-        .child('groups/${group.id}/members/${prefs.getString('displayName')}')
+        .child('groups/${group.id}/members/${user.displayName}')
         .path;
 
     final groupsUserPath = databaseReference
@@ -301,13 +313,22 @@ class GroupsProvider {
     return group;
   }
 
-  void addPersonToGroup(String name, Group group) {
-    final newChildMember =
+  Future<bool> addPersonToGroup(String name, Group group) async {
+    if (await _checkConnection() == false) {
+      return false;
+    }
+
+    final DatabaseReference newChildMember =
         databaseReference.child('/groups/${group.id}/members/$name');
 
-    newChildMember.update({
+    await newChildMember.update({
       "balance": 0,
+    }).catchError((onError) {
+      print(onError);
+      return false;
     });
+
+    return true;
   }
 
   List<Transaction> balanceDebts(List<Member> members2) {
@@ -369,6 +390,10 @@ class GroupsProvider {
   }
 
   Future<bool> checkTransaction(Transaction transaction, Group group) async {
+    if (await _checkConnection() == false) {
+      return false;
+    }
+
     DatabaseReference groupReference =
         databaseReference.child('/groups/${group.id}');
 
@@ -401,10 +426,23 @@ class GroupsProvider {
     return true;
   }
 
-  void deleteMember(Group group, Member member) async {
+  Future<bool> deleteMember(Group group, Member member) async {
+    if (await _checkConnection() == false) {
+      return false;
+    }
+
     await databaseReference
         .child('/groups/${group.id}/members/${member.id}')
         .remove();
-    return;
+    return true;
+  }
+
+  Future<bool> _checkConnection() async {
+    ConnectivityResult connectivityResult =
+        await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.none) {
+      return false;
+    }
+    return true;
   }
 }

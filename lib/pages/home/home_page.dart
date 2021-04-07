@@ -7,6 +7,8 @@ import 'package:repartapp/pages/home/groups_list.dart';
 import 'package:repartapp/pages/home/widgets/side_menu.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
+import '../../locator.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -139,85 +141,43 @@ class _HomePageState extends State<HomePage> {
     if (!formKeyCreateGroup.currentState.validate()) return;
 
     formKeyCreateGroup.currentState.save();
+
     Get.back();
 
-    bool resp = await groupsProvider
-        .createGroup(group)
-        .timeout(Duration(seconds: 5), onTimeout: () {
-      Get.snackbar(
-        'Error',
-        'Error al crear el grupo',
-        icon: Icon(
-          Icons.check_circle_outline_rounded,
-          color: Color(0xff25C0B7),
-        ),
-        snackPosition: SnackPosition.BOTTOM,
-        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-        backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
-      );
-      return;
-    });
+    bool result = await locator.get<GroupsProvider>().createGroup(group);
 
-    if (resp == true) {
-      Get.snackbar(
-        'Acción exitosa',
-        'Grupo creado satisfactoriamente',
-        icon: Icon(
-          Icons.check_circle_outline_rounded,
-          color: Color(0xff25C0B7),
-        ),
-        snackPosition: SnackPosition.BOTTOM,
-        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-      );
-      setState(() {});
-      return;
+    if (result == true) {
+      snackbarSuccess();
     } else {
-      Get.snackbar(
-        'Error',
-        'Error al crear el grupo',
-        icon: Icon(
-          Icons.check_circle_outline_rounded,
-          color: Color(0xffee6c4d),
-        ),
-        snackPosition: SnackPosition.BOTTOM,
-        margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-        backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
-      );
+      snackbarError();
     }
   }
 
-  void success(context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Grupo creado satisfactoriamente'),
-        action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-            // Back to the home page
-            Navigator.pop(context);
-
-            return;
-          },
-        ),
+  void snackbarSuccess() {
+    return Get.snackbar(
+      'Acción exitosa',
+      'Grupo creado satisfactoriamente',
+      icon: Icon(
+        Icons.check_circle_outline_rounded,
+        color: Color(0xff25C0B7),
       ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
     );
   }
 
-  void error(context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Color(0xffe63946),
-        content: Text('Error al crear grupo'),
-        action: SnackBarAction(
-          label: 'Ok',
-          onPressed: () {
-            // Back to the home page
-            Navigator.of(context).pop();
-            return;
-          },
-        ),
+  void snackbarError() {
+    return Get.snackbar(
+      'Error',
+      'Error al crear el grupo',
+      icon: Icon(
+        Icons.error_outline_rounded,
+        color: Color(0xffee6c4d),
       ),
+      snackPosition: SnackPosition.BOTTOM,
+      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
     );
   }
 }
