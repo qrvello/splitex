@@ -4,15 +4,13 @@ import 'package:get/get.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/providers/groups_provider.dart';
 
-import '../../locator.dart';
-
 class GroupsList extends StatefulWidget {
   @override
   _GroupsListState createState() => _GroupsListState();
 }
 
 class _GroupsListState extends State<GroupsList> {
-  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
+  final GroupsProvider groupsProvider = Get.find();
 
   final DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference();

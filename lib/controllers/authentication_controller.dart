@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
 
@@ -48,13 +48,16 @@ class AuthController extends GetxController {
         }
       });
     }
+    update();
+
     return true;
   }
 
   Future<bool> signOut() async {
     try {
       await _firebaseAuth.signOut();
-      box.clear();
+      await box.clear();
+      update();
       return true;
     } catch (e) {
       print(e.message);

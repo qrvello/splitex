@@ -149,37 +149,34 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          content: Container(
-            height: 65,
-            child: Form(
-              key: formKey,
-              child: TextFormField(
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                maxLength: 20,
-                style: TextStyle(fontSize: 18),
-                decoration: InputDecoration(
-                  errorMaxLines: 3,
-                  labelText: 'Nombre',
-                ),
-                validator: (value) {
-                  if (value.trim().length < 1) {
-                    return 'Ingrese el nombre del nuevo miembro';
-                  } else if (value.trim().length > 20) {
-                    return 'Ingrese un nombre menor a 20 caracteres';
-                  } else {
-                    if (widget.group.members
-                        .asMap()
-                        .containsKey(value.trim())) {
-                      return 'Ya existe un miembro con ese nombre. Elegí otro nombre por favor.';
-                    }
-                    return null;
-                  }
-                },
-                onSaved: (value) {
-                  newMember = value.trim();
-                },
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              autofocus: true,
+              maxLength: 20,
+              style: TextStyle(fontSize: 18),
+              decoration: InputDecoration(
+                errorMaxLines: 3,
+                labelText: 'Nombre',
               ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) {
+                if (value.trim().length < 1) {
+                  return 'Ingrese el nombre del nuevo miembro';
+                } else if (value.trim().length > 20) {
+                  return 'Ingrese un nombre menor a 20 caracteres';
+                }
+
+                for (var member in widget.group.members) {
+                  if (member.id == value.trim()) {
+                    return 'Ya existe un miembro con ese nombre. Elegí otro nombre por favor.';
+                  }
+                }
+                return null;
+              },
+              onSaved: (value) {
+                newMember = value.trim();
+              },
             ),
           ),
           actions: [
@@ -205,16 +202,16 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   }
 
   void _addNewMember() async {
-    if (!formKey.currentState.validate()) return;
-
     formKey.currentState.save();
+    if (!formKey.currentState.validate()) return;
+    print('validated');
 
-    Get.back();
     bool result =
         await groupsProvider.addPersonToGroup(newMember, widget.group);
 
     if (result == true) {
       snackbarSuccess();
+      Get.back();
     } else {
       snackbarError();
     }

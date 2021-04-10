@@ -3,12 +3,13 @@ import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
 import 'package:repartapp/models/transaction_model.dart';
 
-class GroupsProvider {
+class GroupsProvider extends GetxController {
   final user = FirebaseAuth.instance.currentUser;
 
   final databaseReference = FirebaseDatabase.instance.reference();

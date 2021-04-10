@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:repartapp/controllers/authentication_controller.dart';
 import 'package:repartapp/locator.dart';
 import 'package:repartapp/models/user_model.dart';
+import 'package:repartapp/providers/groups_provider.dart';
 import 'app.dart';
 
 Future<void> main() async {
@@ -26,5 +27,7 @@ Future<void> main() async {
   Hive.registerAdapter(UserAdapter());
 
   Get.put(AuthController());
+  Get.put(GroupsProvider());
+
   runApp(MyApp());
 }

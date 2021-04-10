@@ -9,11 +9,12 @@ class DrawerHeaderWidget extends StatefulWidget {
 }
 
 class _DrawerHeaderWidgetState extends State<DrawerHeaderWidget> {
-  final AuthController authController = Get.find();
+  final AuthController authController = Get.find<AuthController>();
 
   @override
   Widget build(BuildContext context) {
     User user = authController.getUserData();
+
     return Column(
       children: <Widget>[
         UserAccountsDrawerHeader(

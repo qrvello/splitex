@@ -4,5 +4,5 @@ import 'package:repartapp/providers/groups_provider.dart';
 final locator = GetIt.instance;
 
 void setup() {
-  locator.registerLazySingleton<GroupsProvider>(() => GroupsProvider());
+  locator.registerFactory<GroupsProvider>(() => GroupsProvider());
 }

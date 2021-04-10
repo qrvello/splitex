@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:repartapp/controllers/authentication_controller.dart';
+import 'package:repartapp/pages/home/home_page.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -37,9 +38,9 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(height: 8),
             ElevatedButton(
               onPressed: () async {
-                await authController.signOut();
-
-                Navigator.of(context).pushNamed('/');
+                await authController.signOut().then((value) {
+                  Get.to(() => HomePage());
+                });
               },
               child: Text('Cerrar sesión'),
             ),

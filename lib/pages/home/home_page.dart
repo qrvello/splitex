@@ -15,16 +15,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final GroupsProvider groupsProvider = GroupsProvider();
-
   final GlobalKey<FormState> formKeyCreateGroup = GlobalKey<FormState>();
   final GlobalKey<FormState> formKeyJoinGroup = GlobalKey<FormState>();
+  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
 
   Group group = Group();
 
   @override
   void initState() {
     super.initState();
+
     this.initDynamicLinks();
   }
 
@@ -85,32 +85,29 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          content: Container(
-            height: 65,
-            child: Form(
-              key: formKeyCreateGroup,
-              child: TextFormField(
-                onSaved: (value) {
-                  group.name = value.trim();
-                },
-                autofocus: true,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                maxLength: 20,
-                style: TextStyle(fontSize: 18),
-                decoration: InputDecoration(
-                  errorMaxLines: 3,
-                  labelText: 'Nombre del grupo',
-                ),
-                validator: (value) {
-                  if (value.trim().length < 1) {
-                    return 'Ingrese el nombre del grupo nuevo';
-                  }
-                  if (value.trim().length > 20) {
-                    return 'Ingrese un nombre menor a 20 caracteres';
-                  }
-                  return null;
-                },
+          content: Form(
+            key: formKeyCreateGroup,
+            child: TextFormField(
+              onSaved: (value) {
+                group.name = value.trim();
+              },
+              autofocus: true,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              maxLength: 20,
+              style: TextStyle(fontSize: 18),
+              decoration: InputDecoration(
+                errorMaxLines: 3,
+                labelText: 'Nombre del grupo',
               ),
+              validator: (value) {
+                if (value.trim().length < 1) {
+                  return 'Ingrese el nombre del grupo nuevo';
+                }
+                if (value.trim().length > 20) {
+                  return 'Ingrese un nombre menor a 20 caracteres';
+                }
+                return null;
+              },
             ),
           ),
           actions: [

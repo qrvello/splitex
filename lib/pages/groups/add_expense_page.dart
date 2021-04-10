@@ -4,10 +4,7 @@ import 'package:get/get.dart';
 import 'package:repartapp/models/expense_model.dart';
 import 'package:repartapp/models/group_model.dart';
 import 'package:repartapp/models/member_model.dart';
-
 import 'package:repartapp/providers/groups_provider.dart';
-
-import '../../locator.dart';
 
 class AddExpensePage extends StatefulWidget {
   final Group group;
@@ -17,7 +14,7 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
+  final GroupsProvider groupsProvider = Get.find<GroupsProvider>();
 
   final TextEditingController _expenseNameController = TextEditingController();
   final TextEditingController _expenseAmountController =
