@@ -128,7 +128,8 @@ class _EditNameWidget extends StatelessWidget {
                 },
                 child: Text('Guardar'),
               ),
-            )
+            ),
+            GoogleSignUpButtonWidget(),
           ],
         ),
       ),

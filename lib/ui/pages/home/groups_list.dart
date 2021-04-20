@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:repartapp/domain/cubits/auth/auth_cubit.dart';
+import 'package:repartapp/domain/cubits/auth/auth_state.dart';
 import 'package:repartapp/domain/cubits/groups/groups_list/groups_list_cubit.dart';
 import 'package:repartapp/domain/cubits/groups/groups_list/groups_list_state.dart';
 import 'package:repartapp/domain/models/group_model.dart';
@@ -9,58 +11,68 @@ import 'package:repartapp/domain/repositories/groups_repository.dart';
 class GroupsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, auth) {
+        if (auth is AuthLoggedInAnonymously || auth is AuthLoggedInWithGoogle) {
+          return BlocProvider(
+            create: (context) =>
+                GroupsListCubit(context.read<GroupsRepository>())..init(),
+            child: BlocBuilder<GroupsListCubit, GroupsListState>(
+              builder: (BuildContext context, GroupsListState state) {
+                if (state is GroupListError) {
+                  return Center(
+                    child: Text('Ha ocurrido un error al cargar tus grupos.'),
+                  );
+                }
 
-    return BlocProvider(
-      create: (context) =>
-          GroupsListCubit(context.read<GroupsRepository>())..init(),
-      child: BlocBuilder<GroupsListCubit, GroupsListState>(
-        builder: (BuildContext context, GroupsListState state) {
-          if (state is GroupListError) {
-            return Center(
-              child: Text('Ha ocurrido un error al cargar tus grupos.'),
-            );
-          }
+                if (state is GroupListLoading) {
+                  return buildLoading();
+                }
 
-          if (state is GroupListLoading) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+                if (state is GroupListLoaded) {
+                  return Column(
+                    children: [
+                      Divider(
+                        height: 1,
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          padding:
+                              EdgeInsets.only(bottom: context.height * 0.1),
+                          itemCount: state.groups.length,
+                          itemBuilder: (_, i) =>
+                              _createItem(context, state.groups[i]),
+                        ),
+                      ),
+                    ],
+                  );
+                }
 
-          if (state is GroupListLoaded) {
-            return Column(
-              children: [
-                Divider(
-                  height: 1,
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.only(bottom: size.height * 0.1),
-                    itemCount: state.groups.length,
-                    itemBuilder: (_, i) =>
-                        _createItem(context, state.groups[i]),
+                return Center(
+                  child: Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'No participás de ningún grupo',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                ),
-              ],
-            );
-          }
-
-          return Center(
-            child: Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                'No participás de ningún grupo',
-                style: TextStyle(color: Colors.white),
-              ),
+                );
+              },
             ),
           );
-        },
-      ),
+        }
+        return buildLoading();
+      },
+    );
+  }
+
+  Center buildLoading() {
+    return Center(
+      child: CircularProgressIndicator(),
     );
   }
 

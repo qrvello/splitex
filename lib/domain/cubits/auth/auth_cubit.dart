@@ -21,7 +21,8 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> init() async {
     if (_firebaseAuth.currentUser != null) {
-      if (_firebaseAuth.currentUser.displayName != null) {
+      if (_firebaseAuth.currentUser.displayName != null &&
+          _firebaseAuth.currentUser.displayName != '') {
         emit(AuthLoggedInWithGoogle(_firebaseAuth.currentUser));
       } else {
         emit(AuthLoggedInAnonymously(_firebaseAuth.currentUser));

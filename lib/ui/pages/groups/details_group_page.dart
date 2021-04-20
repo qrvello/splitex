@@ -44,7 +44,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         builder: (context, state) {
           if (state is GroupDetailsLoaded) {
             widget.group = state.group;
-            print(widget.group.totalBalance);
           }
           return Stack(
             children: [

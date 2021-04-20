@@ -20,7 +20,6 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
     final List<Member> members = group.members;
 
     final int countMembers = members.length;
-    print('${group.totalBalance} + ${expense.amount}');
 
     Map<String, dynamic> updateObj = {
       '${groupReference.path}/total_balance':

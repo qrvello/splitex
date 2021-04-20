@@ -8,18 +8,12 @@ import 'package:repartapp/domain/repositories/groups_repository.dart';
 import '../utils.dart';
 
 class GroupsRepositoryImpl extends GroupsRepository {
-  User _user;
+  User _user = FirebaseAuth.instance.currentUser;
 
   final DatabaseReference _databaseReference =
       FirebaseDatabase.instance.reference();
 
   final Box _userBox = Hive.box('user');
-
-  GroupsRepositoryImpl() {
-    FirebaseAuth.instance.authStateChanges().listen((User user) {
-      this._user = user;
-    });
-  }
 
   @override
   Stream<Group> getGroup(Group group) async* {
