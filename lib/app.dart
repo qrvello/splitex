@@ -1,28 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:repartapp/config/themes/dark_theme.dart';
-import 'package:repartapp/config/themes/light_theme.dart';
 import 'package:repartapp/config/routes/routes.dart' as router;
-import 'package:provider/provider.dart';
-import 'package:repartapp/providers/theme_provider.dart';
+import 'package:repartapp/domain/cubits/app_theme_cubit.dart';
+import 'package:repartapp/domain/dependency_injection.dart';
+import 'domain/cubits/auth/auth_cubit.dart';
+import 'domain/cubits/auth/auth_state.dart';
+import 'ui/themes/dark_theme.dart';
+import 'ui/themes/light_theme.dart';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    return MultiBlocProvider(
       providers: [
-        ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
+        BlocProvider<AppThemeCubit>(create: (_) => AppThemeCubit()),
+        BlocProvider<AuthCubit>(create: (_) => AuthCubit()..init()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, theme, child) {
-          return GetMaterialApp(
-            debugShowCheckedModeBanner: false,
-            title: 'RepartApp',
-            initialRoute: '/',
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            themeMode: theme.isDark ? ThemeMode.dark : ThemeMode.light,
-            onGenerateRoute: router.Router.generateRoute,
+      child: BlocBuilder<AuthCubit, AuthState>(
+        builder: (_, __) {
+          return MultiRepositoryProvider(
+            providers: repositoriesProviders(),
+            child: BlocBuilder<AppThemeCubit, bool>(
+              builder: (context, isDark) {
+                return GetMaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  title: 'RepartApp',
+                  initialRoute: '/',
+                  theme: lightTheme,
+                  darkTheme: darkTheme,
+                  themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+                  onGenerateRoute: router.Router.generateRoute,
+                );
+              },
+            ),
           );
         },
       ),

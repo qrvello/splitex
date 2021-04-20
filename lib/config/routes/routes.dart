@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:repartapp/pages/groups/add_expense_page.dart';
-import 'package:repartapp/pages/groups/balance_debts_page.dart';
-import 'package:repartapp/pages/groups/details_group_page.dart';
-import 'package:repartapp/pages/home/home_page.dart';
-import 'package:repartapp/pages/users/profile_page.dart';
+import 'package:repartapp/ui/pages/groups/add_expense_page.dart';
+import 'package:repartapp/ui/pages/groups/balance_debts_page.dart';
+import 'package:repartapp/ui/pages/groups/details_group_page.dart';
+import 'package:repartapp/ui/pages/home/home_page.dart';
+import 'package:repartapp/ui/pages/users/profile_page.dart';
 
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
