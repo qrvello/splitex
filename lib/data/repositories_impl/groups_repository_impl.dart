@@ -230,9 +230,12 @@ class GroupsRepositoryImpl extends GroupsRepository {
     final usersGroupPath =
         _databaseReference.child('groups/${group.id}/users/${_user.uid}').path;
 
-    final membersGroupPath = _databaseReference
-        .child('groups/${group.id}/members/${_user.displayName}')
-        .path;
+    String membersGroupPath;
+    String name = _userBox.get('name');
+    if (name != null) {
+      membersGroupPath =
+          _databaseReference.child('groups/${group.id}/members/$name').path;
+    }
 
     final groupsUserPath = _databaseReference
         .child('users_groups/${_user.uid}/groups/${group.id}')
@@ -246,7 +249,7 @@ class GroupsRepositoryImpl extends GroupsRepository {
     final Map<String, dynamic> updateObj = {
       usersGroupPath: true,
       groupsUserPath: data,
-      membersGroupPath: {'balance': 0},
+      if (membersGroupPath != null) membersGroupPath: {'balance': 0},
       requestUserPath: null,
     };
 

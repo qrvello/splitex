@@ -78,6 +78,7 @@ class AuthCubit extends Cubit<AuthState> {
       await _firebaseAuth.signOut();
       await box.delete('name');
       emit(AuthLoggedOut());
+
       emit(AuthLoading());
 
       await _firebaseAuth.signInAnonymously();
