@@ -11,6 +11,7 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
 
   @override
   Future<bool> addExpense(Group group, Expense expense) async {
+    // Se obtiene la referencia de la raiz del grupo al que se quiere agregar un gasto
     final DatabaseReference groupReference =
         databaseReference.child('groups/${group.id}');
 
@@ -19,7 +20,8 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
 
     final List<Member> members = group.members;
 
-    final int countMembers = members.length;
+    // Se crea el update object, un objeto que tiene los paths y los datos a colocar para realizar
+    // solo una petición a la base de datos.
 
     Map<String, dynamic> updateObj = {
       '${groupReference.path}/total_balance':
@@ -27,24 +29,26 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
       newChildExpenseReference.path: expense.toMap(),
     };
 
-    // Solo usa 2 decimales
-    double debtForEach = (expense.amount / countMembers);
-
-    debtForEach = double.parse(debtForEach.toStringAsFixed(2));
-
     members.forEach((member) {
       double updatedBalance = 0;
 
+      // Si el miembro que se recorre actualmente es el que pagó el gasto
+      // se suma el balance del miembro previo más lo que cuesta este gasto
+      // menos lo que le corresponde pagar a este miembro.
+
       if (member.id == expense.paidBy) {
         updatedBalance = member.balance + expense.amount - member.amountToPay;
-      } else {
+      } else if (member.amountToPay != null) {
         updatedBalance = member.balance - member.amountToPay;
       }
 
-      updateObj.putIfAbsent(
-        '${groupReference.path}/members/${member.id}/',
-        () => {"balance": updatedBalance},
-      );
+      // Si el balance actualizado es igual que el balance del miembro, no se coloca en el update object.
+      if (updatedBalance != member.balance) {
+        updateObj.putIfAbsent(
+          '${groupReference.path}/members/${member.id}/',
+          () => {"balance": updatedBalance},
+        );
+      }
     });
 
     await databaseReference.update(updateObj).catchError((error) {

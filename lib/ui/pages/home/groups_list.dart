@@ -8,10 +8,24 @@ import 'package:repartapp/domain/cubits/groups/groups_list/groups_list_state.dar
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/repositories/groups_repository.dart';
 
-class GroupsList extends StatelessWidget {
+class GroupsList extends StatefulWidget {
+  @override
+  _GroupsListState createState() => _GroupsListState();
+}
+
+class _GroupsListState extends State<GroupsList> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, auth) async {
+        if (auth is AuthLoggedOut) {
+          await context.read<AuthCubit>().signInAnonymously();
+        }
+        if (auth is AuthError) {
+          print(auth.message);
+          await context.read<AuthCubit>().init();
+        }
+      },
       builder: (context, auth) {
         if (auth is AuthLoggedInAnonymously || auth is AuthLoggedInWithGoogle) {
           return BlocProvider(
@@ -85,8 +99,10 @@ class GroupsList extends StatelessWidget {
             context: context,
             builder: (_) => _confirmDeleteDialog(_, group),
           ),
-
-          key: UniqueKey(),
+          onDismissed: (_) {
+            setState(() {});
+          },
+          key: Key(group.id),
           background: Container(
             decoration: BoxDecoration(
               color: Color(0xffE29578),

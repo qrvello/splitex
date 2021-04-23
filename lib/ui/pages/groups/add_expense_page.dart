@@ -270,7 +270,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 double amountToPay = double.tryParse(value);
                 calculateDivisionForAmount(
                     amountToPay, widget.group.members[index]);
-              }
+              } else {}
             },
             controller: widget.group.members[index].controller,
             textAlign: TextAlign.center,
@@ -455,8 +455,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     double totalExpense = 0;
 
-    widget.group.members.forEach((element) {
-      totalExpense += element.amountToPay;
+    // Obtiene el gasto total sumando lo que tienen que pagar todos los miembros
+    widget.group.members.forEach((Member member) {
+      totalExpense += member.amountToPay;
     });
 
     if (totalExpense.roundToDouble() != expense.amount.roundToDouble()) {

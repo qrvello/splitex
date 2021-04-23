@@ -13,7 +13,6 @@ class GroupsListCubit extends Cubit<GroupsListState> {
     emit(GroupListLoading());
 
     _groupsRepository.getGroupsList().listen((List<Group> groups) {
-      print(groups);
       if (groups.length > 0) {
         groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         emit(GroupListLoaded(groups));
