@@ -1,14 +1,18 @@
+import 'package:hive/hive.dart';
+
 import 'expense_model.dart';
 import 'transaction_model.dart';
 import 'member_model.dart';
 
+part 'group_model.g.dart';
+
+@HiveType(typeId: 0)
 class Group {
   Group({
     this.id,
     this.name,
     this.adminUser,
     this.timestamp,
-    this.invitedBy,
     this.members,
     this.expenses,
     this.transactions,
@@ -17,16 +21,29 @@ class Group {
     this.users,
   });
 
-  String adminUser;
+  @HiveField(1)
   String id;
+
+  @HiveField(2)
   String name;
-  String invitedBy;
-  String link;
+
+  @HiveField(3)
   int timestamp;
+
+  @HiveField(4)
   num totalBalance;
+
+  @HiveField(5)
   List<Member> members;
+
+  @HiveField(6)
   List<Expense> expenses;
+
+  @HiveField(7)
   List<Transaction> transactions;
+
+  String link;
+  String adminUser;
   Map<dynamic, dynamic> users;
 
   factory Group.fromMap(Map<dynamic, dynamic> map, key) {
@@ -70,7 +87,6 @@ class Group {
       expenses: expenses,
       transactions: transactions,
       users: map["users"],
-      invitedBy: map["invited_by"],
       totalBalance: map["total_balance"],
       link: map['link'],
     );
@@ -82,7 +98,6 @@ class Group {
         "timestamp": timestamp,
         "members": members,
         "expenses": expenses,
-        "invited_by": invitedBy,
         "total_balance": totalBalance,
         "users": users,
         "transactions": transactions,

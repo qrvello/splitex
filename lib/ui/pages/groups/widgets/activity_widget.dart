@@ -11,8 +11,6 @@ class ActivityWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
@@ -37,15 +35,17 @@ class ActivityWidget extends StatelessWidget {
           centerTitle: true,
           floating: true,
         ),
-        SliverPadding(
-          padding: EdgeInsets.only(bottom: size.height * 0.1),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (_, i) => _createItem(actions[i]),
-              childCount: actions.length,
+        if (actions != null)
+          SliverPadding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).size.height * 0.1),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (_, i) => _createItem(actions[i]),
+                childCount: actions.length,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

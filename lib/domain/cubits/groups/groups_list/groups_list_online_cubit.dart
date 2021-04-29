@@ -4,18 +4,18 @@ import 'package:repartapp/domain/repositories/groups_repository.dart';
 
 import 'groups_list_state.dart';
 
-class GroupsListCubit extends Cubit<GroupsListState> {
-  GroupsListCubit(this._groupsRepository) : super(GroupListInitialState());
+class GroupsListOnlineCubit extends Cubit<GroupsListState> {
+  GroupsListOnlineCubit(this.groupsRepository) : super(GroupListInitialState());
 
-  final GroupsRepository _groupsRepository;
+  final GroupsRepository groupsRepository;
 
   void init() {
     emit(GroupListLoading());
 
-    _groupsRepository.getGroupsList().listen((List<Group> groups) {
+    groupsRepository.getGroupsList().listen((List<Group> groups) {
       if (groups.length > 0) {
         groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-        emit(GroupListLoaded(groups));
+        emit(GroupsListLoaded(groups));
       }
     });
 

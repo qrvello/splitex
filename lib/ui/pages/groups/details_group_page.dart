@@ -5,23 +5,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:repartapp/domain/cubits/groups/group_details/group_details_cubit.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/repositories/groups_repository.dart';
+import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
+import 'package:repartapp/ui/pages/groups/add_expense_page.dart';
 import 'package:repartapp/ui/pages/groups/edit_group_page.dart';
 import 'package:repartapp/ui/pages/groups/widgets/activity_widget.dart';
 import 'package:repartapp/ui/pages/groups/widgets/overview_widget.dart';
 
 // ignore: must_be_immutable
 class DetailsGroupPage extends StatefulWidget {
-  Group group;
-  DetailsGroupPage({this.group});
-
   @override
   _DetailsGroupPageState createState() => _DetailsGroupPageState();
 }
 
 class _DetailsGroupPageState extends State<DetailsGroupPage> {
+  final bool online = Get.arguments['online'];
+  Group group = Get.arguments['group'];
+
   final databaseReference = FirebaseDatabase.instance.reference();
   final _newMemberName = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -36,42 +40,82 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          GroupDetailsCubit(context.read<GroupsRepository>(), widget.group)
-            ..init(),
-      child: BlocBuilder<GroupDetailsCubit, GroupDetailsState>(
-        builder: (context, state) {
-          if (state is GroupDetailsLoaded) {
-            widget.group = state.group;
-          }
-          return Stack(
-            children: [
-              DefaultTabController(
-                length: 2,
-                child: Scaffold(
+    if (online == true) {
+      return _buildOnline();
+    } else {
+      return _buildOffline();
+    }
+  }
+
+  ValueListenableBuilder<Box<Group>> _buildOffline() {
+    return ValueListenableBuilder(
+      valueListenable: Hive.box<Group>('groups').listenable(keys: [group.id]),
+      builder: (BuildContext context, Box<Group> box, widget) {
+        group = box.get(int.parse(group.id));
+
+        return Stack(
+          children: [
+            DefaultTabController(
+              length: 2,
+              child: Scaffold(
                   floatingActionButton: buildSpeedDial(context),
                   extendBodyBehindAppBar: true,
                   appBar: buildAppBar(context),
-                  body: (state is GroupDetailsLoaded)
-                      ? TabBarView(
-                          children: [
-                            OverviewWidget(group: state.group),
-                            ActivityWidget(
-                              group: state.group,
-                              actions: state.actions,
-                            ),
-                          ],
-                        )
-                      : Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                ),
-              )
-            ],
-          );
+                  body: TabBarView(
+                    children: [
+                      OverviewWidget(group: group),
+                      ActivityWidget(group: group),
+                    ],
+                  )),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  BlocProvider<GroupDetailsCubit> _buildOnline() {
+    return BlocProvider(
+      create: (context) =>
+          GroupDetailsCubit(context.read<GroupsRepository>(), group)..init(),
+      child: BlocConsumer<GroupDetailsCubit, GroupDetailsState>(
+        listener: (context, state) {
+          if (state is GroupDetailsLoaded) {
+            group = state.group;
+          }
+        },
+        builder: (context, state) {
+          return _builderDetails(context, state);
         },
       ),
+    );
+  }
+
+  Stack _builderDetails(BuildContext context, GroupDetailsState state) {
+    return Stack(
+      children: [
+        DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            floatingActionButton: buildSpeedDial(context),
+            extendBodyBehindAppBar: true,
+            appBar: buildAppBar(context),
+            body: (state is GroupDetailsLoaded)
+                ? TabBarView(
+                    children: [
+                      OverviewWidget(group: state.group),
+                      ActivityWidget(
+                        group: state.group,
+                        actions: state.actions,
+                      ),
+                    ],
+                  )
+                : Center(
+                    child: CircularProgressIndicator(),
+                  ),
+          ),
+        )
+      ],
     );
   }
 
@@ -83,18 +127,15 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EditGroupPage(group: widget.group),
+              builder: (context) => EditGroupPage(group: group),
             ),
           ),
         ),
       ],
       elevation: 0,
-      title: Hero(
-        child: Text(
-          widget.group.name,
-          style: Theme.of(context).textTheme.headline5,
-        ),
-        tag: widget.group.id,
+      title: Text(
+        group.name,
+        style: Theme.of(context).textTheme.headline5,
       ),
       bottom: TabBar(
         isScrollable: false,
@@ -118,17 +159,21 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
       visible: true,
       children: [
         SpeedDialChild(
-          child: Icon(Icons.shopping_bag_rounded),
-          backgroundColor: Theme.of(context).accentColor,
-          labelWidget: Text(
-            'Agregar gasto',
-            style: TextStyle(fontSize: 18),
-          ),
-          onTap: () => Navigator.of(context).pushNamed(
-            '/add_expense',
-            arguments: widget.group,
-          ),
-        ),
+            child: Icon(Icons.shopping_bag_rounded),
+            backgroundColor: Theme.of(context).accentColor,
+            labelWidget: Text(
+              'Agregar gasto',
+              style: TextStyle(fontSize: 18),
+            ),
+            onTap: () {
+              Get.to(() => AddExpensePage(),
+                  arguments: {'group': group, 'online': online});
+            }
+            //onTap: () => Navigator.of(context).pushNamed(
+            //  '/add_expense',
+            //  arguments: ,
+            //),
+            ),
         SpeedDialChild(
           child: Icon(Icons.person_add_rounded),
           backgroundColor: Theme.of(context).accentColor,
@@ -164,7 +209,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                   return 'Ingrese un nombre menor a 20 caracteres';
                 }
 
-                for (var member in widget.group.members) {
+                for (var member in group.members) {
                   if (member.id == value.trim()) {
                     return 'Ya existe un miembro con ese nombre. Elegí otro nombre por favor.';
                   }
@@ -202,10 +247,17 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     formKey.currentState.save();
 
     if (!formKey.currentState.validate()) return;
+    bool result;
 
-    bool result = await context
-        .read<GroupsRepository>()
-        .addPersonToGroup(newMember, widget.group);
+    if (online == true) {
+      result = await context
+          .read<GroupsRepository>()
+          .addPersonToGroup(newMember, group);
+    } else {
+      result = await context
+          .read<GroupsRepositoryOffline>()
+          .addPersonToGroup(newMember, group);
+    }
 
     if (result == true) {
       Get.back();

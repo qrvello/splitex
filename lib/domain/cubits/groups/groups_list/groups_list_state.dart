@@ -8,10 +8,10 @@ class GroupListInitialState extends GroupsListState {}
 
 class GroupListLoading extends GroupsListState {}
 
-class GroupListLoaded extends GroupsListState {
+class GroupsListLoaded extends GroupsListState {
   final List<Group> groups;
 
-  GroupListLoaded(this.groups);
+  GroupsListLoaded(this.groups);
 }
 
 class GroupListEmpty extends GroupsListState {}

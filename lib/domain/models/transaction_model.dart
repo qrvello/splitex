@@ -1,7 +1,11 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:hive/hive.dart';
 
 import 'member_model.dart';
 
+part 'transaction_model.g.dart';
+
+@HiveType(typeId: 2)
 class Transaction {
   Transaction({
     this.id,
@@ -11,10 +15,19 @@ class Transaction {
     this.timestamp = 0,
   });
 
+  @HiveField(0)
   String id;
+
+  @HiveField(1)
   Member memberToPay;
+
+  @HiveField(2)
   Member memberToReceive;
+
+  @HiveField(3)
   double amountToPay;
+
+  @HiveField(4)
   int timestamp;
 
   factory Transaction.fromMap(Map<dynamic, dynamic> map, id) {

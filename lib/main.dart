@@ -6,8 +6,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:repartapp/domain/models/expense_model.dart';
+import 'package:repartapp/domain/models/group_model.dart';
+import 'package:repartapp/domain/models/member_model.dart';
+import 'package:repartapp/domain/models/transaction_model.dart';
 import 'app.dart';
-import 'domain/models/user_model.dart';
 import 'domain/simple_bloc_observer.dart';
 
 Future<void> main() async {
@@ -25,10 +28,14 @@ Future<void> main() async {
 
   Hive.init(appDocumentDir.path);
 
+  Hive.registerAdapter(GroupAdapter());
+  Hive.registerAdapter(MemberAdapter());
+  Hive.registerAdapter(TransactionAdapter());
+  Hive.registerAdapter(ExpenseAdapter());
+
   await Hive.openBox('theme');
   await Hive.openBox('user');
-
-  Hive.registerAdapter(UserAdapter());
+  await Hive.openBox<Group>('groups');
 
   runApp(MyApp());
 }

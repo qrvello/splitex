@@ -7,15 +7,16 @@ import 'package:repartapp/domain/models/expense_model.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/models/member_model.dart';
 import 'package:repartapp/domain/repositories/expenses_repository.dart';
+import 'package:repartapp/domain/repositories/expenses_repository_offline.dart';
 
 class AddExpensePage extends StatefulWidget {
-  final Group group;
-  AddExpensePage({this.group});
   @override
   _AddExpensePageState createState() => _AddExpensePageState();
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
+  final Group group = Get.arguments['group'];
+  final bool online = Get.arguments['online'];
   final TextEditingController _expenseNameController = TextEditingController();
   final TextEditingController _expenseAmountController =
       TextEditingController();
@@ -35,7 +36,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   void initState() {
-    payingMembers = List.from(widget.group.members);
+    payingMembers = List.from(group.members);
     items.add(DropdownMenuItem(
       value: '',
       child: Text('Seleccioná'),
@@ -43,7 +44,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     // Crea los items para el dropdown con los miembros.
 
-    for (Member member in widget.group.members) {
+    for (Member member in group.members) {
       member.controller =
           TextEditingController(text: member.amountToPay.toString());
       items.add(
@@ -112,11 +113,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                   // Todos los miembros se ponen del valor que este sea
                   if (value == true) {
-                    payingMembers = List.from(widget.group.members);
+                    payingMembers = List.from(group.members);
                   } else {
                     payingMembers = [];
                   }
-                  widget.group.members.forEach((Member member) {
+                  group.members.forEach((Member member) {
                     member.amountToPay = 0;
                     member.checked = value;
                   });
@@ -163,7 +164,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           height: 1,
         ),
         padding: EdgeInsets.only(bottom: context.height * 0.01),
-        itemCount: widget.group.members.length,
+        itemCount: group.members.length,
         itemBuilder: (context, index) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,18 +178,18 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   tileColor: Theme.of(context).scaffoldBackgroundColor,
                   controlAffinity: ListTileControlAffinity.leading,
                   checkColor: Colors.white,
-                  title: Text(widget.group.members[index].id),
-                  value: widget.group.members[index].checked,
+                  title: Text(group.members[index].id),
+                  value: group.members[index].checked,
                   onChanged: (value) {
                     setState(() {
-                      widget.group.members[index].checked = value;
+                      group.members[index].checked = value;
                       if (value == true) {
-                        payingMembers.add(widget.group.members[index]);
+                        payingMembers.add(group.members[index]);
                       } else {
-                        widget.group.members[index].amountToPay = 0;
-                        widget.group.members[index].controller.text = '0';
+                        group.members[index].amountToPay = 0;
+                        group.members[index].controller.text = '0';
 
-                        payingMembers.remove(widget.group.members[index]);
+                        payingMembers.remove(group.members[index]);
                       }
                     });
                     calculateDivision();
@@ -198,7 +199,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
               Container(
                 margin: EdgeInsets.only(right: 20),
                 child: (advanced == false)
-                    ? Text(widget.group.members[index].amountToPay.toString())
+                    ? Text(group.members[index].amountToPay.toString())
                     : advancedDivision(index),
               )
             ],
@@ -223,17 +224,17 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ],
             onChanged: (String value) {
               if (value == '') {
-                widget.group.members[index].amountToPay = 0;
-                widget.group.members[index].weight = 0;
+                group.members[index].amountToPay = 0;
+                group.members[index].weight = 0;
               } else {
                 int weight = int.tryParse(value);
 
-                widget.group.members[index].weight = weight;
+                group.members[index].weight = weight;
               }
               calculateDivision();
             },
             textAlign: TextAlign.center,
-            initialValue: widget.group.members[index].weight.toString(),
+            initialValue: group.members[index].weight.toString(),
             decoration: InputDecoration(
               isCollapsed: true,
               counterText: '',
@@ -268,11 +269,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
             onChanged: (String value) {
               if (value != '') {
                 double amountToPay = double.tryParse(value);
-                calculateDivisionForAmount(
-                    amountToPay, widget.group.members[index]);
+                calculateDivisionForAmount(amountToPay, group.members[index]);
               } else {}
             },
-            controller: widget.group.members[index].controller,
+            controller: group.members[index].controller,
             textAlign: TextAlign.center,
             decoration: InputDecoration(
               isCollapsed: true,
@@ -371,8 +371,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     formKey.currentState.save();
 
-    bool resp = await RepositoryProvider.of<ExpensesRepository>(context)
-        .addExpense(widget.group, expense);
+    bool resp;
+
+    if (online == true) {
+      resp = await RepositoryProvider.of<ExpensesRepository>(context)
+          .addExpense(group, expense);
+    } else {
+      resp = await RepositoryProvider.of<ExpensesRepositoryOffline>(context)
+          .addExpense(group, expense);
+    }
 
     if (resp == true) {
       _saving = false;
@@ -456,7 +463,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     double totalExpense = 0;
 
     // Obtiene el gasto total sumando lo que tienen que pagar todos los miembros
-    widget.group.members.forEach((Member member) {
+    group.members.forEach((Member member) {
       totalExpense += member.amountToPay;
     });
 

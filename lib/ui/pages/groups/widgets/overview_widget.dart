@@ -68,15 +68,16 @@ class OverviewWidget extends StatelessWidget {
             ],
           ),
         ),
-        SliverPadding(
-          padding: EdgeInsets.only(bottom: size.height * 0.1),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, i) => _listMembers(context, group.members[i]),
-              childCount: group.members.length,
+        if (group.members != null)
+          SliverPadding(
+            padding: EdgeInsets.only(bottom: size.height * 0.1),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => _listMembers(context, group.members[i]),
+                childCount: group.members.length,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

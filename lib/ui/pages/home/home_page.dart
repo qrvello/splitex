@@ -2,9 +2,11 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/repositories/groups_repository.dart';
+import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
 import 'package:repartapp/ui/pages/home/groups_list.dart';
 import 'package:repartapp/ui/pages/home/widgets/side_menu.dart';
 
@@ -17,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<FormState> formKeyCreateGroup = GlobalKey<FormState>();
   final GlobalKey<FormState> formKeyJoinGroup = GlobalKey<FormState>();
 
-  Group group = Group();
+  final TextEditingController _newGroupController = TextEditingController();
 
   @override
   void initState() {
@@ -61,27 +63,68 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Grupos'),
-        actions: [
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: FlutterLogo(),
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Grupos'),
+          actions: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: FlutterLogo(),
+            ),
+          ],
+          bottom: TabBar(
+            isScrollable: false,
+            tabs: [
+              Tab(
+                child: Text('Online'),
+              ),
+              Tab(
+                child: Text('Offline'),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: GroupsList(),
-      drawer: SideMenu(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add_rounded),
-        onPressed: () => dialogCreateGroup(context),
+        ),
+        body: GroupsList(),
+        drawer: SideMenu(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: buildSpeedDial(context),
       ),
     );
   }
 
-  Future dialogCreateGroup(BuildContext context) {
+  SpeedDial buildSpeedDial(BuildContext context) {
+    return SpeedDial(
+      marginEnd: 32,
+      backgroundColor: Color(0xff0076FF).withOpacity(0.87),
+      overlayColor: Theme.of(context).scaffoldBackgroundColor,
+      icon: Icons.add_rounded,
+      visible: true,
+      children: [
+        SpeedDialChild(
+          child: Icon(Icons.cloud_rounded),
+          backgroundColor: Theme.of(context).accentColor,
+          labelWidget: Text(
+            'Crear grupo online',
+            style: TextStyle(fontSize: 18),
+          ),
+          onTap: () => dialogCreateGroup(context, true),
+        ),
+        SpeedDialChild(
+          child: Icon(Icons.cloud_off_rounded),
+          backgroundColor: Theme.of(context).accentColor,
+          labelWidget: Text(
+            'Crear grupo offline',
+            style: TextStyle(fontSize: 18),
+          ),
+          onTap: () => dialogCreateGroup(context, false),
+        ),
+      ],
+    );
+  }
+
+  Future dialogCreateGroup(BuildContext context, bool online) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -89,9 +132,7 @@ class _HomePageState extends State<HomePage> {
           content: Form(
             key: formKeyCreateGroup,
             child: TextFormField(
-              onSaved: (value) {
-                group.name = value.trim();
-              },
+              controller: _newGroupController,
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               maxLength: 20,
@@ -127,7 +168,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ElevatedButton(
               child: Text('Guardar'),
-              onPressed: () => _submit(context),
+              onPressed: () => _submit(context, online),
             ),
           ],
         );
@@ -135,16 +176,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _submit(BuildContext context) async {
+  void _submit(BuildContext context, bool online) async {
     if (!formKeyCreateGroup.currentState.validate()) return;
-
-    formKeyCreateGroup.currentState.save();
 
     Get.back();
 
-    bool result = await context.read<GroupsRepository>().createGroup(group);
+    Group group = Group();
 
-    if (result) {
+    group.name = _newGroupController.text.trim();
+
+    _newGroupController.text = '';
+
+    bool result;
+
+    if (online == true) {
+      result = await context.read<GroupsRepository>().createGroup(group);
+    } else {
+      result = await context.read<GroupsRepositoryOffline>().createGroup(group);
+    }
+
+    if (result == true) {
       snackbarSuccess();
     } else {
       snackbarError();
