@@ -8,7 +8,9 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:repartapp/domain/cubits/groups/group_details/group_details_cubit.dart';
+import 'package:repartapp/domain/models/expense_model.dart';
 import 'package:repartapp/domain/models/group_model.dart';
+import 'package:repartapp/domain/models/transaction_model.dart';
 import 'package:repartapp/domain/repositories/groups_repository.dart';
 import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
 import 'package:repartapp/ui/pages/groups/add_expense_page.dart';
@@ -51,22 +53,39 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     return ValueListenableBuilder(
       valueListenable: Hive.box<Group>('groups').listenable(keys: [group.id]),
       builder: (BuildContext context, Box<Group> box, widget) {
-        group = box.get(int.parse(group.id));
+        group = box.get(group.id);
+
+        List<dynamic> actions = [];
+
+        if (group.expenses != null) {
+          for (Expense expense in group.expenses) {
+            actions.add(expense);
+          }
+        }
+
+        if (group.transactions != null) {
+          for (Transaction transaction in group.transactions) {
+            actions.add(transaction);
+          }
+        }
+
+        actions.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
         return Stack(
           children: [
             DefaultTabController(
               length: 2,
               child: Scaffold(
-                  floatingActionButton: buildSpeedDial(context),
-                  extendBodyBehindAppBar: true,
-                  appBar: buildAppBar(context),
-                  body: TabBarView(
-                    children: [
-                      OverviewWidget(group: group),
-                      ActivityWidget(group: group),
-                    ],
-                  )),
+                floatingActionButton: buildSpeedDial(context),
+                extendBodyBehindAppBar: true,
+                appBar: buildAppBar(context),
+                body: TabBarView(
+                  children: [
+                    OverviewWidget(group: group, online: online),
+                    ActivityWidget(group: group, actions: actions),
+                  ],
+                ),
+              ),
             )
           ],
         );
@@ -103,7 +122,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
             body: (state is GroupDetailsLoaded)
                 ? TabBarView(
                     children: [
-                      OverviewWidget(group: state.group),
+                      OverviewWidget(group: state.group, online: online),
                       ActivityWidget(
                         group: state.group,
                         actions: state.actions,
@@ -123,14 +142,9 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     return AppBar(
       actions: [
         IconButton(
-          icon: Icon(Icons.settings_rounded),
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => EditGroupPage(group: group),
-            ),
-          ),
-        ),
+            icon: Icon(Icons.settings_rounded),
+            onPressed: () => Get.to(() => EditGroupPage(),
+                arguments: {'group': group, 'online': online})),
       ],
       elevation: 0,
       title: Text(

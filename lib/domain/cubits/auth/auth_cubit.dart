@@ -87,10 +87,12 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> signInAnonymously() async {
     emit(AuthLoading());
 
-    try {
-      await _firebaseAuth.signInAnonymously();
-    } catch (e) {
-      emit(AuthError(e.message));
+    if (_firebaseAuth.currentUser == null) {
+      try {
+        await _firebaseAuth.signInAnonymously();
+      } catch (e) {
+        emit(AuthError(e.message));
+      }
     }
 
     emit(AuthLoggedInAnonymously(_firebaseAuth.currentUser));

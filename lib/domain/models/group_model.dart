@@ -22,7 +22,7 @@ class Group {
   });
 
   @HiveField(1)
-  String id;
+  dynamic id;
 
   @HiveField(2)
   String name;

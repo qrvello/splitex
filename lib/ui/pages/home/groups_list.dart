@@ -28,7 +28,6 @@ class _GroupsListState extends State<GroupsList> {
       children: [
         _groupsOnline(),
         _groupsOffline(),
-        //_groupsOffline(),
       ],
     );
   }
@@ -39,8 +38,12 @@ class _GroupsListState extends State<GroupsList> {
       builder: (BuildContext context, Box<Group> box, widget) {
         online = false;
 
-        if (box.values.toList().length > 0) {
-          return _groupsListsLoaded(context, box.values.toList());
+        List<Group> groups = box.values.toList();
+
+        groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+        if (groups.length > 0) {
+          return _groupsListsLoaded(context, groups);
         } else {
           return MessageNonGroups();
         }
@@ -118,57 +121,53 @@ class _GroupsListState extends State<GroupsList> {
   }
 
   Widget _createItem(BuildContext context, Group group) {
-    if (this.mounted) {
-      return Column(
-        children: [
-          Dismissible(
-            // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
-            confirmDismiss: (_) => showDialog(
-              context: context,
-              builder: (context) => _confirmDeleteDialog(context, group),
+    return Column(
+      children: [
+        Dismissible(
+          // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
+          confirmDismiss: (_) => showDialog(
+            context: context,
+            builder: (context) => _confirmDeleteDialog(context, group),
+          ),
+          onDismissed: (_) {
+            if (this.mounted) {
+              setState(() {});
+            }
+          },
+          key: UniqueKey(),
+          background: Container(
+            decoration: BoxDecoration(
+              color: Color(0xffE29578),
             ),
-            onDismissed: (_) {
-              setState(() {
-                // Your state change code goes here
-              });
-            },
-            key: UniqueKey(),
-            background: Container(
-              decoration: BoxDecoration(
-                color: Color(0xffE29578),
-              ),
-              alignment: AlignmentDirectional.centerEnd,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            direction: DismissDirection.endToStart,
-            child: ListTile(
-              title: Text(
-                group.name,
-                style: Theme.of(context).textTheme.headline6,
-              ),
-              onTap: () => Get.to(() => DetailsGroupPage(),
-                  arguments: {'group': group, 'online': online}),
-              trailing: Icon(
-                Icons.circle,
-                size: 10,
-                color: Color(0xff06d6a0),
+            alignment: AlignmentDirectional.centerEnd,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
               ),
             ),
           ),
-          Divider(
-            height: 0,
+          direction: DismissDirection.endToStart,
+          child: ListTile(
+            title: Text(
+              group.name,
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            onTap: () => Get.to(() => DetailsGroupPage(),
+                arguments: {'group': group, 'online': online}),
+            trailing: Icon(
+              Icons.circle,
+              size: 10,
+              color: Color(0xff06d6a0),
+            ),
           ),
-        ],
-      );
-    } else {
-      return SizedBox.shrink();
-    }
+        ),
+        Divider(
+          height: 0,
+        ),
+      ],
+    );
   }
 
   Widget _confirmDeleteDialog(BuildContext context, group) {
@@ -199,11 +198,13 @@ class _GroupsListState extends State<GroupsList> {
 
     if (online == true) {
       result = await context.read<GroupsRepository>().deleteGroup(group);
+
+      Navigator.of(context).pop(result);
     } else {
+      Navigator.of(context).pop(true);
+
       result = await context.read<GroupsRepositoryOffline>().deleteGroup(group);
     }
-
-    Navigator.of(context).pop();
 
     if (result == true) {
       snackbarSuccess(context);
@@ -213,13 +214,14 @@ class _GroupsListState extends State<GroupsList> {
   }
 
   void snackbarSuccess(BuildContext context) {
-    return Get.snackbar(
+    Get.snackbar(
       'Acción exitosa',
       'Grupo borrado satisfactoriamente',
       icon: Icon(
         Icons.check_circle_outline_rounded,
         color: Color(0xff25C0B7),
       ),
+      //isDismissible: true,
       snackPosition: SnackPosition.BOTTOM,
       margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
@@ -227,7 +229,7 @@ class _GroupsListState extends State<GroupsList> {
   }
 
   void snackbarError() {
-    return Get.snackbar(
+    Get.snackbar(
       'Error',
       'Error al borrar el grupo',
       icon: Icon(

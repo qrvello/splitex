@@ -27,7 +27,7 @@ class GroupDetailsCubit extends Cubit<GroupDetailsState> {
       }
 
       actions.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      _group.expenses.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      //_group.expenses.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
       emit(GroupDetailsLoaded(_group, actions));
     });

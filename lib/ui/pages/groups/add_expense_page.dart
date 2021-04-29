@@ -333,7 +333,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       ],
       onChanged: (value) {
         if (value != null) {
-          expense.amount = double.tryParse(value).toDouble();
+          expense.amount = double.parse(value);
           calculateDivision();
         } else {
           expense.amount = 0;

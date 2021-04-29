@@ -3,31 +3,29 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/repositories/groups_repository.dart';
+import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
 
 class EditGroupPage extends StatefulWidget {
-  final Group group;
-
-  EditGroupPage({@required this.group});
-
   @override
   _EditGroupPageState createState() => _EditGroupPageState();
 }
 
 class _EditGroupPageState extends State<EditGroupPage> {
+  final bool online = Get.arguments['online'];
+  final Group group = Get.arguments['group'];
+
   final formKey = GlobalKey<FormState>();
 
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  //final GroupsProvider groupsProvider = locator.get<GroupsProvider>();
-
-  var _groupNameController = new TextEditingController();
+  TextEditingController _groupNameController = TextEditingController();
 
   bool isSwitched = false;
 
   @override
   void initState() {
     super.initState();
-    _groupNameController = TextEditingController(text: widget.group.name);
+    _groupNameController = TextEditingController(text: group.name);
   }
 
   @override
@@ -76,7 +74,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
         helperText: 'Ejemplo: Vacaciones a la costa',
         labelText: 'Nombre del grupo',
       ),
-      onSaved: (value) => widget.group.name = value,
+      onSaved: (value) => group.name = value,
       validator: (value) {
         if (value.trim().length < 1) {
           return 'Ingrese el nombre del grupo';
@@ -95,8 +93,15 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
     formKey.currentState.save();
 
-    bool resp = await RepositoryProvider.of<GroupsRepository>(context)
-        .updateGroup(widget.group);
+    bool resp;
+
+    if (online == true) {
+      resp = await RepositoryProvider.of<GroupsRepository>(context)
+          .updateGroup(group);
+    } else {
+      resp = await RepositoryProvider.of<GroupsRepositoryOffline>(context)
+          .updateGroup(group);
+    }
 
     if (resp == true) {
       snackbarSuccess();

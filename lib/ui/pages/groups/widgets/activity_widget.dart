@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:repartapp/domain/models/expense_model.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/models/transaction_model.dart';
+import 'package:intl/intl.dart';
 
 class ActivityWidget extends StatelessWidget {
   final Group group;
@@ -55,8 +56,19 @@ class ActivityWidget extends StatelessWidget {
       Expense expense = action;
       return Card(
         child: ListTile(
+          isThreeLine: true,
           //subtitle: Text('Pagado por ${expense.paidBy}'),
-          subtitle: Text('Pagado por ${expense.paidBy}'),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pagado por ${expense.paidBy}'),
+              Text(
+                DateFormat('k:mm - EEEE d, MMMM, y').format(
+                  DateTime.fromMillisecondsSinceEpoch(expense.timestamp),
+                ),
+              ),
+            ],
+          ),
           title: Text(
             expense.description,
             style: TextStyle(
@@ -64,13 +76,18 @@ class ActivityWidget extends StatelessWidget {
               fontSize: 18,
             ),
           ),
-          trailing: Text(
-            "\$${expense.amount.toStringAsFixed(2)}",
-            style: TextStyle(
-              fontSize: 16,
-              color: Color(0xffF4a74d),
-              fontWeight: FontWeight.w600,
-            ),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "\$${expense.amount.toStringAsFixed(2)}",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xffF4a74d),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
           leading: Container(
             margin: EdgeInsets.only(left: 10),
@@ -96,7 +113,11 @@ class ActivityWidget extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        //subtitle: Text(transaction.timestamp.toString()), TODO timestamp
+        subtitle: Text(
+          DateFormat('k:mm - EEEE d, MMMM, y').format(
+            DateTime.fromMillisecondsSinceEpoch(transaction.timestamp),
+          ),
+        ),
         leading: Container(
           margin: EdgeInsets.only(left: 10),
           height: double.infinity,

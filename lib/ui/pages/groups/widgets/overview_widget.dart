@@ -1,15 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/models/member_model.dart';
+import 'package:repartapp/ui/pages/groups/balance_debts_page.dart';
 
 import 'package:share/share.dart';
 
 class OverviewWidget extends StatelessWidget {
   final Group group;
+  final bool online;
 
-  OverviewWidget({@required this.group});
+  OverviewWidget({@required this.group, @required this.online});
 
   final User user = FirebaseAuth.instance.currentUser;
 
@@ -60,9 +63,8 @@ class OverviewWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  onPressed: () => Navigator.pushNamed(
-                      context, '/balance_debts',
-                      arguments: group),
+                  onPressed: () => Get.to(() => BalanceDebtsPage(),
+                      arguments: {'group': group, 'online': online}),
                 ),
               ),
             ],

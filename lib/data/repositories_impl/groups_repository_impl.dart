@@ -62,9 +62,9 @@ class GroupsRepositoryImpl extends GroupsRepository {
             final Group thisGroup = Group.fromMap(group, id);
             foundGroups.add(thisGroup);
           });
-
-          yield foundGroups;
         }
+
+        yield foundGroups;
       }
     }
 

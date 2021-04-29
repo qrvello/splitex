@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/models/transaction_model.dart';
 import 'package:repartapp/domain/repositories/expenses_repository.dart';
+import 'package:repartapp/domain/repositories/expenses_repository_offline.dart';
 
 class BalanceDebtsPage extends StatefulWidget {
-  final Group group;
-  BalanceDebtsPage({this.group});
-
   @override
   _BalanceDebtsPageState createState() => _BalanceDebtsPageState();
 }
 
 class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
+  final Group group = Get.arguments['group'];
+  final bool online = Get.arguments['online'];
+
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
   List<Transaction> transactions = [];
+
   @override
   void initState() {
     transactions = RepositoryProvider.of<ExpensesRepository>(context)
-        .balanceDebts(widget.group.members);
+        .balanceDebts(group.members);
     super.initState();
   }
 
@@ -116,15 +119,23 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
               size: 32,
             ),
             onPressed: () async {
-              await RepositoryProvider.of<ExpensesRepository>(context)
-                  .checkTransaction(widget.group, transaction);
+              if (online == true) {
+                await RepositoryProvider.of<ExpensesRepository>(context)
+                    .checkTransaction(group, transaction);
+              } else {
+                await RepositoryProvider.of<ExpensesRepositoryOffline>(context)
+                    .checkTransaction(group, transaction);
+              }
 
-              listKey.currentState.removeItem(
-                index,
-                (context, animation) =>
-                    _createItem(transaction, index, animation),
-              );
-              setState(() {});
+              setState(() {
+                transactions.remove(transaction);
+
+                listKey.currentState.removeItem(
+                  index,
+                  (context, animation) =>
+                      _createItem(transaction, index, animation),
+                );
+              });
             },
           ),
         ),

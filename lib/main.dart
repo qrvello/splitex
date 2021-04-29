@@ -12,8 +12,11 @@ import 'package:repartapp/domain/models/member_model.dart';
 import 'package:repartapp/domain/models/transaction_model.dart';
 import 'app.dart';
 import 'domain/simple_bloc_observer.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
+  initializeDateFormatting('es_ES', null);
+
   Bloc.observer = SimpleBlocObserver();
 
   WidgetsFlutterBinding.ensureInitialized();

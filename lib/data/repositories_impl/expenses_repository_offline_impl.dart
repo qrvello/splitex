@@ -26,6 +26,12 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
       }
     });
 
+    expense.timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    group.expenses.add(expense);
+
+    group.totalBalance += expense.amount;
+
     await _groupsBox.put(group.id, group);
 
     return true;
@@ -39,9 +45,10 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
     // Crea una nueva lista de miembros y copia la lista original para no modificar la original.
 
     for (Member member in members) {
-      Member member2 = Member();
-      member2.id = member.id;
-      member2.balance = member.balance;
+      Member member2 = Member(
+        id: member.id,
+        balance: member.balance,
+      );
       members2.add(member2);
     }
 
@@ -51,7 +58,9 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
     Iterable<Member> membersWithPositiveBalance =
         members2.where((member) => member.balance > 0);
 
+    // Recorre los miembros con deudas (member1)
     for (Member member1 in membersWithDebt) {
+      // Recorre los miembros con balance positivo (member2)
       for (Member member2 in membersWithPositiveBalance) {
         if (member1.balance.abs() <= member2.balance) {
           double toPay = member1.balance.abs();
@@ -92,14 +101,6 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
 
   @override
   Future<bool> checkTransaction(Group group, Transaction transaction) async {
-    DatabaseReference groupReference =
-        databaseReference.child('/groups/${group.id}');
-
-    String groupMembersPath = groupReference.child('/members').path;
-
-    String newTransactionChildPath =
-        groupReference.child('transactions').push().path;
-
     Member memberToPay = group.members
         .firstWhere((member) => member.id == transaction.memberToPay.id);
 
@@ -109,17 +110,11 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
     memberToPay.balance += transaction.amountToPay;
     memberToReceive.balance -= transaction.amountToPay;
 
-    Map<String, dynamic> updateObj = {
-      '$groupMembersPath/${memberToPay.id}/balance': memberToPay.balance,
-      '$groupMembersPath/${memberToReceive.id}/balance':
-          memberToReceive.balance,
-      newTransactionChildPath: transaction.toMap(),
-    };
+    transaction.timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    await databaseReference.update(updateObj).catchError((onError) {
-      print('Error al chequear transacción: ${onError.message}');
-      return false;
-    });
+    group.transactions.add(transaction);
+
+    await _groupsBox.put(group.id, group);
 
     return true;
   }

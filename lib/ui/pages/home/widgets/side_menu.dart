@@ -53,7 +53,6 @@ class SideMenu extends StatelessWidget {
   Widget _drawerHeader(context) {
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, AuthState auth) {
-        print(auth);
         if (auth is AuthLoggedInWithGoogle) {
           return DrawerHeaderWidget(auth.user);
         }
