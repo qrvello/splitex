@@ -64,7 +64,7 @@ class ActivityWidget extends StatelessWidget {
             children: [
               Text('Pagado por ${expense.paidBy}'),
               Text(
-                DateFormat('k:mm - EEEE d, MMMM, y').format(
+                DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
                   DateTime.fromMillisecondsSinceEpoch(expense.timestamp),
                 ),
               ),
@@ -116,7 +116,7 @@ class ActivityWidget extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          DateFormat('k:mm - EEEE d, MMMM, y').format(
+          DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
             DateTime.fromMillisecondsSinceEpoch(transaction.timestamp),
           ),
         ),

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:repartapp/domain/models/group_model.dart';
 import 'package:repartapp/domain/repositories/groups_repository.dart';
 import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
+import 'package:repartapp/ui/pages/groups/details_group_page.dart';
 import 'package:repartapp/ui/pages/home/groups_list.dart';
 import 'package:repartapp/ui/pages/home/widgets/side_menu.dart';
 
@@ -40,7 +41,13 @@ class _HomePageState extends State<HomePage> {
             .read<GroupsRepository>()
             .acceptInvitationGroup(groupId);
 
-        Navigator.pushNamed(context, '/group_details', arguments: group);
+        Get.to(
+          () => DetailsGroupPage(),
+          arguments: {
+            'group': group,
+            'online': true,
+          },
+        );
       }
     }, onError: (OnLinkErrorException e) async {
       print('onLinkError');
@@ -57,7 +64,13 @@ class _HomePageState extends State<HomePage> {
       Group group =
           await context.read<GroupsRepository>().acceptInvitationGroup(groupId);
 
-      Navigator.pushNamed(context, '/group_details', arguments: group);
+      Get.to(
+        () => DetailsGroupPage(),
+        arguments: {
+          'group': group,
+          'online': true,
+        },
+      );
     }
   }
 
