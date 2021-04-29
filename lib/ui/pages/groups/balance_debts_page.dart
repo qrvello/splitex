@@ -96,21 +96,8 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
                 fontSize: 16,
                 fontWeight: FontWeight.bold),
           ),
-          title: RichText(
-            text: TextSpan(
-              style: TextStyle(fontSize: 16),
-              children: [
-                TextSpan(
-                  text: transaction.memberToPay.id,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(text: ' le tiene que pagar a '),
-                TextSpan(
-                  text: transaction.memberToReceive.id,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
+          title: Text(
+            '${transaction.memberToPay.id} le tiene que pagar a ${transaction.memberToReceive.id}',
           ),
           trailing: IconButton(
             icon: Icon(

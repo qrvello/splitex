@@ -56,10 +56,11 @@ class ActivityWidget extends StatelessWidget {
       Expense expense = action;
       return Card(
         child: ListTile(
-          isThreeLine: true,
+          //isThreeLine: true,
           //subtitle: Text('Pagado por ${expense.paidBy}'),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text('Pagado por ${expense.paidBy}'),
               Text(
@@ -67,6 +68,7 @@ class ActivityWidget extends StatelessWidget {
                   DateTime.fromMillisecondsSinceEpoch(expense.timestamp),
                 ),
               ),
+              //SizedBox(height: 10),
             ],
           ),
           title: Text(

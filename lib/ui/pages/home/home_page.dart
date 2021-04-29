@@ -78,10 +78,19 @@ class _HomePageState extends State<HomePage> {
             isScrollable: false,
             tabs: [
               Tab(
-                child: Text('Online'),
+                child: Icon(
+                  Icons.cloud_rounded,
+                  color: Theme.of(context).primaryColor,
+                ),
+
+                //child: Text('Con conexión'),
               ),
               Tab(
-                child: Text('Offline'),
+                child: Icon(
+                  Icons.cloud_off_rounded,
+                  color: Theme.of(context).primaryColor,
+                ),
+                //child: Text('Sin conexión'),
               ),
             ],
           ),
@@ -106,7 +115,7 @@ class _HomePageState extends State<HomePage> {
           child: Icon(Icons.cloud_rounded),
           backgroundColor: Theme.of(context).accentColor,
           labelWidget: Text(
-            'Crear grupo online',
+            'Crear un grupo con conexión',
             style: TextStyle(fontSize: 18),
           ),
           onTap: () => dialogCreateGroup(context, true),
@@ -115,7 +124,7 @@ class _HomePageState extends State<HomePage> {
           child: Icon(Icons.cloud_off_rounded),
           backgroundColor: Theme.of(context).accentColor,
           labelWidget: Text(
-            'Crear grupo offline',
+            'Crear un grupo sin conexión',
             style: TextStyle(fontSize: 18),
           ),
           onTap: () => dialogCreateGroup(context, false),

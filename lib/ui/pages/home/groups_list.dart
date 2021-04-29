@@ -150,16 +150,13 @@ class _GroupsListState extends State<GroupsList> {
           ),
           direction: DismissDirection.endToStart,
           child: ListTile(
-            title: Text(
-              group.name,
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            onTap: () => Get.to(() => DetailsGroupPage(),
-                arguments: {'group': group, 'online': online}),
-            trailing: Icon(
-              Icons.circle,
-              size: 10,
-              color: Color(0xff06d6a0),
+            title: Text(group.name),
+            onTap: () => Get.to(
+              () => DetailsGroupPage(),
+              arguments: {
+                'group': group,
+                'online': online,
+              },
             ),
           ),
         ),
