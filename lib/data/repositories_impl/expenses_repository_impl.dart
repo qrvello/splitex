@@ -1,9 +1,11 @@
 import 'package:firebase_database/firebase_database.dart';
-import 'package:repartapp/domain/models/transaction_model.dart';
-import 'package:repartapp/domain/models/member_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/repositories/expenses_repository.dart';
+import 'package:splitex/domain/models/transaction_model.dart';
+import 'package:splitex/domain/models/member_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/repositories/expenses_repository.dart';
+
+import '../utils.dart';
 
 class ExpensesRepositoryImpl extends ExpensesRepository {
   final DatabaseReference databaseReference =
@@ -11,52 +13,60 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
 
   @override
   Future<bool> addExpense(Group group, Expense expense) async {
+    if (await Utils.checkConnection() == false) return false;
+
     // Se obtiene la referencia de la raiz del grupo al que se quiere agregar un gasto
     final DatabaseReference groupReference =
         databaseReference.child('groups/${group.id}');
-
     final DatabaseReference newChildExpenseReference =
         groupReference.child('expenses').push();
 
     final List<Member> members = group.members;
 
-    // Se crea el update object, un objeto que tiene los paths y los datos a colocar para realizar
-    // solo una petición a la base de datos.
-
-    Map<String, dynamic> updateObj = {
-      '${groupReference.path}/total_balance':
-          group.totalBalance + expense.amount,
-      newChildExpenseReference.path: expense.toMap(),
-    };
+    Map<String, dynamic> updateObj = {};
+    expense.distributedBetween = {};
 
     members.forEach((member) {
-      double updatedBalance = 0;
+      double toPay = 0;
 
       // Si el miembro que se recorre actualmente es el que pagó el gasto
       // se suma el balance del miembro previo más lo que cuesta este gasto
       // menos lo que le corresponde pagar a este miembro.
 
       if (member.id == expense.paidBy) {
-        updatedBalance = member.balance + expense.amount - member.amountToPay;
+        toPay = -(expense.amount - member.amountToPay);
       } else if (member.amountToPay != null) {
-        updatedBalance = member.balance - member.amountToPay;
+        toPay = member.amountToPay;
       }
 
-      // Si el balance actualizado es igual que el balance del miembro, no se coloca en el update object.
-      if (updatedBalance != member.balance) {
-        updateObj.putIfAbsent(
-          '${groupReference.path}/members/${member.id}/',
-          () => {"balance": updatedBalance},
-        );
+      // Si el balance actualizado es igual que el balance previo del miembro,
+      // no se coloca en el update object.
+
+      if (toPay != 0) {
+        expense.distributedBetween[member.id] = toPay;
+
+        updateObj['${groupReference.path}/members/${member.id}/'] = {
+          "balance": member.balance - toPay
+        };
       }
     });
 
-    await databaseReference.update(updateObj).catchError((error) {
-      print("Error al agregar gasto: ${error.message}");
+    // Se crea el update object, un objeto que tiene los paths y los datos a colocar para realizar
+    // solo una petición a la base de datos.
+
+    updateObj['${groupReference.path}/total_balance'] =
+        group.totalBalance + expense.amount;
+
+    updateObj[newChildExpenseReference.path] = expense.toMap();
+
+    try {
+      await databaseReference.update(updateObj);
+      print('hola');
+      return true;
+    } catch (e) {
+      print('Error al agregar gasto: ' + e.toString());
       return false;
-    });
-
-    return true;
+    }
   }
 
   @override
@@ -120,6 +130,8 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
 
   @override
   Future<bool> checkTransaction(Group group, Transaction transaction) async {
+    if (await Utils.checkConnection() == false) return false;
+
     DatabaseReference groupReference =
         databaseReference.child('/groups/${group.id}');
 
@@ -153,8 +165,7 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
   }
 
   @override
-  Future<bool> deleteExpense(Expense expense) {
-    // TODO: implement deleteExpense
-    throw UnimplementedError();
+  Future<bool> deleteExpense(Expense expense) async {
+    if (await Utils.checkConnection() == false) return false;
   }
 }

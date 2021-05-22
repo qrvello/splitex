@@ -1,4 +1,4 @@
-import 'package:repartapp/domain/models/group_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
 
 abstract class GroupsListState {
   GroupsListState();

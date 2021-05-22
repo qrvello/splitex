@@ -1,7 +1,7 @@
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/member_model.dart';
-import 'package:repartapp/domain/models/transaction_model.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/member_model.dart';
+import 'package:splitex/domain/models/transaction_model.dart';
 
 abstract class ExpensesRepositoryOffline {
   Future<bool> addExpense(Group group, Expense expense);

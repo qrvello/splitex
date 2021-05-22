@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/transaction_model.dart';
-import 'package:repartapp/domain/repositories/expenses_repository.dart';
-import 'package:repartapp/domain/repositories/expenses_repository_offline.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/transaction_model.dart';
+import 'package:splitex/domain/repositories/expenses_repository.dart';
+import 'package:splitex/domain/repositories/expenses_repository_offline.dart';
 
 class BalanceDebtsPage extends StatefulWidget {
   @override

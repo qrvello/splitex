@@ -1,9 +1,11 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:repartapp/config/routes/routes.dart' as router;
-import 'package:repartapp/domain/cubits/app_theme_cubit.dart';
-import 'package:repartapp/domain/dependency_injection.dart';
+import 'package:splitex/config/routes/routes.dart' as router;
+import 'package:splitex/domain/cubits/app_theme_cubit.dart';
+import 'package:splitex/domain/dependency_injection.dart';
 import 'domain/cubits/auth/auth_cubit.dart';
 import 'ui/themes/dark_theme.dart';
 import 'ui/themes/light_theme.dart';
@@ -11,6 +13,8 @@ import 'ui/themes/light_theme.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    FirebaseAnalytics analytics = FirebaseAnalytics();
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<AppThemeCubit>(create: (_) => AppThemeCubit()..init()),
@@ -21,8 +25,11 @@ class MyApp extends StatelessWidget {
         child: BlocBuilder<AppThemeCubit, bool>(
           builder: (context, isDark) {
             return GetMaterialApp(
+              navigatorObservers: [
+                FirebaseAnalyticsObserver(analytics: analytics),
+              ],
               debugShowCheckedModeBanner: false,
-              title: 'RepartApp',
+              title: 'Splitex',
               initialRoute: '/',
               theme: lightTheme,
               darkTheme: darkTheme,

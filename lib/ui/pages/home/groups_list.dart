@@ -3,16 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
-import 'package:repartapp/domain/cubits/auth/auth_cubit.dart';
-import 'package:repartapp/domain/cubits/auth/auth_state.dart';
+import 'package:splitex/domain/cubits/auth/auth_cubit.dart';
+import 'package:splitex/domain/cubits/auth/auth_state.dart';
 
-import 'package:repartapp/domain/cubits/groups/groups_list/groups_list_state.dart';
-import 'package:repartapp/domain/cubits/groups/groups_list/groups_list_online_cubit.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/repositories/groups_repository.dart';
+import 'package:splitex/domain/cubits/groups/groups_list/groups_list_state.dart';
+import 'package:splitex/domain/cubits/groups/groups_list/groups_list_online_cubit.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/repositories/groups_repository.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
-import 'package:repartapp/ui/pages/groups/details_group_page.dart';
+import 'package:splitex/domain/repositories/groups_repository_offline.dart';
+import 'package:splitex/ui/pages/groups/details_group_page.dart';
 
 class GroupsList extends StatefulWidget {
   @override
@@ -21,6 +21,8 @@ class GroupsList extends StatefulWidget {
 
 class _GroupsListState extends State<GroupsList> {
   bool online;
+
+  List<Group> groupsOnline = [];
 
   @override
   Widget build(BuildContext context) {
@@ -103,12 +105,11 @@ class _GroupsListState extends State<GroupsList> {
         Divider(
           height: 1,
         ),
-        Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.only(bottom: context.height * 0.1),
-            itemCount: groups.length,
-            itemBuilder: (_, i) => _createItem(context, groups[i]),
-          ),
+        ListView.builder(
+          shrinkWrap: true,
+          padding: EdgeInsets.only(bottom: context.height * 0.1),
+          itemCount: groups.length,
+          itemBuilder: (context, int i) => _createItem(context, groups[i]),
         ),
       ],
     );
@@ -123,41 +124,22 @@ class _GroupsListState extends State<GroupsList> {
   Widget _createItem(BuildContext context, Group group) {
     return Column(
       children: [
-        Dismissible(
-          // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
-          confirmDismiss: (_) => showDialog(
-            context: context,
-            builder: (context) => _confirmDeleteDialog(context, group),
-          ),
-          onDismissed: (_) {
-            if (this.mounted) {
-              setState(() {});
-            }
-          },
-          key: UniqueKey(),
-          background: Container(
-            decoration: BoxDecoration(
-              color: Color(0xffE29578),
-            ),
-            alignment: AlignmentDirectional.centerEnd,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-              child: Icon(
-                Icons.delete,
-                color: Colors.white,
-              ),
+        ListTile(
+          trailing: IconButton(
+            icon: Icon(Icons.delete),
+            color: (context.isDarkMode) ? Colors.white : Colors.black,
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => _confirmDeleteDialog(context, group),
             ),
           ),
-          direction: DismissDirection.endToStart,
-          child: ListTile(
-            title: Text(group.name),
-            onTap: () => Get.to(
-              () => DetailsGroupPage(),
-              arguments: {
-                'group': group,
-                'online': online,
-              },
-            ),
+          title: Text(group.name),
+          onTap: () => Get.to(
+            () => DetailsGroupPage(),
+            arguments: {
+              'group': group,
+              'online': online,
+            },
           ),
         ),
         Divider(
@@ -167,7 +149,7 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  Widget _confirmDeleteDialog(BuildContext context, group) {
+  Widget _confirmDeleteDialog(BuildContext context, Group group) {
     return AlertDialog(
       title: Text('Confirmar eliminación'),
       content: Text(
@@ -178,9 +160,7 @@ class _GroupsListState extends State<GroupsList> {
           child: Text('Cancelar'),
         ),
         TextButton(
-          onPressed: () {
-            _deleteGroup(context, group);
-          },
+          onPressed: () => _deleteGroup(context, group),
           child: Text(
             'Confirmar',
             style: TextStyle(color: Color(0xffe76f51)),
@@ -190,23 +170,26 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  void _deleteGroup(BuildContext context, group) async {
-    bool result;
-
+  Future<dynamic> _deleteGroup(BuildContext context, Group group) async {
     if (online == true) {
-      result = await context.read<GroupsRepository>().deleteGroup(group);
+      bool result = await context.read<GroupsRepository>().deleteGroup(group);
 
-      Navigator.of(context).pop(result);
+      if (result == true) {
+        Navigator.of(context).pop(true);
+
+        snackbarSuccess(context);
+      } else {
+        Navigator.of(context).pop(false);
+
+        snackbarError();
+      }
     } else {
       Navigator.of(context).pop(true);
 
-      result = await context.read<GroupsRepositoryOffline>().deleteGroup(group);
-    }
-
-    if (result == true) {
       snackbarSuccess(context);
-    } else {
-      snackbarError();
+
+      await RepositoryProvider.of<GroupsRepositoryOffline>(context)
+          .deleteGroup(group);
     }
   }
 

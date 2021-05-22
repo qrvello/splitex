@@ -17,7 +17,7 @@ class GroupAdapter extends TypeAdapter<Group> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Group(
-      id: fields[1] as String,
+      id: fields[1] as dynamic,
       name: fields[2] as String,
       timestamp: fields[3] as int,
       members: (fields[5] as List)?.cast<Member>(),

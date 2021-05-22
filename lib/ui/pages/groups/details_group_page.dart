@@ -1,22 +1,21 @@
 import 'dart:async';
 
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:repartapp/domain/cubits/groups/group_details/group_details_cubit.dart';
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/transaction_model.dart';
-import 'package:repartapp/domain/repositories/groups_repository.dart';
-import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
-import 'package:repartapp/ui/pages/groups/add_expense_page.dart';
-import 'package:repartapp/ui/pages/groups/edit_group_page.dart';
-import 'package:repartapp/ui/pages/groups/widgets/activity_widget.dart';
-import 'package:repartapp/ui/pages/groups/widgets/overview_widget.dart';
+import 'package:splitex/domain/cubits/groups/group_details/group_details_cubit.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/transaction_model.dart';
+import 'package:splitex/domain/repositories/groups_repository.dart';
+import 'package:splitex/domain/repositories/groups_repository_offline.dart';
+import 'package:splitex/ui/pages/groups/add_expense_page.dart';
+import 'package:splitex/ui/pages/groups/edit_group_page.dart';
+import 'package:splitex/ui/pages/groups/widgets/activity_widget.dart';
+import 'package:splitex/ui/pages/groups/widgets/overview_widget.dart';
 
 // ignore: must_be_immutable
 class DetailsGroupPage extends StatefulWidget {
@@ -28,7 +27,6 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   final bool online = Get.arguments['online'];
   Group group = Get.arguments['group'];
 
-  final databaseReference = FirebaseDatabase.instance.reference();
   final _newMemberName = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
@@ -103,9 +101,8 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
             group = state.group;
           }
         },
-        builder: (context, state) {
-          return _builderDetails(context, state);
-        },
+        builder: (BuildContext context, GroupDetailsState state) =>
+            _builderDetails(context, state),
       ),
     );
   }
@@ -182,12 +179,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
             onTap: () {
               Get.to(() => AddExpensePage(),
                   arguments: {'group': group, 'online': online});
-            }
-            //onTap: () => Navigator.of(context).pushNamed(
-            //  '/add_expense',
-            //  arguments: ,
-            //),
-            ),
+            }),
         SpeedDialChild(
           child: Icon(Icons.person_add_rounded),
           backgroundColor: Theme.of(context).accentColor,

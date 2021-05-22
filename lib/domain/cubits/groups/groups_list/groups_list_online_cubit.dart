@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/repositories/groups_repository.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/repositories/groups_repository.dart';
 
 import 'groups_list_state.dart';
 

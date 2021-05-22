@@ -12,6 +12,7 @@ class Expense {
     this.amount,
     this.paidBy,
     this.timestamp,
+    this.distributedBetween,
   });
 
   @HiveField(0)
@@ -29,18 +30,22 @@ class Expense {
   @HiveField(4)
   int timestamp;
 
+  Map<dynamic, dynamic> distributedBetween;
+
   factory Expense.fromMap(Map<dynamic, dynamic> map, id) => Expense(
         id: id,
         description: map["description"],
         amount: map["amount"].toDouble(),
         paidBy: map["paid_by"],
         timestamp: map["timestamp"],
+        distributedBetween: map["distributed_between"],
       );
 
   Map<String, dynamic> toMap() => {
         "description": description,
         "amount": amount,
         "paid_by": paidBy,
-        "timestamp": ServerValue.timestamp
+        "timestamp": ServerValue.timestamp,
+        "distributed_between": distributedBetween,
       };
 }

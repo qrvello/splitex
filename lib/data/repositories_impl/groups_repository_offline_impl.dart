@@ -1,12 +1,13 @@
 import 'package:hive/hive.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/member_model.dart';
-import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/member_model.dart';
+import 'package:splitex/domain/repositories/groups_repository_offline.dart';
 
 class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
   Box<Group> _groupsBox = Hive.box<Group>('groups');
   Box _userBox = Hive.box('user');
 
+  @override
   Stream<List<Group>> getGroupsList() async* {
     List<Group> foundGroups = _groupsBox.values.toList();
 
@@ -17,6 +18,7 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
     yield foundGroups;
   }
 
+  @override
   Future<bool> createGroup(Group _group) async {
     final String name = _userBox.get('name');
 
@@ -44,23 +46,35 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
     return true;
   }
 
+  @override
   Future<bool> updateGroup(Group group) async {
     await _groupsBox.put(group.id, group);
     return true;
   }
 
+  @override
   Future<bool> deleteGroup(Group group) async {
     await _groupsBox.delete(group.id);
 
     return true;
   }
 
+  @override
   Future<bool> addPersonToGroup(String name, Group group) async {
     final Member member = Member(id: name, balance: 0);
 
     group.members.add(member);
 
-    _groupsBox.put(group.id, group);
+    await _groupsBox.put(group.id, group);
+
+    return true;
+  }
+
+  @override
+  Future<bool> deleteMember(Group group, Member member) async {
+    group.members.remove(member);
+
+    await _groupsBox.put(group.id, group);
 
     return true;
   }

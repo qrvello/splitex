@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/repositories/groups_repository.dart';
-import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/repositories/groups_repository.dart';
+import 'package:splitex/domain/repositories/groups_repository_offline.dart';
 
 class EditGroupPage extends StatefulWidget {
   @override
@@ -34,6 +34,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:repartapp/ui/pages/home/home_page.dart';
-import 'package:repartapp/ui/pages/users/profile_page.dart';
+import 'package:splitex/ui/pages/home/home_page.dart';
+import 'package:splitex/ui/pages/users/profile_page.dart';
 
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {

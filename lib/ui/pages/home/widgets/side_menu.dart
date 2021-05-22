@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:repartapp/domain/cubits/auth/auth_cubit.dart';
-import 'package:repartapp/domain/cubits/auth/auth_state.dart';
-import 'package:repartapp/domain/cubits/app_theme_cubit.dart';
-import 'package:repartapp/ui/pages/home/widgets/drawer_header_widget.dart';
-import 'package:repartapp/ui/pages/users/profile_page.dart';
-import 'package:repartapp/ui/pages/users/widgets/google_sign_up_button_widget.dart';
+import 'package:splitex/domain/cubits/auth/auth_cubit.dart';
+import 'package:splitex/domain/cubits/auth/auth_state.dart';
+import 'package:splitex/domain/cubits/app_theme_cubit.dart';
+import 'package:splitex/ui/pages/home/widgets/drawer_header_widget.dart';
+import 'package:splitex/ui/pages/users/profile_page.dart';
+import 'package:splitex/ui/pages/users/widgets/google_sign_up_button_widget.dart';
 
 class SideMenu extends StatelessWidget {
   @override

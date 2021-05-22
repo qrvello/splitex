@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/repositories/groups_repository.dart';
-import 'package:repartapp/domain/repositories/groups_repository_offline.dart';
-import 'package:repartapp/ui/pages/groups/details_group_page.dart';
-import 'package:repartapp/ui/pages/home/groups_list.dart';
-import 'package:repartapp/ui/pages/home/widgets/side_menu.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/repositories/groups_repository.dart';
+import 'package:splitex/domain/repositories/groups_repository_offline.dart';
+import 'package:splitex/ui/pages/groups/details_group_page.dart';
+import 'package:splitex/ui/pages/home/groups_list.dart';
+import 'package:splitex/ui/pages/home/widgets/side_menu.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -41,13 +41,17 @@ class _HomePageState extends State<HomePage> {
             .read<GroupsRepository>()
             .acceptInvitationGroup(groupId);
 
-        Get.to(
-          () => DetailsGroupPage(),
-          arguments: {
-            'group': group,
-            'online': true,
-          },
-        );
+        if (group != null) {
+          Get.to(
+            () => DetailsGroupPage(),
+            arguments: {
+              'group': group,
+              'online': true,
+            },
+          );
+        } else {
+          snackbarError('Error', 'Error al unirse al grupo');
+        }
       }
     }, onError: (OnLinkErrorException e) async {
       print('onLinkError');
@@ -56,6 +60,7 @@ class _HomePageState extends State<HomePage> {
 
     final PendingDynamicLinkData data =
         await FirebaseDynamicLinks.instance.getInitialLink();
+
     final Uri deepLink = data?.link;
 
     if (deepLink != null && deepLink.queryParameters.containsKey('id')) {
@@ -64,13 +69,17 @@ class _HomePageState extends State<HomePage> {
       Group group =
           await context.read<GroupsRepository>().acceptInvitationGroup(groupId);
 
-      Get.to(
-        () => DetailsGroupPage(),
-        arguments: {
-          'group': group,
-          'online': true,
-        },
-      );
+      if (group != null) {
+        Get.to(
+          () => DetailsGroupPage(),
+          arguments: {
+            'group': group,
+            'online': true,
+          },
+        );
+      } else {
+        snackbarError('Error', 'Error al unirse al grupo');
+      }
     }
   }
 
@@ -220,7 +229,7 @@ class _HomePageState extends State<HomePage> {
     if (result == true) {
       snackbarSuccess();
     } else {
-      snackbarError();
+      snackbarError('Error', 'Error al crear grupo');
     }
   }
 
@@ -238,10 +247,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void snackbarError() {
+  void snackbarError(String title, String message) {
     return Get.snackbar(
-      'Error',
-      'Error al crear el grupo',
+      title,
+      message,
       icon: Icon(
         Icons.error_outline_rounded,
         color: Color(0xffee6c4d),

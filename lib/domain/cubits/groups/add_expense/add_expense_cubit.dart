@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/member_model.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/member_model.dart';
 
 part 'add_expense_state.dart';
 

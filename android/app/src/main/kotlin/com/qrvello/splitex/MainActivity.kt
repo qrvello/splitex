@@ -1,4 +1,4 @@
-package com.qrvello.repartapp
+package com.qrvello.splitex
 
 import io.flutter.embedding.android.FlutterActivity
 

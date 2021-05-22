@@ -1,9 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/transaction_model.dart';
-import 'package:repartapp/domain/repositories/groups_repository.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/transaction_model.dart';
+import 'package:splitex/domain/repositories/groups_repository.dart';
 
 part 'group_details_state.dart';
 

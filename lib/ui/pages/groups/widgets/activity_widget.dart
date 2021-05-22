@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/transaction_model.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/transaction_model.dart';
 import 'package:intl/intl.dart';
 
 class ActivityWidget extends StatelessWidget {

@@ -1,10 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:hive/hive.dart';
-import 'package:repartapp/domain/models/transaction_model.dart';
-import 'package:repartapp/domain/models/member_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/repositories/expenses_repository_offline.dart';
+import 'package:splitex/domain/models/transaction_model.dart';
+import 'package:splitex/domain/models/member_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/repositories/expenses_repository_offline.dart';
 
 class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
   final DatabaseReference databaseReference =

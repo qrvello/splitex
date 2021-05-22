@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
-import 'package:repartapp/domain/models/expense_model.dart';
-import 'package:repartapp/domain/models/group_model.dart';
-import 'package:repartapp/domain/models/member_model.dart';
-import 'package:repartapp/domain/repositories/expenses_repository.dart';
-import 'package:repartapp/domain/repositories/expenses_repository_offline.dart';
+import 'package:splitex/domain/models/expense_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
+import 'package:splitex/domain/models/member_model.dart';
+import 'package:splitex/domain/repositories/expenses_repository.dart';
+import 'package:splitex/domain/repositories/expenses_repository_offline.dart';
 
 class AddExpensePage extends StatefulWidget {
   @override
@@ -18,6 +18,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   final Group group = Get.arguments['group'];
   final bool online = Get.arguments['online'];
   final TextEditingController _expenseNameController = TextEditingController();
+
   final TextEditingController _expenseAmountController =
       TextEditingController();
 
@@ -70,64 +71,71 @@ class _AddExpensePageState extends State<AddExpensePage> {
       key: scaffoldKey,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check_rounded),
+        child: (_saving)
+            ? CircularProgressIndicator(
+                color: Colors.white,
+              )
+            : Icon(Icons.check_rounded),
         onPressed: () => _submit(context),
       ),
       appBar: AppBar(title: Text('Agregar gasto')),
-      body: Form(
-        key: formKey,
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  _inputDescription(),
-                  SizedBox(height: 12),
-                  _inputAmount(),
-                  SizedBox(height: 16),
-                  buildDropdownButton(),
-                ],
+      body: SingleChildScrollView(
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    _inputDescription(),
+                    SizedBox(height: 12),
+                    _inputAmount(),
+                    SizedBox(height: 16),
+                    buildDropdownButton(),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            CheckboxListTile(
-              activeColor: Color(0xff0076ff),
-              controlAffinity: ListTileControlAffinity.leading,
-              checkColor: Colors.white,
-              secondary: TextButton(
-                child: (advanced == false) ? Text('Avanzado') : Text('Simple'),
-                onPressed: () {
+              SizedBox(height: 10),
+              CheckboxListTile(
+                activeColor: Color(0xff0076ff),
+                controlAffinity: ListTileControlAffinity.leading,
+                checkColor: Colors.white,
+                secondary: TextButton(
+                  child:
+                      (advanced == false) ? Text('Avanzado') : Text('Simple'),
+                  onPressed: () {
+                    setState(() {
+                      advanced = !advanced;
+                      calculateDivision();
+                    });
+                  },
+                ),
+                tileColor: Color(0xff1c1e20).withOpacity(0.3),
+                value: allCheckbox,
+                title: Text('Entre quien se divide'),
+                onChanged: (value) {
                   setState(() {
-                    advanced = !advanced;
-                    calculateDivision();
+                    allCheckbox = value;
+
+                    // Todos los miembros se ponen del valor que este sea
+                    if (value == true) {
+                      payingMembers = List.from(group.members);
+                    } else {
+                      payingMembers = [];
+                    }
+                    group.members.forEach((Member member) {
+                      member.amountToPay = 0;
+                      member.checked = value;
+                    });
                   });
+                  calculateDivision();
                 },
               ),
-              tileColor: Color(0xff1c1e20).withOpacity(0.3),
-              value: allCheckbox,
-              title: Text('Para quien'),
-              onChanged: (value) {
-                setState(() {
-                  allCheckbox = value;
-
-                  // Todos los miembros se ponen del valor que este sea
-                  if (value == true) {
-                    payingMembers = List.from(group.members);
-                  } else {
-                    payingMembers = [];
-                  }
-                  group.members.forEach((Member member) {
-                    member.amountToPay = 0;
-                    member.checked = value;
-                  });
-                });
-                calculateDivision();
-              },
-            ),
-            membersList(),
-            SizedBox(height: context.height * 0.1)
-          ],
+              membersList(),
+              SizedBox(height: context.height * 0.1)
+            ],
+          ),
         ),
       ),
     );
@@ -157,55 +165,54 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  Expanded membersList() {
-    return Expanded(
-      child: ListView.separated(
-        separatorBuilder: (context, index) => Divider(
-          height: 1,
-        ),
-        padding: EdgeInsets.only(bottom: context.height * 0.01),
-        itemCount: group.members.length,
-        itemBuilder: (context, index) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Container(
-                width: context.width * 0.5,
-                child: CheckboxListTile(
-                  activeColor: Color(0xff0076ff),
-                  tileColor: Theme.of(context).scaffoldBackgroundColor,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  checkColor: Colors.white,
-                  title: Text(group.members[index].id),
-                  value: group.members[index].checked,
-                  onChanged: (value) {
-                    setState(() {
-                      group.members[index].checked = value;
-                      if (value == true) {
-                        payingMembers.add(group.members[index]);
-                      } else {
-                        group.members[index].amountToPay = 0;
-                        group.members[index].controller.text = '0';
-
-                        payingMembers.remove(group.members[index]);
-                      }
-                    });
-                    calculateDivision();
-                  },
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(right: 20),
-                child: (advanced == false)
-                    ? Text(group.members[index].amountToPay.toString())
-                    : advancedDivision(index),
-              )
-            ],
-          );
-        },
+  Widget membersList() {
+    return ListView.separated(
+      shrinkWrap: true,
+      separatorBuilder: (context, index) => Divider(
+        height: 1,
       ),
+      padding: EdgeInsets.only(bottom: context.height * 0.01),
+      itemCount: group.members.length,
+      itemBuilder: (context, index) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Container(
+              width: context.width * 0.5,
+              child: CheckboxListTile(
+                activeColor: Color(0xff0076ff),
+                tileColor: Theme.of(context).scaffoldBackgroundColor,
+                controlAffinity: ListTileControlAffinity.leading,
+                checkColor: Colors.white,
+                title: Text(group.members[index].id),
+                value: group.members[index].checked,
+                onChanged: (value) {
+                  setState(() {
+                    group.members[index].checked = value;
+                    if (value == true) {
+                      payingMembers.add(group.members[index]);
+                    } else {
+                      group.members[index].amountToPay = 0;
+                      group.members[index].controller.text = '0';
+
+                      payingMembers.remove(group.members[index]);
+                    }
+                  });
+                  calculateDivision();
+                },
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(right: 20),
+              child: (advanced == false)
+                  ? Text(group.members[index].amountToPay.toString())
+                  : advancedDivision(index),
+            )
+          ],
+        );
+      },
     );
   }
 
@@ -326,7 +333,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       style: TextStyle(fontSize: 20),
       decoration: InputDecoration(
         prefixIcon: Icon(Icons.attach_money),
-        labelText: 'Cantidad',
+        labelText: 'Monto',
       ),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
@@ -356,16 +363,22 @@ class _AddExpensePageState extends State<AddExpensePage> {
   void _submit(BuildContext context) async {
     if (_saving == true) return;
 
-    _saving = true;
+    setState(() {
+      _saving = true;
+    });
     if (errorNotMatchTotalExpenditure == true) {
       snackbarError(
           'La división de gastos entre miembros no concuerda con el gasto total');
-      _saving = false;
+      setState(() {
+        _saving = false;
+      });
 
       return;
     }
     if (!formKey.currentState.validate()) {
-      _saving = false;
+      setState(() {
+        _saving = false;
+      });
       return;
     }
 
@@ -382,11 +395,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
     }
 
     if (resp == true) {
-      _saving = false;
+      setState(() {
+        _saving = false;
+      });
       Get.back();
       snackbarSuccess();
     } else {
-      _saving = false;
+      setState(() {
+        _saving = false;
+      });
       snackbarError('Error al agregar gasto al grupo');
     }
   }
@@ -475,7 +492,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   }
 
   void snackbarSuccess() {
-    return Get.snackbar(
+    Get.snackbar(
       'Acción exitosa',
       'Gasto agregado satisfactoriamente',
       icon: Icon(
@@ -489,7 +506,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   }
 
   void snackbarError(String message) {
-    return Get.snackbar(
+    Get.snackbar(
       'Error',
       message,
       icon: Icon(

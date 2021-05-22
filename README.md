@@ -1,4 +1,4 @@
-# RepartApp
+# Splitex
 
 ## Application in charge of dividing expenses in a group
 

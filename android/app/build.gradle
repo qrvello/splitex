@@ -26,6 +26,9 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 apply plugin: 'com.google.gms.google-services'
 
+// Apply the Crashlytics Gradle plugin
+apply plugin: 'com.google.firebase.crashlytics'
+
 android {
     compileSdkVersion 29
 
@@ -38,7 +41,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.curvello.repartapp"
+        applicationId "com.qrvello.splitex"
         minSdkVersion 23
         targetSdkVersion 29
         multiDexEnabled true
@@ -61,7 +64,9 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation platform('com.google.firebase:firebase-bom:26.3.0')
+    implementation platform('com.google.firebase:firebase-bom:27.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-functions'
     implementation 'com.android.support:multidex:1.0.3'
 }
