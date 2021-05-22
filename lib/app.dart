@@ -1,5 +1,3 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -13,8 +11,6 @@ import 'ui/themes/light_theme.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    FirebaseAnalytics analytics = FirebaseAnalytics();
-
     return MultiBlocProvider(
       providers: [
         BlocProvider<AppThemeCubit>(create: (_) => AppThemeCubit()..init()),
@@ -25,9 +21,6 @@ class MyApp extends StatelessWidget {
         child: BlocBuilder<AppThemeCubit, bool>(
           builder: (context, isDark) {
             return GetMaterialApp(
-              navigatorObservers: [
-                FirebaseAnalyticsObserver(analytics: analytics),
-              ],
               debugShowCheckedModeBanner: false,
               title: 'Splitex',
               initialRoute: '/',
