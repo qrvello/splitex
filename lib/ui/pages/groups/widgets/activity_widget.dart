@@ -42,7 +42,7 @@ class ActivityWidget extends StatelessWidget {
                 bottom: MediaQuery.of(context).size.height * 0.1),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
-                (_, i) => _createItem(actions[i]),
+                (BuildContext context, i) => _createItem(actions[i], context),
                 childCount: actions.length,
               ),
             ),
@@ -51,52 +51,74 @@ class ActivityWidget extends StatelessWidget {
     );
   }
 
-  Widget _createItem(action) {
+  Widget _createItem(action, context) {
     if (action is Expense) {
       Expense expense = action;
-      return Card(
-        child: ListTile(
-          //isThreeLine: true,
-          //subtitle: Text('Pagado por ${expense.paidBy}'),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text('Pagado por ${expense.paidBy}'),
-              Text(
-                DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
-                  DateTime.fromMillisecondsSinceEpoch(expense.timestamp),
+      return InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => Dialog(
+              backgroundColor: Colors.black,
+              child: Container(
+                padding: EdgeInsets.all(25),
+                child: Stack(
+                  fit: StackFit.loose,
+                  children: [
+                    Container(
+                      alignment: Alignment.topCenter,
+                      child: Text(expense.description),
+                    )
+                  ],
                 ),
               ),
-              //SizedBox(height: 10),
-            ],
-          ),
-          title: Text(
-            expense.description,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 18,
             ),
-          ),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "\$${expense.amount.toStringAsFixed(2)}",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xffF4a74d),
-                  fontWeight: FontWeight.w600,
+          );
+        },
+        child: Card(
+          child: ListTile(
+            //isThreeLine: true,
+            //subtitle: Text('Pagado por ${expense.paidBy}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text('Pagado por ${expense.paidBy}'),
+                Text(
+                  DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
+                    DateTime.fromMillisecondsSinceEpoch(expense.timestamp),
+                  ),
                 ),
+                //SizedBox(height: 10),
+              ],
+            ),
+            title: Text(
+              expense.description,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
               ),
-            ],
-          ),
-          leading: Container(
-            margin: EdgeInsets.only(left: 10),
-            height: double.infinity,
-            child: Icon(
-              Icons.shopping_bag_rounded,
-              color: Color(0xff0076FF),
+            ),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "\$${expense.amount.toStringAsFixed(2)}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xffF4a74d),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            leading: Container(
+              margin: EdgeInsets.only(left: 10),
+              height: double.infinity,
+              child: Icon(
+                Icons.shopping_bag_rounded,
+                color: Color(0xff0076FF),
+              ),
             ),
           ),
         ),

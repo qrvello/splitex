@@ -30,6 +30,7 @@
 .pub-cache/
 .pub/
 /build/
+web/
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -39,3 +40,12 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# Firebase
+remoteconfig.template.json
+storage.rules
+database.rules.json
+firebase.json
+firebasesrc
+functions/
+.firebaserc

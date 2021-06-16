@@ -99,19 +99,13 @@ class _GroupsListState extends State<GroupsList> {
     return MessageNonGroups();
   }
 
-  Column _groupsListsLoaded(BuildContext context, List<Group> groups) {
-    return Column(
-      children: [
-        Divider(
-          height: 1,
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          padding: EdgeInsets.only(bottom: context.height * 0.1),
-          itemCount: groups.length,
-          itemBuilder: (context, int i) => _createItem(context, groups[i]),
-        ),
-      ],
+  Widget _groupsListsLoaded(BuildContext context, List<Group> groups) {
+    return ListView.separated(
+      separatorBuilder: (context, i) => const Divider(height: 1),
+      shrinkWrap: true,
+      padding: EdgeInsets.only(bottom: context.height * 0.1),
+      itemCount: groups.length,
+      itemBuilder: (context, int i) => _createItem(context, groups[i]),
     );
   }
 

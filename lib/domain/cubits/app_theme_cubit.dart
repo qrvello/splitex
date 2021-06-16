@@ -7,7 +7,7 @@ class AppThemeCubit extends Cubit<bool> {
   Box box = Hive.box('theme');
 
   void init() {
-    bool isDark = box.get('isDark');
+    bool isDark = box.get('isDark') as bool;
 
     if (isDark != null) {
       emit(isDark);

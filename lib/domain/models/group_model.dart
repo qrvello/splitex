@@ -3,14 +3,16 @@ import 'package:hive/hive.dart';
 import 'expense_model.dart';
 import 'transaction_model.dart';
 import 'member_model.dart';
+import 'package:equatable/equatable.dart';
 
 part 'group_model.g.dart';
 
 @HiveType(typeId: 0)
-class Group {
+class Group extends Equatable {
   Group({
     this.id,
     this.name,
+    this.newName,
     this.adminUser,
     this.timestamp,
     this.members,
@@ -42,53 +44,54 @@ class Group {
   @HiveField(7)
   List<Transaction> transactions;
 
+  String newName;
   String link;
   String adminUser;
   Map<dynamic, dynamic> users;
 
   factory Group.fromMap(Map<dynamic, dynamic> map, key) {
-    List<Member> members = [];
-    List<Expense> expenses = [];
-    List<Transaction> transactions = [];
+    final List<Member> members = [];
+    final List<Expense> expenses = [];
+    final List<Transaction> transactions = [];
 
     if (map['members'] != null) {
-      Map<dynamic, dynamic> membersMap = map['members'];
+      final Map<dynamic, dynamic> membersMap = map['members'];
 
       membersMap.forEach((id, value) {
-        Member thisMember = Member.fromMap(value, id);
+        final Member thisMember = Member.fromMap(value, id);
         members.add(thisMember);
       });
     }
 
     if (map['expenses'] != null) {
-      Map<dynamic, dynamic> expensesMap = map['expenses'];
+      final Map<dynamic, dynamic> expensesMap = map['expenses'];
 
       expensesMap.forEach((id, value) {
-        Expense thisExpense = Expense.fromMap(value, id);
+        final Expense thisExpense = Expense.fromMap(value, id);
         expenses.add(thisExpense);
       });
     }
 
     if (map['transactions'] != null) {
-      Map<dynamic, dynamic> transactionsMap = map['transactions'];
+      final Map<dynamic, dynamic> transactionsMap = map['transactions'];
 
       transactionsMap.forEach((id, value) {
-        Transaction thisTransaction = Transaction.fromMap(value, id);
+        final Transaction thisTransaction = Transaction.fromMap(value, id);
         transactions.add(thisTransaction);
       });
     }
 
     return Group(
       id: key,
-      name: map["name"],
-      adminUser: map["admin_user"],
-      timestamp: map["timestamp"],
+      name: map["name"] as String,
+      adminUser: map["admin_user"] as String,
+      timestamp: map["timestamp"] as int,
       members: members,
       expenses: expenses,
       transactions: transactions,
-      users: map["users"],
-      totalBalance: map["total_balance"],
-      link: map['link'],
+      users: map["users"] as Map<dynamic, dynamic>,
+      totalBalance: map["total_balance"] as num,
+      link: map['link'] as String,
     );
   }
 
@@ -103,4 +106,19 @@ class Group {
         "transactions": transactions,
         "link": link
       };
+
+  @override
+  List<Object> get props => [
+        id,
+        name,
+        newName,
+        adminUser,
+        timestamp,
+        members,
+        expenses,
+        transactions,
+        totalBalance,
+        link,
+        users,
+      ];
 }

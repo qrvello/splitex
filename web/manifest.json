@@ -1,11 +1,11 @@
 {
-    "name": "gastos_grupales",
-    "short_name": "gastos_grupales",
+    "name": "splitex",
+    "short_name": "splitex",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Separá gastos de una manera simple y eficaz.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

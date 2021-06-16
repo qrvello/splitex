@@ -5,6 +5,8 @@ part 'member_model.g.dart';
 @HiveType(typeId: 1)
 class Member {
   Member({
+    this.name,
+    this.newName,
     this.id,
     this.balance = 0.00,
     this.checked = true,
@@ -14,11 +16,13 @@ class Member {
   });
 
   @HiveField(0)
-  String id;
+  String name;
 
   @HiveField(1)
   double balance;
 
+  String id;
+  String newName;
   double amountToPay;
   int weight;
   bool checked;
@@ -26,11 +30,12 @@ class Member {
 
   factory Member.fromMap(Map<dynamic, dynamic> json, id) => Member(
         id: id,
+        name: json['name'],
         balance: json['balance'].toDouble(),
       );
 
-  Map<dynamic, dynamic> toJson() => {
-        "id": id,
+  Map<dynamic, dynamic> toMap() => {
+        "name": name,
         "balance": balance.toStringAsFixed(2),
       };
 }

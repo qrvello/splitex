@@ -53,10 +53,8 @@ class _OverviewWidgetState extends State<OverviewWidget> {
                             ),
                           ],
                         ),
-                        onPressed: () {
-                          Share.share(
-                              'Unite a mi grupo de splitex: ${widget.group.link}');
-                        },
+                        onPressed: () async => await Share.share(
+                            'Unite a mi grupo de splitex: ${widget.group.link}'),
                       ),
                     )
                   : SizedBox.shrink(),
@@ -75,10 +73,13 @@ class _OverviewWidgetState extends State<OverviewWidget> {
                       ),
                     ],
                   ),
-                  onPressed: () => Get.to(() => BalanceDebtsPage(), arguments: {
-                    'group': widget.group,
-                    'online': widget.online
-                  }),
+                  onPressed: () => Get.to(
+                    () => BalanceDebtsPage(),
+                    arguments: {
+                      'group': widget.group,
+                      'online': widget.online,
+                    },
+                  ),
                 ),
               ),
             ],

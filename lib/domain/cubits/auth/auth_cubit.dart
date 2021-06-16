@@ -80,7 +80,7 @@ class AuthCubit extends Cubit<AuthState> {
       await box.delete('name');
       emit(AuthLoggedOut());
     } catch (e) {
-      emit(AuthError(e.message));
+      emit(AuthError(e.toString()));
     }
   }
 

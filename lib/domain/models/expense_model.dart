@@ -33,12 +33,12 @@ class Expense {
   Map<dynamic, dynamic> distributedBetween;
 
   factory Expense.fromMap(Map<dynamic, dynamic> map, id) => Expense(
-        id: id,
-        description: map["description"],
-        amount: map["amount"].toDouble(),
-        paidBy: map["paid_by"],
-        timestamp: map["timestamp"],
-        distributedBetween: map["distributed_between"],
+        id: id as String,
+        description: map["description"] as String,
+        amount: map["amount"].toDouble() as double,
+        paidBy: map["paid_by"] as String,
+        timestamp: map["timestamp"] as int,
+        distributedBetween: map["distributed_between"] as Map<dynamic, dynamic>,
       );
 
   Map<String, dynamic> toMap() => {

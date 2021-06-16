@@ -14,8 +14,8 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(ProfileLoading());
 
     if (user.displayName == '' || user.displayName == null) {
-      Box userBox = Hive.box('user');
-      String name = userBox.get('name');
+      final Box userBox = Hive.box('user');
+      final String name = userBox.get('name') as String;
 
       if (name != null) {
         emit(ProfileLoadedWithInfo(name));
@@ -32,7 +32,7 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> saveName(String name) async {
-    Box userBox = Hive.box('user');
+    final Box userBox = Hive.box('user');
 
     await userBox.put('name', name);
 

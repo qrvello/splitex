@@ -18,9 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final GlobalKey<FormState> formKeyCreateGroup = GlobalKey<FormState>();
-  final GlobalKey<FormState> formKeyJoinGroup = GlobalKey<FormState>();
-
-  final TextEditingController _newGroupController = TextEditingController();
 
   @override
   void initState() {
@@ -104,15 +101,12 @@ class _HomePageState extends State<HomePage> {
                   Icons.cloud_rounded,
                   color: Theme.of(context).primaryColor,
                 ),
-
-                //child: Text('Con conexión'),
               ),
               Tab(
                 child: Icon(
                   Icons.cloud_off_rounded,
                   color: Theme.of(context).primaryColor,
                 ),
-                //child: Text('Sin conexión'),
               ),
             ],
           ),
@@ -156,6 +150,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future dialogCreateGroup(BuildContext context, bool online) {
+    final TextEditingController _newGroupController = TextEditingController();
+
     return showDialog(
       context: context,
       builder: (context) {
@@ -199,7 +195,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ElevatedButton(
               child: Text('Guardar'),
-              onPressed: () => _submit(context, online),
+              onPressed: () => _submit(context, online, _newGroupController),
             ),
           ],
         );
@@ -207,16 +203,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _submit(BuildContext context, bool online) async {
+  void _submit(BuildContext context, bool online,
+      TextEditingController _controller) async {
     if (!formKeyCreateGroup.currentState.validate()) return;
 
     Get.back();
 
     Group group = Group();
 
-    group.name = _newGroupController.text.trim();
-
-    _newGroupController.text = '';
+    group.name = _controller.text.trim();
 
     bool result;
 

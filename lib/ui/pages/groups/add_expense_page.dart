@@ -15,8 +15,8 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final Group group = Get.arguments['group'];
-  final bool online = Get.arguments['online'];
+  final Group group = Get.arguments['group'] as Group;
+  final bool online = Get.arguments['online'] as bool;
   final TextEditingController _expenseNameController = TextEditingController();
 
   final TextEditingController _expenseAmountController =
@@ -27,7 +27,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   final List<DropdownMenuItem<String>> items = [];
 
-  Expense expense = new Expense();
+  Expense expense = Expense();
   bool errorNotMatchTotalExpenditure = false;
   bool allCheckbox = true;
   String dropdownValue = '';
@@ -38,14 +38,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
   @override
   void initState() {
     payingMembers = List.from(group.members);
-    items.add(DropdownMenuItem(
+    items.add(const DropdownMenuItem(
       value: '',
       child: Text('Seleccioná'),
     ));
 
     // Crea los items para el dropdown con los miembros.
 
-    for (Member member in group.members) {
+    for (final Member member in group.members) {
       member.controller =
           TextEditingController(text: member.amountToPay.toString());
       items.add(
@@ -71,49 +71,50 @@ class _AddExpensePageState extends State<AddExpensePage> {
       key: scaffoldKey,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        child: (_saving)
-            ? CircularProgressIndicator(
+        onPressed: () => _submit(context),
+        child: _saving
+            ? const CircularProgressIndicator(
                 color: Colors.white,
               )
-            : Icon(Icons.check_rounded),
-        onPressed: () => _submit(context),
+            : const Icon(Icons.check_rounded),
       ),
-      appBar: AppBar(title: Text('Agregar gasto')),
+      appBar: AppBar(title: const Text('Agregar gasto')),
       body: SingleChildScrollView(
         child: Form(
           key: formKey,
           child: Column(
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   children: [
                     _inputDescription(),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     _inputAmount(),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     buildDropdownButton(),
                   ],
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               CheckboxListTile(
-                activeColor: Color(0xff0076ff),
+                activeColor: const Color(0xff0076ff),
                 controlAffinity: ListTileControlAffinity.leading,
                 checkColor: Colors.white,
                 secondary: TextButton(
-                  child:
-                      (advanced == false) ? Text('Avanzado') : Text('Simple'),
                   onPressed: () {
                     setState(() {
                       advanced = !advanced;
                       calculateDivision();
                     });
                   },
+                  child: (advanced == false)
+                      ? const Text('Avanzado')
+                      : const Text('Simple'),
                 ),
-                tileColor: Color(0xff1c1e20).withOpacity(0.3),
+                tileColor: const Color(0xff1c1e20).withOpacity(0.3),
                 value: allCheckbox,
-                title: Text('Entre quien se divide'),
+                title: const Text('Entre quien se divide'),
                 onChanged: (value) {
                   setState(() {
                     allCheckbox = value;
@@ -124,10 +125,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     } else {
                       payingMembers = [];
                     }
-                    group.members.forEach((Member member) {
+                    for (final Member member in group.members) {
                       member.amountToPay = 0;
                       member.checked = value;
-                    });
+                    }
                   });
                   calculateDivision();
                 },
@@ -141,48 +142,42 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  Container buildDropdownButton() {
-    return Container(
-      child: DropdownButtonFormField<String>(
-        decoration: InputDecoration(labelText: 'Pagado por'),
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        isExpanded: true,
-        value: dropdownValue,
-        onChanged: (newValue) {
-          setState(() {
-            dropdownValue = newValue;
-          });
-        },
-        onSaved: (value) => expense.paidBy = value,
-        items: items,
-        validator: (value) {
-          if (value == '') {
-            return 'Seleccione un miembro';
-          }
-          return null;
-        },
-      ),
+  Widget buildDropdownButton() {
+    return DropdownButtonFormField<String>(
+      decoration: const InputDecoration(labelText: 'Pagado por'),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      isExpanded: true,
+      value: dropdownValue,
+      onChanged: (newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      onSaved: (value) => expense.paidBy = value,
+      items: items,
+      validator: (value) {
+        if (value == '') {
+          return 'Seleccione un miembro';
+        }
+        return null;
+      },
     );
   }
 
   Widget membersList() {
     return ListView.separated(
       shrinkWrap: true,
-      separatorBuilder: (context, index) => Divider(
-        height: 1,
-      ),
-      padding: EdgeInsets.only(bottom: context.height * 0.01),
+      separatorBuilder: (_, __) => const Divider(height: 1),
+      padding: EdgeInsets.only(bottom: context.height * 0.1),
       itemCount: group.members.length,
       itemBuilder: (context, index) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
           children: [
-            Container(
+            SizedBox(
               width: context.width * 0.5,
               child: CheckboxListTile(
-                activeColor: Color(0xff0076ff),
+                activeColor: const Color(0xff0076ff),
                 tileColor: Theme.of(context).scaffoldBackgroundColor,
                 controlAffinity: ListTileControlAffinity.leading,
                 checkColor: Colors.white,
@@ -205,7 +200,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(right: 20),
+              margin: const EdgeInsets.only(right: 20),
               child: (advanced == false)
                   ? Text(group.members[index].amountToPay.toString())
                   : advancedDivision(index),
@@ -218,10 +213,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Widget advancedDivision(int index) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
+        SizedBox(
           width: context.width * 0.1,
           child: TextFormField(
             maxLength: 3,
@@ -264,8 +258,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
           ),
         ),
-        SizedBox(width: 15),
-        Container(
+        const SizedBox(width: 15),
+        SizedBox(
           width: context.width * 0.2,
           child: TextFormField(
             maxLength: 10,
@@ -275,13 +269,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ],
             onChanged: (String value) {
               if (value != '') {
-                double amountToPay = double.tryParse(value);
+                final double amountToPay = double.tryParse(value);
                 calculateDivisionForAmount(amountToPay, group.members[index]);
               } else {}
             },
             controller: group.members[index].controller,
             textAlign: TextAlign.center,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               isCollapsed: true,
               counterText: '',
               contentPadding: EdgeInsets.all(4),
@@ -311,8 +305,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return TextFormField(
       autovalidateMode: AutovalidateMode.onUserInteraction,
       maxLength: 25,
-      style: TextStyle(fontSize: 20),
-      decoration: InputDecoration(
+      style: const TextStyle(fontSize: 20),
+      decoration: const InputDecoration(
         helperText: 'Ejemplo: almuerzo',
         labelText: 'Descripción',
       ),
@@ -330,8 +324,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
       maxLength: 10,
       textAlign: TextAlign.end,
       autovalidateMode: AutovalidateMode.onUserInteraction,
-      style: TextStyle(fontSize: 20),
-      decoration: InputDecoration(
+      style: const TextStyle(fontSize: 20),
+      decoration: const InputDecoration(
         prefixIcon: Icon(Icons.attach_money),
         labelText: 'Monto',
       ),
@@ -347,7 +341,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           calculateDivision();
         }
       },
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       controller: _expenseAmountController,
       validator: (value) {
         if (value.trim().isEmpty) return 'Por favor ingresa un número';
@@ -360,7 +354,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  void _submit(BuildContext context) async {
+  Future<void> _submit(BuildContext context) async {
     if (_saving == true) return;
 
     setState(() {
@@ -424,10 +418,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
           // Recorre todos los miembros que tienen que pagar y todo el peso
           // para obtener el peso total
-
-          payingMembers.forEach((member) {
+          for (final Member member in payingMembers) {
             weightTotal += member.weight;
-          });
+          }
 
           // Si el peso total es distinto de null y 0 realiza el cálculo, sino
           // marca que todos tienen que pagar 0.
@@ -442,18 +435,18 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
             // Se asigna el valor que tienen que pagar a los miembros
             // multiplicando la unidad de peso por el peso que tiene el miembro
-            payingMembers.forEach((member) {
+            for (final Member member in payingMembers) {
               member.controller.text =
                   (debtForWeight * member.weight).toStringAsFixed(2);
               member.amountToPay = double.parse(
                   (debtForWeight * member.weight).toStringAsFixed(2));
-            });
+            }
 
             errorNotMatchTotalExpenditure = false;
           } else {
-            payingMembers.forEach((member) {
+            for (final Member member in payingMembers) {
               member.amountToPay = 0;
-            });
+            }
           }
         } else {
           // Se obtiene cuanto tiene que pagar cada miembro
@@ -464,9 +457,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
           debtForEach = double.parse(debtForEach.toStringAsFixed(2));
 
           // Se asigna el valor que tienen que pagar a los miembros
-          payingMembers.forEach((member) {
+          for (final Member member in payingMembers) {
             member.amountToPay = debtForEach;
-          });
+          }
 
           errorNotMatchTotalExpenditure = false;
         }
@@ -480,9 +473,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
     double totalExpense = 0;
 
     // Obtiene el gasto total sumando lo que tienen que pagar todos los miembros
-    group.members.forEach((Member member) {
+    for (final Member member in group.members) {
       totalExpense += member.amountToPay;
-    });
+    }
 
     if (totalExpense.roundToDouble() != expense.amount.roundToDouble()) {
       errorNotMatchTotalExpenditure = true;
@@ -495,12 +488,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
     Get.snackbar(
       'Acción exitosa',
       'Gasto agregado satisfactoriamente',
-      icon: Icon(
+      icon: const Icon(
         Icons.check_circle_outline_rounded,
         color: Color(0xff25C0B7),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
     );
   }
@@ -509,13 +502,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
     Get.snackbar(
       'Error',
       message,
-      icon: Icon(
+      icon: const Icon(
         Icons.error_outline_rounded,
         color: Color(0xffee6c4d),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: const Color(0xffee6c4d).withOpacity(0.1),
     );
   }
 }

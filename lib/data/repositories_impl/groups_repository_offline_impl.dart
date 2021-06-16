@@ -4,8 +4,8 @@ import 'package:splitex/domain/models/member_model.dart';
 import 'package:splitex/domain/repositories/groups_repository_offline.dart';
 
 class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
-  Box<Group> _groupsBox = Hive.box<Group>('groups');
-  Box _userBox = Hive.box('user');
+  final Box<Group> _groupsBox = Hive.box<Group>('groups');
+  final Box _userBox = Hive.box('user');
 
   @override
   Stream<List<Group>> getGroupsList() async* {
@@ -20,7 +20,7 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
 
   @override
   Future<bool> createGroup(Group _group) async {
-    final String name = _userBox.get('name');
+    final String name = _userBox.get('name') as String;
 
     final Group group = Group(
       name: _group.name,

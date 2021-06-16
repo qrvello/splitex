@@ -8,7 +8,7 @@ abstract class GroupsRepository {
 
   Future<bool> createGroup(Group group);
 
-  Future<bool> updateGroup(Group group);
+  Future<bool> updateGroup({Group group, Group newGroup});
 
   Future<bool> deleteGroup(Group group);
 

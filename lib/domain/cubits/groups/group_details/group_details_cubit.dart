@@ -8,26 +8,25 @@ import 'package:splitex/domain/repositories/groups_repository.dart';
 part 'group_details_state.dart';
 
 class GroupDetailsCubit extends Cubit<GroupDetailsState> {
-  GroupDetailsCubit(this._groupsRepository, this.group)
+  GroupDetailsCubit(this._groupsRepository, this._group)
       : super(GroupDetailsInitial());
 
-  Group group;
+  final Group _group;
 
   final GroupsRepository _groupsRepository;
 
   void init() {
-    _groupsRepository.getGroup(group).listen((Group _group) {
-      List<dynamic> actions = [];
+    _groupsRepository.getGroup(_group).listen((Group _group) {
+      final List<dynamic> actions = [];
 
-      for (Expense expense in _group.expenses) {
+      for (final Expense expense in _group.expenses) {
         actions.add(expense);
       }
-      for (Transaction transaction in _group.transactions) {
+      for (final Transaction transaction in _group.transactions) {
         actions.add(transaction);
       }
 
       actions.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      //_group.expenses.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
       emit(GroupDetailsLoaded(_group, actions));
     });

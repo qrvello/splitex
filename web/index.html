@@ -16,52 +16,52 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Separá gastos de una manera simple y eficaz.">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="splitex">
-  <meta name="google-signin-client_id" content="591582935820-uufdd1ah4p5ui3m1lhbam8rd419b86lt.apps.googleusercontent.com" />
+  <meta name="apple-mobile-web-app-title" content="Splitex">
+  <meta name="google-signin-client_id"
+    content="591582935820-uufdd1ah4p5ui3m1lhbam8rd419b86lt.apps.googleusercontent.com" />
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png" />
 
-  <title>splitex</title>
+  <title>Splitex</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Initialize Firebase -->
+  <script src="web/js/firebase.js"></script>
 </head>
-<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.2.9/firebase-analytics.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.2.7/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.2.0/firebase-database.js"></script>
-<script>
 
-  var firebaseConfig = {
-    apiKey: "AIzaSyA0S1R7kPgngjvIcRmcjHv86I6CoSBS5Y0",
-    authDomain: "gastos-grupales-4b8a6.firebaseapp.com",
-    databaseURL: "https://gastos-grupales-4b8a6-default-rtdb.firebaseio.com",
-    projectId: "gastos-grupales-4b8a6",
-    storageBucket: "gastos-grupales-4b8a6.appspot.com",
-    messagingSenderId: "591582935820",
-    appId: "1:591582935820:web:416fdfa8fd54010aeb6729",
-    measurementId: "G-Z6BZXW9F5G"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
-  var database = firebase.database();
-</script>
 <body>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-analytics.js"></script>
 
-
-
+  <!-- Firebase Configuration -->
   <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcSPbxnE_ckDW3cUUHb4vT_7CIs3ys-gc",
+      authDomain: "splitex-be0ca.firebaseapp.com",
+      databaseURL: "https://splitex-be0ca-default-rtdb.firebaseio.com/",
+      projectId: "splitex-be0ca",
+      storageBucket: "splitex-be0ca.appspot.com",
+      appId: "1:222215000040:web:35620c8e576dc356e29e5d",
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+  <script>
+
     if ('serviceWorker' in navigator) {
       window.addEventListener('flutter-first-frame', function () {
         navigator.serviceWorker.register('flutter_service_worker.js');
       });
     }
+
   </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>
