@@ -38,10 +38,10 @@ class ProfilePage extends StatelessWidget {
 
 class _ProfileLoadedWithGoogleInfoWidget extends StatelessWidget {
   const _ProfileLoadedWithGoogleInfoWidget({
-    Key key,
+    Key? key,
     this.state,
   }) : super(key: key);
-  final ProfileLoadedWithGoogleInfo state;
+  final ProfileLoadedWithGoogleInfo? state;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -52,14 +52,14 @@ class _ProfileLoadedWithGoogleInfoWidget extends StatelessWidget {
         children: [
           CircleAvatar(
             maxRadius: 25,
-            backgroundImage: (state.user.photoURL != null)
-                ? (NetworkImage(state.user.photoURL))
-                : AssetImage('assets/blank-profile.jpg'),
+            backgroundImage: ((state!.user.photoURL != null)
+                ? (NetworkImage(state!.user.photoURL!))
+                : AssetImage('assets/blank-profile.jpg')) as ImageProvider<Object>?,
           ),
           SizedBox(height: 8),
-          Text('Nombre: ' + state.user.displayName),
+          Text('Nombre: ' + state!.user.displayName!),
           SizedBox(height: 8),
-          Text('Correo electrónico: ' + state.user.email),
+          Text('Correo electrónico: ' + state!.user.email!),
           SizedBox(height: 8),
           ElevatedButton(
             onPressed: () async {
@@ -78,14 +78,14 @@ class _ProfileLoadedWithGoogleInfoWidget extends StatelessWidget {
 class _EditNameWidget extends StatelessWidget {
   _EditNameWidget({this.state});
 
-  final ProfileEditing state;
+  final ProfileEditing? state;
 
   @override
   Widget build(BuildContext context) {
     final TextEditingController nameController = TextEditingController();
 
     if (state != null) {
-      nameController.text = state.name;
+      nameController.text = state!.name;
     }
 
     final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -101,8 +101,8 @@ class _EditNameWidget extends StatelessWidget {
               width: context.width * 0.5,
               child: TextFormField(
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (String name) {
-                  if (name.trim().length == 0) {
+                validator: (String? name) {
+                  if (name!.trim().length == 0) {
                     return 'Ingrese un nombre';
                   }
                   return null;
@@ -120,7 +120,7 @@ class _EditNameWidget extends StatelessWidget {
               width: context.width * 0.5,
               child: ElevatedButton(
                 onPressed: () {
-                  if (formKey.currentState.validate()) {
+                  if (formKey.currentState!.validate()) {
                     context
                         .read<ProfileCubit>()
                         .saveName(nameController.text.trim());
@@ -138,10 +138,10 @@ class _EditNameWidget extends StatelessWidget {
 }
 
 class _ProfileLoadedWithInfoWidget extends StatelessWidget {
-  final ProfileLoadedWithInfo state;
+  final ProfileLoadedWithInfo? state;
 
   const _ProfileLoadedWithInfoWidget({
-    Key key,
+    Key? key,
     this.state,
   }) : super(key: key);
 
@@ -163,7 +163,7 @@ class _ProfileLoadedWithInfoWidget extends StatelessWidget {
                 child: Text('Nombre'),
               ),
               SizedBox(width: 12),
-              Text(state.name),
+              Text(state!.name),
               SizedBox(width: 12),
               Container(
                 padding: EdgeInsets.zero,
@@ -176,7 +176,7 @@ class _ProfileLoadedWithInfoWidget extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   icon: Icon(Icons.edit),
                   onPressed: () {
-                    context.read<ProfileCubit>().enterEditingMode(state.name);
+                    context.read<ProfileCubit>().enterEditingMode(state!.name);
                   },
                 ),
               )

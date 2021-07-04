@@ -10,27 +10,27 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
   final DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference();
 
-  Box<Group> _groupsBox = Hive.box<Group>('groups');
+  Box<Group?> _groupsBox = Hive.box<Group?>('groups');
 
   @override
   Future<bool> addExpense(Group group, Expense expense) async {
-    group.members.forEach((member) {
+    group.members!.forEach((member) {
       // Si el miembro que se recorre actualmente es el que pagó el gasto
       // se suma el balance del miembro previo más lo que cuesta este gasto
       // menos lo que le corresponde pagar a este miembro.
 
       if (member.id == expense.paidBy) {
-        member.balance = member.balance + expense.amount - member.amountToPay;
+        member.balance = member.balance + expense.amount! - member.amountToPay!;
       } else if (member.amountToPay != null) {
-        member.balance = member.balance - member.amountToPay;
+        member.balance = member.balance - member.amountToPay!;
       }
     });
 
     expense.timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    group.expenses.add(expense);
+    group.expenses!.add(expense);
 
-    group.totalBalance += expense.amount;
+    group.totalBalance += expense.amount!;
 
     await _groupsBox.put(group.id, group);
 
@@ -48,6 +48,7 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
       Member member2 = Member(
         id: member.id,
         balance: member.balance,
+        name: member.name,
       );
       members2.add(member2);
     }
@@ -101,18 +102,18 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
 
   @override
   Future<bool> checkTransaction(Group group, Transaction transaction) async {
-    Member memberToPay = group.members
-        .firstWhere((member) => member.id == transaction.memberToPay.id);
+    Member memberToPay = group.members!
+        .firstWhere((member) => member.id == transaction.memberToPay);
 
-    Member memberToReceive = group.members
-        .firstWhere((member) => member.id == transaction.memberToReceive.id);
+    Member memberToReceive = group.members!
+        .firstWhere((member) => member.id == transaction.memberToReceive);
 
     memberToPay.balance += transaction.amountToPay;
     memberToReceive.balance -= transaction.amountToPay;
 
     transaction.timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    group.transactions.add(transaction);
+    group.transactions!.add(transaction);
 
     await _groupsBox.put(group.id, group);
 

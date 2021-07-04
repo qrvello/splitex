@@ -6,7 +6,6 @@ part 'member_model.g.dart';
 class Member {
   Member({
     this.name,
-    this.newName,
     this.id,
     this.balance = 0.00,
     this.checked = true,
@@ -16,26 +15,26 @@ class Member {
   });
 
   @HiveField(0)
-  String name;
+  String? name;
 
   @HiveField(1)
   double balance;
 
-  String id;
-  String newName;
-  double amountToPay;
-  int weight;
-  bool checked;
-  TextEditingController controller;
+  String? id;
+  String? newName;
+  double? amountToPay;
+  int? weight;
+  bool? checked;
+  TextEditingController? controller;
 
-  factory Member.fromMap(Map<dynamic, dynamic> json, id) => Member(
+  factory Member.fromMap(Map<dynamic, dynamic>? json, id) => Member(
         id: id,
-        name: json['name'],
-        balance: json['balance'].toDouble(),
+        name: json?['name'],
+        balance: json?['balance'].toDouble(),
       );
 
   Map<dynamic, dynamic> toMap() => {
         "name": name,
-        "balance": balance.toStringAsFixed(2),
+        "balance": double.parse(balance.toStringAsFixed(2)),
       };
 }

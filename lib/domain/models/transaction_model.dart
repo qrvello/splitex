@@ -9,14 +9,14 @@ part 'transaction_model.g.dart';
 class Transaction {
   Transaction({
     this.id,
-    this.memberToPay,
-    this.memberToReceive,
-    this.amountToPay,
-    this.timestamp = 0,
+    required this.memberToPay,
+    required this.memberToReceive,
+    required this.amountToPay,
+    this.timestamp,
   });
 
   @HiveField(0)
-  String id;
+  String? id;
 
   @HiveField(1)
   Member memberToPay;
@@ -28,18 +28,13 @@ class Transaction {
   double amountToPay;
 
   @HiveField(4)
-  int timestamp;
+  int? timestamp;
 
   factory Transaction.fromMap(Map<dynamic, dynamic> map, id) {
-    Member memberToPay = Member();
-    memberToPay.id = map["member_to_pay"];
-    Member memberToReceive = Member();
-    memberToReceive.id = map["member_to_receive"];
-
     return Transaction(
       id: id,
-      memberToPay: memberToPay,
-      memberToReceive: memberToReceive,
+      memberToPay: Member(id: map["member_to_pay"]),
+      memberToReceive: map["member_to_receive"],
       amountToPay: map["amount_to_pay"].toDouble(),
       timestamp: map["timestamp"],
     );

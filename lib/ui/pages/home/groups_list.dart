@@ -20,7 +20,7 @@ class GroupsList extends StatefulWidget {
 }
 
 class _GroupsListState extends State<GroupsList> {
-  bool online;
+  bool? online;
 
   List<Group> groupsOnline = [];
 
@@ -42,7 +42,7 @@ class _GroupsListState extends State<GroupsList> {
 
         List<Group> groups = box.values.toList();
 
-        groups.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        groups.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
 
         if (groups.length > 0) {
           return _groupsListsLoaded(context, groups);
@@ -127,7 +127,7 @@ class _GroupsListState extends State<GroupsList> {
               builder: (context) => _confirmDeleteDialog(context, group),
             ),
           ),
-          title: Text(group.name),
+          title: Text(group.name!),
           onTap: () => Get.to(
             () => DetailsGroupPage(),
             arguments: {
@@ -219,7 +219,7 @@ class _GroupsListState extends State<GroupsList> {
 
 class ErrorLoadingGroups extends StatelessWidget {
   const ErrorLoadingGroups({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -232,7 +232,7 @@ class ErrorLoadingGroups extends StatelessWidget {
 
 class MessageNonGroups extends StatelessWidget {
   const MessageNonGroups({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

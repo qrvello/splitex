@@ -9,18 +9,18 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
 
   @override
   Stream<List<Group>> getGroupsList() async* {
-    List<Group> foundGroups = _groupsBox.values.toList();
+    List<Group?> foundGroups = _groupsBox.values.toList();
 
     _groupsBox.watch().listen((event) {
       foundGroups = _groupsBox.values.toList();
     });
 
-    yield foundGroups;
+    yield foundGroups as List<Group>;
   }
 
   @override
   Future<bool> createGroup(Group _group) async {
-    final String name = _userBox.get('name') as String;
+    final String? name = _userBox.get('name') as String?;
 
     final Group group = Group(
       name: _group.name,
@@ -34,7 +34,7 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
     if (name != null) {
       final Member member = Member(id: name);
 
-      group.members.add(member);
+      group.members!.add(member);
     }
 
     final int id = await _groupsBox.add(group);
@@ -47,7 +47,10 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
   }
 
   @override
-  Future<bool> updateGroup(Group group) async {
+  Future<bool> updateGroup(
+      {required Group group, required Group newGroup}) async {
+    group.members = newGroup.members;
+    group.name = newGroup.name;
     await _groupsBox.put(group.id, group);
     return true;
   }
@@ -60,10 +63,10 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
   }
 
   @override
-  Future<bool> addPersonToGroup(String name, Group group) async {
+  Future<bool> addPersonToGroup(String name, Group? group) async {
     final Member member = Member(id: name, balance: 0);
 
-    group.members.add(member);
+    group!.members!.add(member);
 
     await _groupsBox.put(group.id, group);
 
@@ -71,8 +74,8 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
   }
 
   @override
-  Future<bool> deleteMember(Group group, Member member) async {
-    group.members.remove(member);
+  Future<bool> deleteMember(Group? group, Member member) async {
+    group!.members!.remove(member);
 
     await _groupsBox.put(group.id, group);
 

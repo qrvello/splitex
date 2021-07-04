@@ -28,17 +28,16 @@ class _HomePageState extends State<HomePage> {
 
   void initDynamicLinks() async {
     FirebaseDynamicLinks.instance.onLink(
-        onSuccess: (PendingDynamicLinkData dynamicLink) async {
-      final Uri deepLink = dynamicLink?.link;
+        onSuccess: (PendingDynamicLinkData? dynamicLink) async {
+      final Uri? deepLink = dynamicLink?.link;
 
       if (deepLink != null && deepLink.queryParameters.containsKey('id')) {
-        String groupId = deepLink.queryParameters['id'];
+        String groupId = deepLink.queryParameters['id']!;
+        try {
+          Group group = await context
+              .read<GroupsRepository>()
+              .acceptInvitationGroup(groupId);
 
-        Group group = await context
-            .read<GroupsRepository>()
-            .acceptInvitationGroup(groupId);
-
-        if (group != null) {
           Get.to(
             () => DetailsGroupPage(),
             arguments: {
@@ -46,27 +45,29 @@ class _HomePageState extends State<HomePage> {
               'online': true,
             },
           );
-        } else {
+        } catch (e) {
+          print(e.toString());
           snackbarError('Error', 'Error al unirse al grupo');
         }
       }
     }, onError: (OnLinkErrorException e) async {
       print('onLinkError');
       print(e.message);
+      snackbarError('Error', 'Error al unirse al grupo');
     });
 
-    final PendingDynamicLinkData data =
+    final PendingDynamicLinkData? data =
         await FirebaseDynamicLinks.instance.getInitialLink();
 
-    final Uri deepLink = data?.link;
+    final Uri? deepLink = data?.link;
 
     if (deepLink != null && deepLink.queryParameters.containsKey('id')) {
-      String groupId = deepLink.queryParameters['id'];
+      String groupId = deepLink.queryParameters['id']!;
+      try {
+        Group group = await context
+            .read<GroupsRepository>()
+            .acceptInvitationGroup(groupId);
 
-      Group group =
-          await context.read<GroupsRepository>().acceptInvitationGroup(groupId);
-
-      if (group != null) {
         Get.to(
           () => DetailsGroupPage(),
           arguments: {
@@ -74,8 +75,9 @@ class _HomePageState extends State<HomePage> {
             'online': true,
           },
         );
-      } else {
+      } catch (e) {
         snackbarError('Error', 'Error al unirse al grupo');
+        print(e.toString());
       }
     }
   }
@@ -169,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                 labelText: 'Nombre del grupo',
               ),
               validator: (value) {
-                if (value.trim().length < 1) {
+                if (value == null) {
                   return 'Ingrese el nombre del grupo nuevo';
                 }
                 if (value.trim().length > 20) {
@@ -205,7 +207,7 @@ class _HomePageState extends State<HomePage> {
 
   void _submit(BuildContext context, bool online,
       TextEditingController _controller) async {
-    if (!formKeyCreateGroup.currentState.validate()) return;
+    if (!formKeyCreateGroup.currentState!.validate()) return;
 
     Get.back();
 
@@ -213,18 +215,16 @@ class _HomePageState extends State<HomePage> {
 
     group.name = _controller.text.trim();
 
-    bool result;
+    try {
+      if (online) {
+        await context.read<GroupsRepository>().createGroup(group);
+      } else {
+        await context.read<GroupsRepositoryOffline>().createGroup(group);
+      }
 
-    if (online == true) {
-      result = await context.read<GroupsRepository>().createGroup(group);
-    } else {
-      result = await context.read<GroupsRepositoryOffline>().createGroup(group);
-    }
-
-    if (result == true) {
       snackbarSuccess();
-    } else {
-      snackbarError('Error', 'Error al crear grupo');
+    } catch (e) {
+      snackbarError('Error', 'Error al crear grupo: ${e.toString()}');
     }
   }
 

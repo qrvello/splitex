@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:splitex/domain/models/expense_model.dart';
 import 'package:splitex/domain/models/group_model.dart';
-import 'package:splitex/domain/models/transaction_model.dart';
-import 'package:intl/intl.dart';
+import 'package:splitex/domain/models/member_model.dart';
+
+import 'package:collection/collection.dart' show IterableExtension;
+import 'package:splitex/ui/pages/groups/widgets/card_expense_widget.dart';
+import 'package:splitex/ui/pages/groups/widgets/card_transaction_widget.dart';
 
 class ActivityWidget extends StatelessWidget {
   final Group group;
   final List<dynamic> actions;
 
-  ActivityWidget({@required this.group, this.actions});
+  ActivityWidget({required this.group, required this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -36,121 +39,41 @@ class ActivityWidget extends StatelessWidget {
           centerTitle: true,
           floating: true,
         ),
-        if (actions != null)
-          SliverPadding(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height * 0.1),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, i) => _createItem(actions[i], context),
-                childCount: actions.length,
-              ),
+        SliverPadding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.1),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (BuildContext context, i) => _createItem(actions[i], context),
+              childCount: actions.length,
             ),
           ),
+        ),
       ],
     );
   }
 
   Widget _createItem(action, context) {
     if (action is Expense) {
-      Expense expense = action;
-      return InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (context) => Dialog(
-              backgroundColor: Colors.black,
-              child: Container(
-                padding: EdgeInsets.all(25),
-                child: Stack(
-                  fit: StackFit.loose,
-                  children: [
-                    Container(
-                      alignment: Alignment.topCenter,
-                      child: Text(expense.description),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-        child: Card(
-          child: ListTile(
-            //isThreeLine: true,
-            //subtitle: Text('Pagado por ${expense.paidBy}'),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text('Pagado por ${expense.paidBy}'),
-                Text(
-                  DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
-                    DateTime.fromMillisecondsSinceEpoch(expense.timestamp),
-                  ),
-                ),
-                //SizedBox(height: 10),
-              ],
-            ),
-            title: Text(
-              expense.description,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-              ),
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "\$${expense.amount.toStringAsFixed(2)}",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xffF4a74d),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            leading: Container(
-              margin: EdgeInsets.only(left: 10),
-              height: double.infinity,
-              child: Icon(
-                Icons.shopping_bag_rounded,
-                color: Color(0xff0076FF),
-              ),
-            ),
-          ),
-        ),
+      Member? paidBy = group.members!
+          .firstWhereOrNull((element) => element.id == action.paidBy);
+
+      return CardExpenseWidget(
+        expense: action,
+        paidBy: paidBy,
+      );
+    } else {
+      Member? memberToPay = group.members!
+          .firstWhereOrNull((element) => element.id == action.memberToPay);
+
+      Member? memberToReceive = group.members!
+          .firstWhereOrNull((element) => element.id == action.memberToReceive);
+
+      return CardTransactionWidget(
+        transaction: action,
+        memberToPay: memberToPay,
+        memberToReceive: memberToReceive,
       );
     }
-    Transaction transaction = action;
-    return Card(
-      child: ListTile(
-        title: Text(
-            '${transaction.memberToPay.id} le pagó a ${transaction.memberToReceive.id}'),
-        trailing: Text(
-          '\$${transaction.amountToPay.toStringAsFixed(2)}',
-          style: TextStyle(
-            color: Color(0xff25C0B7),
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Text(
-          DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
-            DateTime.fromMillisecondsSinceEpoch(transaction.timestamp),
-          ),
-        ),
-        leading: Container(
-          margin: EdgeInsets.only(left: 10),
-          height: double.infinity,
-          child: Icon(
-            Icons.arrow_right_alt_rounded,
-            color: Color(0xff0076FF),
-          ),
-        ),
-      ),
-    );
   }
 }

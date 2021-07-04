@@ -36,18 +36,18 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
   ValueListenableBuilder<Box<Group>> _buildOffline() => ValueListenableBuilder(
         valueListenable: Hive.box<Group>('groups').listenable(keys: [group.id]),
         builder: (BuildContext context, Box<Group> box, widget) {
-          group = box.get(group.id);
+          group = box.get(group.id)!;
 
           List<dynamic> actions = [];
 
           if (group.expenses != null) {
-            for (Expense expense in group.expenses) {
+            for (Expense expense in group.expenses!) {
               actions.add(expense);
             }
           }
 
           if (group.transactions != null) {
-            for (Transaction transaction in group.transactions) {
+            for (Transaction transaction in group.transactions!) {
               actions.add(transaction);
             }
           }
@@ -118,7 +118,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   AppBar buildAppBar(BuildContext context) => AppBar(
         actions: [
-          (online)
+          online
               ? IconButton(
                   icon: Icon(Icons.settings_rounded),
                   onPressed: () {
@@ -151,7 +151,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         ],
         elevation: 0,
         title: Text(
-          group.name,
+          group.name!,
           style: Theme.of(context).textTheme.headline5,
         ),
         bottom: TabBar(

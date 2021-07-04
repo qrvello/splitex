@@ -15,14 +15,14 @@ class OverviewWidget extends StatefulWidget {
   final Group group;
   final bool online;
 
-  OverviewWidget({@required this.group, @required this.online});
+  OverviewWidget({required this.group, required this.online});
 
   @override
   _OverviewWidgetState createState() => _OverviewWidgetState();
 }
 
 class _OverviewWidgetState extends State<OverviewWidget> {
-  final User user = FirebaseAuth.instance.currentUser;
+  final User? user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -36,38 +36,40 @@ class _OverviewWidgetState extends State<OverviewWidget> {
           centerTitle: true,
           automaticallyImplyLeading: false,
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              (widget.online == true)
-                  ? Container(
-                      width: size.width * 0.45,
-                      child: ElevatedButton(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text('Invitar a miembros'),
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.share_rounded,
-                              size: 16,
-                            ),
-                          ],
+              if (widget.online)
+                SizedBox(
+                  width: size.width * 0.45,
+                  child: ElevatedButton(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Invitar a miembros',
+                          style: TextStyle(fontSize: 10),
                         ),
-                        onPressed: () async => await Share.share(
-                            'Unite a mi grupo de splitex: ${widget.group.link}'),
-                      ),
-                    )
-                  : SizedBox.shrink(),
-              if (widget.online == true) SizedBox(width: 5),
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.share_rounded,
+                          size: 14,
+                        ),
+                      ],
+                    ),
+                    onPressed: () async => await Share.share(
+                        'Unite a mi grupo de splitex: ${widget.group.link}'),
+                  ),
+                ),
+              if (widget.online) SizedBox(width: 5),
               Container(
                 width: size.width * 0.45,
                 child: ElevatedButton(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Balancear cuentas'),
-                      SizedBox(width: 5),
-                      Icon(
+                      const Text('Balancear cuentas'),
+                      const SizedBox(width: 6),
+                      const Icon(
                         FontAwesomeIcons.balanceScale,
                         size: 16,
                       ),
@@ -90,8 +92,8 @@ class _OverviewWidgetState extends State<OverviewWidget> {
             padding: EdgeInsets.only(bottom: size.height * 0.1),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, i) => _listMembers(context, widget.group.members[i]),
-                childCount: widget.group.members.length,
+                (context, i) => _listMembers(context, widget.group.members![i]),
+                childCount: widget.group.members?.length,
               ),
             ),
           ),
@@ -102,10 +104,10 @@ class _OverviewWidgetState extends State<OverviewWidget> {
   Widget _listMembers(BuildContext context, Member member) {
     // Si el usuario actual no es el admin entonces no se le permite borrar miembros
     return AbsorbPointer(
-      absorbing:
-          (user.uid == widget.group.adminUser || widget.group.adminUser == null)
-              ? false
-              : true,
+      absorbing: (user!.uid == widget.group.adminUser ||
+              widget.group.adminUser == null)
+          ? false
+          : true,
       child: Dismissible(
         // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
         confirmDismiss: (direction) => showDialog(
@@ -135,7 +137,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
         direction: DismissDirection.endToStart,
         child: Card(
           child: ListTile(
-            title: Text(member.id),
+            title: Text(member.name!),
             trailing: Text(
               '\$${member.balance.toStringAsFixed(2)}',
               style: TextStyle(
@@ -155,7 +157,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
   Widget _confirmDeleteDialog(BuildContext context, member) {
     return AlertDialog(
       title: Text('Confirmar eliminación'),
-      content: Text('¿Seguro/a deseas borrar del grupo a ${member.id}?'),
+      content: Text('¿Seguro/a deseas borrar del grupo a ${member.name}?'),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),

@@ -15,8 +15,8 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final Group group = Get.arguments['group'] as Group;
-  final bool online = Get.arguments['online'] as bool;
+  final Group group = Get.arguments['group'];
+  final bool online = Get.arguments['online'];
   final TextEditingController _expenseNameController = TextEditingController();
 
   final TextEditingController _expenseAmountController =
@@ -29,15 +29,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Expense expense = Expense();
   bool errorNotMatchTotalExpenditure = false;
-  bool allCheckbox = true;
-  String dropdownValue = '';
+  bool? allCheckbox = true;
+  String? dropdownValue = '';
   List<Member> payingMembers = [];
   bool advanced = false;
   bool _saving = false;
 
   @override
   void initState() {
-    payingMembers = List.from(group.members);
+    payingMembers = List.from(group.members!);
     items.add(const DropdownMenuItem(
       value: '',
       child: Text('Seleccioná'),
@@ -45,13 +45,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     // Crea los items para el dropdown con los miembros.
 
-    for (final Member member in group.members) {
+    for (final Member member in group.members!) {
       member.controller =
           TextEditingController(text: member.amountToPay.toString());
       items.add(
         DropdownMenuItem(
           value: member.id,
-          child: Text(member.id),
+          child: Text(member.name!),
         ),
       );
     }
@@ -121,11 +121,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                     // Todos los miembros se ponen del valor que este sea
                     if (value == true) {
-                      payingMembers = List.from(group.members);
+                      payingMembers = List.from(group.members!);
                     } else {
                       payingMembers = [];
                     }
-                    for (final Member member in group.members) {
+                    for (final Member member in group.members!) {
                       member.amountToPay = 0;
                       member.checked = value;
                     }
@@ -153,7 +153,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           dropdownValue = newValue;
         });
       },
-      onSaved: (value) => expense.paidBy = value,
+      onSaved: (value) => expense.paidBy = value!,
       items: items,
       validator: (value) {
         if (value == '') {
@@ -169,7 +169,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       shrinkWrap: true,
       separatorBuilder: (_, __) => const Divider(height: 1),
       padding: EdgeInsets.only(bottom: context.height * 0.1),
-      itemCount: group.members.length,
+      itemCount: group.members!.length,
       itemBuilder: (context, index) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -181,18 +181,18 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 tileColor: Theme.of(context).scaffoldBackgroundColor,
                 controlAffinity: ListTileControlAffinity.leading,
                 checkColor: Colors.white,
-                title: Text(group.members[index].id),
-                value: group.members[index].checked,
+                title: Text(group.members![index].name!),
+                value: group.members![index].checked,
                 onChanged: (value) {
                   setState(() {
-                    group.members[index].checked = value;
+                    group.members![index].checked = value;
                     if (value == true) {
-                      payingMembers.add(group.members[index]);
+                      payingMembers.add(group.members![index]);
                     } else {
-                      group.members[index].amountToPay = 0;
-                      group.members[index].controller.text = '0';
+                      group.members![index].amountToPay = 0;
+                      group.members![index].controller!.text = '0';
 
-                      payingMembers.remove(group.members[index]);
+                      payingMembers.remove(group.members![index]);
                     }
                   });
                   calculateDivision();
@@ -202,7 +202,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             Container(
               margin: const EdgeInsets.only(right: 20),
               child: (advanced == false)
-                  ? Text(group.members[index].amountToPay.toString())
+                  ? Text(group.members![index].amountToPay.toString())
                   : advancedDivision(index),
             )
           ],
@@ -225,17 +225,17 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ],
             onChanged: (String value) {
               if (value == '') {
-                group.members[index].amountToPay = 0;
-                group.members[index].weight = 0;
+                group.members![index].amountToPay = 0;
+                group.members![index].weight = 0;
               } else {
-                int weight = int.tryParse(value);
+                int? weight = int.tryParse(value);
 
-                group.members[index].weight = weight;
+                group.members![index].weight = weight;
               }
               calculateDivision();
             },
             textAlign: TextAlign.center,
-            initialValue: group.members[index].weight.toString(),
+            initialValue: group.members![index].weight.toString(),
             decoration: InputDecoration(
               isCollapsed: true,
               counterText: '',
@@ -269,11 +269,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ],
             onChanged: (String value) {
               if (value != '') {
-                final double amountToPay = double.tryParse(value);
-                calculateDivisionForAmount(amountToPay, group.members[index]);
+                final double amountToPay = double.tryParse(value)!;
+                calculateDivisionForAmount(amountToPay, group.members![index]);
               } else {}
             },
-            controller: group.members[index].controller,
+            controller: group.members![index].controller,
             textAlign: TextAlign.center,
             decoration: const InputDecoration(
               isCollapsed: true,
@@ -310,11 +310,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
         helperText: 'Ejemplo: almuerzo',
         labelText: 'Descripción',
       ),
-      onSaved: (value) => expense.description = value,
+      onSaved: (value) => expense.description = value!,
       controller: _expenseNameController,
       validator: (value) {
-        if (value.trim().isEmpty) return 'Por favor ingresá una descripción';
-        return null;
+        if (value!.trim().isEmpty) return 'Por favor ingresá una descripción';
       },
     );
   }
@@ -332,7 +331,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
       ],
-      onChanged: (value) {
+      onChanged: (String? value) {
         if (value != null) {
           expense.amount = double.parse(value);
           calculateDivision();
@@ -344,7 +343,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       controller: _expenseAmountController,
       validator: (value) {
-        if (value.trim().isEmpty) return 'Por favor ingresa un número';
+        if (value!.trim().isEmpty) return 'Por favor ingresa un número';
         if (_isNumeric(value.trim()) != false) {
           return null;
         } else {
@@ -369,14 +368,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
       return;
     }
-    if (!formKey.currentState.validate()) {
+    if (!formKey.currentState!.validate()) {
       setState(() {
         _saving = false;
       });
       return;
     }
 
-    formKey.currentState.save();
+    formKey.currentState!.save();
 
     bool resp;
 
@@ -402,7 +401,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     }
   }
 
-  bool _isNumeric(String str) {
+  bool _isNumeric(String? str) {
     if (str == null) {
       return false;
     }
@@ -419,16 +418,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
           // Recorre todos los miembros que tienen que pagar y todo el peso
           // para obtener el peso total
           for (final Member member in payingMembers) {
-            weightTotal += member.weight;
+            weightTotal += member.weight!;
           }
 
           // Si el peso total es distinto de null y 0 realiza el cálculo, sino
           // marca que todos tienen que pagar 0.
-          if (weightTotal != null && weightTotal != 0) {
+          if (weightTotal != 0) {
             // Se obtiene cuanto vale una unidad de peso diviendo la cantidad
             // a gastar por el total del peso
 
-            double debtForWeight = expense.amount / weightTotal;
+            double debtForWeight = expense.amount! / weightTotal;
 
             // Se convierte a double y solo se queda con 2 decimales
             debtForWeight = double.parse(debtForWeight.toStringAsFixed(2));
@@ -436,10 +435,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
             // Se asigna el valor que tienen que pagar a los miembros
             // multiplicando la unidad de peso por el peso que tiene el miembro
             for (final Member member in payingMembers) {
-              member.controller.text =
-                  (debtForWeight * member.weight).toStringAsFixed(2);
+              member.controller!.text =
+                  (debtForWeight * member.weight!).toStringAsFixed(2);
               member.amountToPay = double.parse(
-                  (debtForWeight * member.weight).toStringAsFixed(2));
+                  (debtForWeight * member.weight!).toStringAsFixed(2));
             }
 
             errorNotMatchTotalExpenditure = false;
@@ -451,7 +450,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         } else {
           // Se obtiene cuanto tiene que pagar cada miembro
           // diviendo la cantidad del gasto por la cantidad de miembros
-          double debtForEach = expense.amount / payingMembers.length;
+          double debtForEach = expense.amount! / payingMembers.length;
 
           // Se convierte a double y solo se queda con 2 decimales
           debtForEach = double.parse(debtForEach.toStringAsFixed(2));
@@ -473,11 +472,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
     double totalExpense = 0;
 
     // Obtiene el gasto total sumando lo que tienen que pagar todos los miembros
-    for (final Member member in group.members) {
-      totalExpense += member.amountToPay;
+    for (final Member member in group.members!) {
+      totalExpense += member.amountToPay!;
     }
 
-    if (totalExpense.roundToDouble() != expense.amount.roundToDouble()) {
+    if (totalExpense.roundToDouble() != expense.amount!.roundToDouble()) {
       errorNotMatchTotalExpenditure = true;
     } else {
       errorNotMatchTotalExpenditure = false;

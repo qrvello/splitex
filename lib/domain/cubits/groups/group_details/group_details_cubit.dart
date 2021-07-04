@@ -19,10 +19,10 @@ class GroupDetailsCubit extends Cubit<GroupDetailsState> {
     _groupsRepository.getGroup(_group).listen((Group _group) {
       final List<dynamic> actions = [];
 
-      for (final Expense expense in _group.expenses) {
+      for (final Expense expense in _group.expenses!) {
         actions.add(expense);
       }
-      for (final Transaction transaction in _group.transactions) {
+      for (final Transaction transaction in _group.transactions!) {
         actions.add(transaction);
       }
 

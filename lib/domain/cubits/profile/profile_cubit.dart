@@ -9,13 +9,13 @@ class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit() : super(ProfileInitial());
 
   void init() {
-    final User user = FirebaseAuth.instance.currentUser;
+    final User user = FirebaseAuth.instance.currentUser!;
 
     emit(ProfileLoading());
 
     if (user.displayName == '' || user.displayName == null) {
       final Box userBox = Hive.box('user');
-      final String name = userBox.get('name') as String;
+      final String? name = userBox.get('name') as String?;
 
       if (name != null) {
         emit(ProfileLoadedWithInfo(name));

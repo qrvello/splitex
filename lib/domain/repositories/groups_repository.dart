@@ -6,9 +6,9 @@ abstract class GroupsRepository {
 
   Stream<Group> getGroup(Group group);
 
-  Future<bool> createGroup(Group group);
+  Future<void> createGroup(Group group);
 
-  Future<bool> updateGroup({Group group, Group newGroup});
+  Future<void> updateGroup({required Group group, required Group newGroup});
 
   Future<bool> deleteGroup(Group group);
 

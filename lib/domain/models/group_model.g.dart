@@ -18,11 +18,11 @@ class GroupAdapter extends TypeAdapter<Group> {
     };
     return Group(
       id: fields[1] as dynamic,
-      name: fields[2] as String,
-      timestamp: fields[3] as int,
-      members: (fields[5] as List)?.cast<Member>(),
-      expenses: (fields[6] as List)?.cast<Expense>(),
-      transactions: (fields[7] as List)?.cast<Transaction>(),
+      name: fields[2] as String?,
+      timestamp: fields[3] as int?,
+      members: (fields[5] as List?)?.cast<Member>(),
+      expenses: (fields[6] as List?)?.cast<Expense>(),
+      transactions: (fields[7] as List?)?.cast<Transaction>(),
       totalBalance: fields[4] as num,
     );
   }

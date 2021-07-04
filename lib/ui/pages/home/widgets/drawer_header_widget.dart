@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DrawerHeaderWidget extends StatelessWidget {
-  final User user;
+  final User? user;
 
   const DrawerHeaderWidget(this.user);
 
@@ -12,12 +12,12 @@ class DrawerHeaderWidget extends StatelessWidget {
       children: <Widget>[
         UserAccountsDrawerHeader(
           currentAccountPicture: CircleAvatar(
-            backgroundImage: (user.photoURL != null)
-                ? (NetworkImage(user.photoURL))
-                : AssetImage('assets/blank-profile.jpg'),
+            backgroundImage: ((user!.photoURL != null)
+                ? (NetworkImage(user!.photoURL!))
+                : AssetImage('assets/blank-profile.jpg')) as ImageProvider<Object>?,
           ),
-          accountName: Text(user.displayName),
-          accountEmail: Text(user.email),
+          accountName: Text(user!.displayName!),
+          accountEmail: Text(user!.email!),
         ),
       ],
     );

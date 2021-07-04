@@ -21,8 +21,8 @@ class AuthCubit extends Cubit<AuthState> {
 
   Future<void> init() async {
     if (_firebaseAuth.currentUser != null) {
-      if (_firebaseAuth.currentUser.displayName != null &&
-          _firebaseAuth.currentUser.displayName != '') {
+      if (_firebaseAuth.currentUser!.displayName != null &&
+          _firebaseAuth.currentUser!.displayName != '') {
         emit(AuthLoggedInWithGoogle(_firebaseAuth.currentUser));
       } else {
         emit(AuthLoggedInAnonymously(_firebaseAuth.currentUser));
@@ -41,7 +41,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       await _googleSignIn.signIn();
 
-      final GoogleSignInAccount user = _googleSignIn.currentUser;
+      final GoogleSignInAccount? user = _googleSignIn.currentUser;
 
       if (user == null) {
         emit(AuthError('Error al conectarse con Google'));
@@ -58,7 +58,7 @@ class AuthCubit extends Cubit<AuthState> {
       await FirebaseAuth.instance.signInWithCredential(credential);
 
       await _databaseReference.child('users').update({
-        _firebaseAuth.currentUser.uid: {
+        _firebaseAuth.currentUser!.uid: {
           'name': user.displayName,
           'email': user.email,
         }
@@ -91,7 +91,7 @@ class AuthCubit extends Cubit<AuthState> {
       try {
         await _firebaseAuth.signInAnonymously();
       } catch (e) {
-        emit(AuthError(e.message));
+        emit(AuthError(e.toString()));
       }
     }
 

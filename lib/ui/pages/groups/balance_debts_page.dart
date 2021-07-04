@@ -22,7 +22,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
   @override
   void initState() {
     transactions = RepositoryProvider.of<ExpensesRepository>(context)
-        .balanceDebts(group.members);
+        .balanceDebts(group.members!);
     super.initState();
   }
 
@@ -84,7 +84,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
         begin: Offset(-1, 0),
         end: Offset(0, 0),
       ).animate(CurvedAnimation(
-        parent: animation,
+        parent: animation as Animation<double>,
         curve: Curves.easeInOut,
       )),
       child: Card(
@@ -97,7 +97,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
                 fontWeight: FontWeight.bold),
           ),
           title: Text(
-            '${transaction.memberToPay.id} le tiene que pagar a ${transaction.memberToReceive.id}',
+            '${transaction.memberToPay.name!} le tiene que pagar a ${transaction.memberToReceive.name!}',
           ),
           trailing: IconButton(
             icon: Icon(
@@ -117,7 +117,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
               setState(() {
                 transactions.remove(transaction);
 
-                listKey.currentState.removeItem(
+                listKey.currentState!.removeItem(
                   index,
                   (context, animation) =>
                       _createItem(transaction, index, animation),

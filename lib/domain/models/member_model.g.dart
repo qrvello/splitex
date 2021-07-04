@@ -17,7 +17,7 @@ class MemberAdapter extends TypeAdapter<Member> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Member(
-      id: fields[0] as String,
+      name: fields[0] as String?,
       balance: fields[1] as double,
     );
   }
@@ -27,7 +27,7 @@ class MemberAdapter extends TypeAdapter<Member> {
     writer
       ..writeByte(2)
       ..writeByte(0)
-      ..write(obj.id)
+      ..write(obj.name)
       ..writeByte(1)
       ..write(obj.balance);
   }

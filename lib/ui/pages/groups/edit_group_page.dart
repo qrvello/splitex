@@ -6,12 +6,13 @@ import 'package:splitex/domain/models/group_model.dart';
 import 'package:splitex/domain/models/member_model.dart';
 import 'package:splitex/domain/repositories/groups_repository.dart';
 import 'package:splitex/domain/repositories/groups_repository_offline.dart';
+import 'package:splitex/ui/helpers/snackbar_error.dart';
 
 class EditGroupPage extends StatefulWidget {
   final bool online;
   final Group group;
 
-  EditGroupPage({Key key, this.online, this.group});
+  EditGroupPage({Key? key, required this.online, required this.group});
   @override
   _EditGroupPageState createState() => _EditGroupPageState(group);
 }
@@ -23,7 +24,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
   final Group group;
   TextEditingController _groupNameController = TextEditingController();
 
-  Group newGroup;
+  late Group newGroup;
 
   bool isSwitched = false;
 
@@ -35,7 +36,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
     newGroup = Group(
       name: widget.group.name,
-      members: [...widget.group.members],
+      members: []..addAll(widget.group.members!),
     );
 
     _groupNameController = TextEditingController(text: widget.group.name);
@@ -85,7 +86,10 @@ class _EditGroupPageState extends State<EditGroupPage> {
                   ),
                 ),
               ),
-              MembersList(members: newGroup.members),
+              MembersList(
+                members: newGroup.members!,
+                isOnline: widget.online,
+              ),
               const Divider(height: 1),
             ],
           ),
@@ -104,7 +108,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
           labelText: 'Nombre del grupo',
         ),
         validator: (value) {
-          if (value.trim().length < 1) {
+          if (value!.trim().length < 1) {
             return 'Ingrese el nombre del grupo';
           } else if (value.trim().length > 25) {
             return 'Ingrese un nombre menor a 25 caracteres';
@@ -112,8 +116,9 @@ class _EditGroupPageState extends State<EditGroupPage> {
             return null;
           }
         },
+        initialValue: widget.group.name,
         onSaved: (value) {
-          newGroup.name = value.trim();
+          newGroup.name = value!.trim();
         },
       ),
     );
@@ -138,7 +143,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                 labelText: 'Nombre',
               ),
               validator: (value) {
-                if (value.trim().length < 1) {
+                if (value!.trim().length < 1) {
                   return 'Ingrese el nombre del nuevo miembro';
                 } else if (value.trim().length > 20) {
                   return 'Ingrese un nombre menor a 20 caracteres';
@@ -170,15 +175,14 @@ class _EditGroupPageState extends State<EditGroupPage> {
   }
 
   void _addNewMember(TextEditingController controller) async {
-    formKeyNewMember.currentState.save();
+    formKeyNewMember.currentState!.save();
 
-    if (!formKeyNewMember.currentState.validate()) return;
+    if (!formKeyNewMember.currentState!.validate()) return;
 
     if (widget.online == true) {
       Member member = Member(name: controller.text.trim());
-
       setState(() {
-        newGroup.members.add(member);
+        newGroup.members!.add(member);
       });
 
       Get.back();
@@ -189,27 +193,28 @@ class _EditGroupPageState extends State<EditGroupPage> {
     }
   }
 
-  void _submit(context) async {
-    if (widget.group.name == _groupNameController) return;
+  Future<void> _submit(context) async {
+    if (!formKeyGroupName.currentState!.validate()) return;
 
-    if (!formKeyGroupName.currentState.validate()) return;
+    formKeyGroupName.currentState!.save();
 
-    formKeyGroupName.currentState.save();
-
-    bool resp;
-
-    if (widget.online == true) {
-      resp = await RepositoryProvider.of<GroupsRepository>(context)
-          .updateGroup(group: widget.group, newGroup: group);
-    } else {
-      resp = await RepositoryProvider.of<GroupsRepositoryOffline>(context)
-          .updateGroup(widget.group);
+    if (widget.group == newGroup) {
+      Get.back();
+      return;
     }
 
-    if (resp == true) {
+    try {
+      if (widget.online) {
+        await RepositoryProvider.of<GroupsRepository>(context)
+            .updateGroup(group: widget.group, newGroup: newGroup);
+      } else {
+        await RepositoryProvider.of<GroupsRepositoryOffline>(context)
+            .updateGroup(group: widget.group, newGroup: newGroup);
+      }
+      Get.back();
       snackbarSuccess();
-    } else {
-      snackbarError();
+    } catch (e) {
+      snackbarError(message: 'Error al editar el grupo: ${e.toString()}');
     }
   }
 
@@ -227,23 +232,24 @@ class _EditGroupPageState extends State<EditGroupPage> {
     );
   }
 
-  void snackbarError() {
-    return Get.snackbar(
-      'Error',
-      'Error al editar el grupo',
-      icon: Icon(
-        Icons.error_outline_rounded,
-        color: Color(0xffee6c4d),
-      ),
-      snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
-    );
-  }
+  //void snackbarError({required String message}) {
+  //  return Get.snackbar(
+  //    'Error',
+  //    'Error al editar el grupo: $message',
+  //    icon: Icon(
+  //      Icons.error_outline_rounded,
+  //      color: Color(0xffee6c4d),
+  //    ),
+  //    snackPosition: SnackPosition.BOTTOM,
+  //    margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+  //    backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+  //  );
+  //}
 }
 
 class MembersList extends StatefulWidget {
-  const MembersList({Key key, this.members, this.isOnline}) : super(key: key);
+  const MembersList({Key? key, required this.members, required this.isOnline})
+      : super(key: key);
   final bool isOnline;
   final List<Member> members;
 
@@ -265,7 +271,7 @@ class _MembersListState extends State<MembersList> {
           widget.members[i].controller =
               TextEditingController(text: widget.members[i].name);
           return ListTile(
-            title: Text(widget.members[i].name),
+            title: Text(widget.members[i].name!),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -279,7 +285,7 @@ class _MembersListState extends State<MembersList> {
                     }),
                 IconButton(
                   icon: Icon(Icons.edit_rounded),
-                  onPressed: () {
+                  onPressed: () async {
                     return showDialog(
                       context: context,
                       builder: (context) {
@@ -296,7 +302,9 @@ class _MembersListState extends State<MembersList> {
                               labelText: 'Nombre',
                             ),
                             validator: (value) {
-                              if (value.trim().length < 1) {
+                              if (value == null)
+                                return 'El nombre no puede estar vacío';
+                              if (value.trim().isEmpty) {
                                 return 'El nombre no puede estar vacío';
                               } else if (value.trim().length > 20) {
                                 return 'Ingrese un nombre menor a 20 caracteres';
@@ -317,8 +325,8 @@ class _MembersListState extends State<MembersList> {
                               ),
                               child: Text('Cancelar'),
                               onPressed: () {
-                                widget.members[i].controller.text =
-                                    widget.members[i].name;
+                                widget.members[i].controller!.text =
+                                    widget.members[i].name!;
                                 Navigator.pop(context);
                               },
                             ),
@@ -326,8 +334,12 @@ class _MembersListState extends State<MembersList> {
                               child: Text('Guardar'),
                               onPressed: () {
                                 setState(() {
-                                  widget.members[i].name =
-                                      widget.members[i].controller.text.trim();
+                                  widget.members[i] = Member(
+                                    name: widget.members[i].controller!.text
+                                        .trim(),
+                                    id: widget.members[i].id,
+                                    balance: widget.members[i].balance,
+                                  );
                                 });
                                 Navigator.pop(context);
                               },

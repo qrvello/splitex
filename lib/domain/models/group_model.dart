@@ -8,6 +8,7 @@ import 'package:equatable/equatable.dart';
 part 'group_model.g.dart';
 
 @HiveType(typeId: 0)
+// ignore: must_be_immutable
 class Group extends Equatable {
   Group({
     this.id,
@@ -18,7 +19,7 @@ class Group extends Equatable {
     this.members,
     this.expenses,
     this.transactions,
-    this.totalBalance,
+    this.totalBalance = 0,
     this.link,
     this.users,
   });
@@ -27,27 +28,27 @@ class Group extends Equatable {
   dynamic id;
 
   @HiveField(2)
-  String name;
+  String? name;
 
   @HiveField(3)
-  int timestamp;
+  int? timestamp;
 
   @HiveField(4)
   num totalBalance;
 
   @HiveField(5)
-  List<Member> members;
+  List<Member>? members;
 
   @HiveField(6)
-  List<Expense> expenses;
+  List<Expense>? expenses;
 
   @HiveField(7)
-  List<Transaction> transactions;
+  List<Transaction>? transactions;
 
-  String newName;
-  String link;
-  String adminUser;
-  Map<dynamic, dynamic> users;
+  String? newName;
+  String? link;
+  String? adminUser;
+  Map<dynamic, dynamic>? users;
 
   factory Group.fromMap(Map<dynamic, dynamic> map, key) {
     final List<Member> members = [];
@@ -83,15 +84,15 @@ class Group extends Equatable {
 
     return Group(
       id: key,
-      name: map["name"] as String,
-      adminUser: map["admin_user"] as String,
-      timestamp: map["timestamp"] as int,
+      name: map["name"] as String?,
+      adminUser: map["admin_user"] as String?,
+      timestamp: map["timestamp"] as int?,
       members: members,
       expenses: expenses,
       transactions: transactions,
-      users: map["users"] as Map<dynamic, dynamic>,
-      totalBalance: map["total_balance"] as num,
-      link: map['link'] as String,
+      users: map["users"] as Map<dynamic, dynamic>?,
+      totalBalance: map["total_balance"] ?? 0,
+      link: map['link'] as String?,
     );
   }
 
@@ -108,17 +109,8 @@ class Group extends Equatable {
       };
 
   @override
-  List<Object> get props => [
-        id,
+  List<Object?> get props => [
         name,
-        newName,
-        adminUser,
-        timestamp,
         members,
-        expenses,
-        transactions,
-        totalBalance,
-        link,
-        users,
       ];
 }

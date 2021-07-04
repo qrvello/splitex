@@ -21,20 +21,20 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
     final DatabaseReference newChildExpenseReference =
         groupReference.child('expenses').push();
 
-    final List<Member> members = group.members;
+    final List<Member> members = group.members!;
 
     Map<String, dynamic> updateObj = {};
     expense.distributedBetween = {};
 
     members.forEach((member) {
-      double toPay = 0;
+      double? toPay = 0;
 
       // Si el miembro que se recorre actualmente es el que pagó el gasto
       // se suma el balance del miembro previo más lo que cuesta este gasto
       // menos lo que le corresponde pagar a este miembro.
 
       if (member.id == expense.paidBy) {
-        toPay = -(expense.amount - member.amountToPay);
+        toPay = -(expense.amount! - member.amountToPay!);
       } else if (member.amountToPay != null) {
         toPay = member.amountToPay;
       }
@@ -43,10 +43,11 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
       // no se coloca en el update object.
 
       if (toPay != 0) {
-        expense.distributedBetween[member.id] = toPay;
+        expense.distributedBetween![member.id] = toPay;
 
         updateObj['${groupReference.path}/members/${member.id}/'] = {
-          "balance": member.balance - toPay
+          "balance": member.balance - toPay!,
+          "name": member.name
         };
       }
     });
@@ -55,13 +56,12 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
     // solo una petición a la base de datos.
 
     updateObj['${groupReference.path}/total_balance'] =
-        group.totalBalance + expense.amount;
+        group.totalBalance + expense.amount!;
 
     updateObj[newChildExpenseReference.path] = expense.toMap();
 
     try {
       await databaseReference.update(updateObj);
-      print('hola');
       return true;
     } catch (e) {
       print('Error al agregar gasto: ' + e.toString());
@@ -77,9 +77,11 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
     // Crea una nueva lista de miembros y copia la lista original para no modificar la original.
 
     for (Member member in members) {
-      Member member2 = Member();
-      member2.id = member.id;
-      member2.balance = member.balance;
+      Member member2 = Member(
+        id: member.id,
+        balance: member.balance,
+        name: member.name,
+      );
       members2.add(member2);
     }
 
@@ -140,10 +142,10 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
     String newTransactionChildPath =
         groupReference.child('transactions').push().path;
 
-    Member memberToPay = group.members
+    Member memberToPay = group.members!
         .firstWhere((member) => member.id == transaction.memberToPay.id);
 
-    Member memberToReceive = group.members
+    Member memberToReceive = group.members!
         .firstWhere((member) => member.id == transaction.memberToReceive.id);
 
     memberToPay.balance += transaction.amountToPay;
@@ -155,17 +157,18 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
           memberToReceive.balance,
       newTransactionChildPath: transaction.toMap(),
     };
-
-    await databaseReference.update(updateObj).catchError((onError) {
-      print('Error al chequear transacción: ${onError.message}');
-      return false;
-    });
-
-    return true;
+    try {
+      await databaseReference.update(updateObj);
+      return true;
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
   }
 
   @override
   Future<bool> deleteExpense(Expense expense) async {
     if (await Utils.checkConnection() == false) return false;
+    return true;
   }
 }

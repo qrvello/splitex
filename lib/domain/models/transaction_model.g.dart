@@ -17,11 +17,11 @@ class TransactionAdapter extends TypeAdapter<Transaction> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Transaction(
-      id: fields[0] as String,
+      id: fields[0] as String?,
       memberToPay: fields[1] as Member,
       memberToReceive: fields[2] as Member,
       amountToPay: fields[3] as double,
-      timestamp: fields[4] as int,
+      timestamp: fields[4] as int?,
     );
   }
 
