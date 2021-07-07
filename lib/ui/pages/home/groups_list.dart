@@ -40,14 +40,14 @@ class _GroupsListState extends State<GroupsList> {
       builder: (BuildContext context, Box<Group> box, widget) {
         online = false;
 
-        List<Group> groups = box.values.toList();
+        final List<Group> groups = box.values.toList();
 
         groups.sort((a, b) => b.timestamp!.compareTo(a.timestamp!));
 
-        if (groups.length > 0) {
+        if (groups.isNotEmpty) {
           return _groupsListsLoaded(context, groups);
         } else {
-          return MessageNonGroups();
+          return const MessageNonGroups();
         }
       },
     );
@@ -85,7 +85,7 @@ class _GroupsListState extends State<GroupsList> {
 
   Widget _groupsListCubitBuilder(BuildContext context, state) {
     if (state is GroupListError) {
-      return ErrorLoadingGroups();
+      return const ErrorLoadingGroups();
     }
 
     if (state is GroupListLoading) {
@@ -96,7 +96,7 @@ class _GroupsListState extends State<GroupsList> {
       return _groupsListsLoaded(context, state.groups);
     }
 
-    return MessageNonGroups();
+    return const MessageNonGroups();
   }
 
   Widget _groupsListsLoaded(BuildContext context, List<Group> groups) {
@@ -110,7 +110,7 @@ class _GroupsListState extends State<GroupsList> {
   }
 
   Center buildLoading() {
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(),
     );
   }
@@ -120,7 +120,7 @@ class _GroupsListState extends State<GroupsList> {
       children: [
         ListTile(
           trailing: IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             color: (context.isDarkMode) ? Colors.white : Colors.black,
             onPressed: () => showDialog(
               context: context,
@@ -136,8 +136,8 @@ class _GroupsListState extends State<GroupsList> {
             },
           ),
         ),
-        Divider(
-          height: 0,
+        const Divider(
+          height: 1,
         ),
       ],
     );
@@ -145,17 +145,17 @@ class _GroupsListState extends State<GroupsList> {
 
   Widget _confirmDeleteDialog(BuildContext context, Group group) {
     return AlertDialog(
-      title: Text('Confirmar eliminación'),
+      title: const Text('Confirmar eliminación'),
       content: Text(
           '¿Seguro/a deseas borrar el grupo ${group.name}? Una vez eliminado no se podrá recuperar la información'),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text('Cancelar'),
+          child: const Text('Cancelar'),
         ),
         TextButton(
           onPressed: () => _deleteGroup(context, group),
-          child: Text(
+          child: const Text(
             'Confirmar',
             style: TextStyle(color: Color(0xffe76f51)),
           ),
@@ -166,7 +166,8 @@ class _GroupsListState extends State<GroupsList> {
 
   Future<dynamic> _deleteGroup(BuildContext context, Group group) async {
     if (online == true) {
-      bool result = await context.read<GroupsRepository>().deleteGroup(group);
+      final bool result =
+          await context.read<GroupsRepository>().deleteGroup(group);
 
       if (result == true) {
         Navigator.of(context).pop(true);
@@ -191,13 +192,13 @@ class _GroupsListState extends State<GroupsList> {
     Get.snackbar(
       'Acción exitosa',
       'Grupo borrado satisfactoriamente',
-      icon: Icon(
+      icon: const Icon(
         Icons.check_circle_outline_rounded,
         color: Color(0xff25C0B7),
       ),
       //isDismissible: true,
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
     );
   }
@@ -206,13 +207,13 @@ class _GroupsListState extends State<GroupsList> {
     Get.snackbar(
       'Error',
       'Error al borrar el grupo',
-      icon: Icon(
+      icon: const Icon(
         Icons.error_outline_rounded,
         color: Color(0xffee6c4d),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: const Color(0xffee6c4d).withOpacity(0.1),
     );
   }
 }
@@ -224,7 +225,7 @@ class ErrorLoadingGroups extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Text('Ha ocurrido un error al cargar tus grupos.'),
     );
   }
@@ -239,12 +240,12 @@ class MessageNonGroups extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Theme.of(context).primaryColor,
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
+        child: const Text(
           'No participás de ningún grupo',
           style: TextStyle(color: Colors.white),
         ),

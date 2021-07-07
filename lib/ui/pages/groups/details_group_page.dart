@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -21,8 +20,8 @@ class DetailsGroupPage extends StatefulWidget {
 }
 
 class _DetailsGroupPageState extends State<DetailsGroupPage> {
-  final bool online = Get.arguments['online'];
-  Group group = Get.arguments['group'];
+  final bool online = Get.arguments['online'] as bool;
+  Group group = Get.arguments['group'] as Group;
 
   @override
   Widget build(BuildContext context) {
@@ -38,28 +37,32 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         builder: (BuildContext context, Box<Group> box, widget) {
           group = box.get(group.id)!;
 
-          List<dynamic> actions = [];
+          final List<dynamic> actions = [];
 
           if (group.expenses != null) {
-            for (Expense expense in group.expenses!) {
+            for (final Expense expense in group.expenses!) {
               actions.add(expense);
             }
           }
 
           if (group.transactions != null) {
-            for (Transaction transaction in group.transactions!) {
+            for (final Transaction transaction in group.transactions!) {
               actions.add(transaction);
             }
           }
 
-          actions.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          actions.sort((a, b) => b.timestamp.compareTo(a.timestamp) as int);
 
           return Stack(
             children: [
               DefaultTabController(
                 length: 2,
                 child: Scaffold(
-                  floatingActionButton: buildSpeedDial(context),
+                  floatingActionButton: FloatingActionButton(
+                    onPressed: () => Get.to(() => AddExpensePage(),
+                        arguments: {'group': group, 'online': online}),
+                    child: const Icon(Icons.add),
+                  ),
                   extendBodyBehindAppBar: true,
                   appBar: buildAppBar(context),
                   body: TabBarView(
@@ -92,7 +95,11 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
           DefaultTabController(
             length: 2,
             child: Scaffold(
-              floatingActionButton: buildSpeedDial(context),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () => Get.to(() => AddExpensePage(),
+                    arguments: {'group': group, 'online': online}),
+                child: const Icon(Icons.add),
+              ),
               extendBodyBehindAppBar: true,
               appBar: buildAppBar(context),
               body: (state is GroupDetailsLoaded)
@@ -108,7 +115,7 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
                         ),
                       ],
                     )
-                  : Center(
+                  : const Center(
                       child: CircularProgressIndicator(),
                     ),
             ),
@@ -118,44 +125,44 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
 
   AppBar buildAppBar(BuildContext context) => AppBar(
         actions: [
-          online
-              ? IconButton(
-                  icon: Icon(Icons.settings_rounded),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => BlocProvider.value(
-                          value: BlocProvider.of<GroupDetailsCubit>(context),
-                          child: EditGroupPage(
-                            group: group,
-                            online: true,
-                          ),
-                        ),
+          if (online)
+            IconButton(
+              icon: const Icon(Icons.settings_rounded),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider.value(
+                      value: BlocProvider.of<GroupDetailsCubit>(context),
+                      child: EditGroupPage(
+                        group: group,
+                        online: true,
                       ),
-                    );
-                  },
-                )
-              : IconButton(
-                  icon: Icon(Icons.settings_rounded),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => EditGroupPage(
-                          group: group,
-                          online: false,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                );
+              },
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.settings_rounded),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EditGroupPage(
+                      group: group,
+                      online: false,
+                    ),
+                  ),
+                );
+              },
+            ),
         ],
         elevation: 0,
         title: Text(
           group.name!,
           style: Theme.of(context).textTheme.headline5,
         ),
-        bottom: TabBar(
-          isScrollable: false,
+        bottom: const TabBar(
           tabs: [
             Tab(
               child: Text('Resumen'),
@@ -167,45 +174,16 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
         ),
       );
 
-  SpeedDial buildSpeedDial(BuildContext context) => SpeedDial(
-        backgroundColor: Color(0xff0076FF).withOpacity(0.87),
-        overlayColor: Theme.of(context).scaffoldBackgroundColor,
-        icon: Icons.add_rounded,
-        visible: true,
-        children: [
-          SpeedDialChild(
-              child: Icon(Icons.shopping_bag_rounded),
-              backgroundColor: Theme.of(context).accentColor,
-              labelWidget: Text(
-                'Agregar gasto',
-                style: TextStyle(fontSize: 18),
-              ),
-              onTap: () {
-                Get.to(() => AddExpensePage(),
-                    arguments: {'group': group, 'online': online});
-              }),
-          SpeedDialChild(
-            child: Icon(Icons.person_add_rounded),
-            backgroundColor: Theme.of(context).accentColor,
-            labelWidget: Text(
-              'Nueva persona',
-              style: TextStyle(fontSize: 18),
-            ),
-            onTap: () => {},
-          ),
-        ],
-      );
-
   void snackbarSuccess() {
     Get.snackbar(
       'Acción exitosa',
       'Miembro agregado satisfactoriamente',
-      icon: Icon(
+      icon: const Icon(
         Icons.check_circle_outline_rounded,
         color: Color(0xff25C0B7),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
     );
   }
@@ -214,13 +192,13 @@ class _DetailsGroupPageState extends State<DetailsGroupPage> {
     Get.snackbar(
       'Error',
       'Error al agregar miembro al grupo',
-      icon: Icon(
+      icon: const Icon(
         Icons.error_outline_rounded,
         color: Color(0xffee6c4d),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: const Color(0xffee6c4d).withOpacity(0.1),
     );
   }
 }

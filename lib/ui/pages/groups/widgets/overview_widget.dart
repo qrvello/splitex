@@ -9,13 +9,11 @@ import 'package:splitex/domain/repositories/groups_repository.dart';
 import 'package:splitex/domain/repositories/groups_repository_offline.dart';
 import 'package:splitex/ui/pages/groups/balance_debts_page.dart';
 
-import 'package:share/share.dart';
-
 class OverviewWidget extends StatefulWidget {
   final Group group;
   final bool online;
 
-  OverviewWidget({required this.group, required this.online});
+  const OverviewWidget({required this.group, required this.online});
 
   @override
   _OverviewWidgetState createState() => _OverviewWidgetState();
@@ -26,7 +24,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
 
     return CustomScrollView(
       slivers: <Widget>[
@@ -35,56 +33,25 @@ class _OverviewWidgetState extends State<OverviewWidget> {
           floating: true,
           centerTitle: true,
           automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              if (widget.online)
-                SizedBox(
-                  width: size.width * 0.45,
-                  child: ElevatedButton(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Invitar a miembros',
-                          style: TextStyle(fontSize: 10),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(
-                          Icons.share_rounded,
-                          size: 14,
-                        ),
-                      ],
-                    ),
-                    onPressed: () async => await Share.share(
-                        'Unite a mi grupo de splitex: ${widget.group.link}'),
-                  ),
+          title: ElevatedButton(
+            onPressed: () => Get.to(
+              () => BalanceDebtsPage(),
+              arguments: {
+                'group': widget.group,
+                'online': widget.online,
+              },
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text('Balancear cuentas'),
+                SizedBox(width: 8),
+                Icon(
+                  FontAwesomeIcons.balanceScale,
+                  size: 16,
                 ),
-              if (widget.online) SizedBox(width: 5),
-              Container(
-                width: size.width * 0.45,
-                child: ElevatedButton(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Balancear cuentas'),
-                      const SizedBox(width: 6),
-                      const Icon(
-                        FontAwesomeIcons.balanceScale,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                  onPressed: () => Get.to(
-                    () => BalanceDebtsPage(),
-                    arguments: {
-                      'group': widget.group,
-                      'online': widget.online,
-                    },
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         if (widget.group.members != null)
@@ -105,9 +72,8 @@ class _OverviewWidgetState extends State<OverviewWidget> {
     // Si el usuario actual no es el admin entonces no se le permite borrar miembros
     return AbsorbPointer(
       absorbing: (user!.uid == widget.group.adminUser ||
-              widget.group.adminUser == null)
-          ? false
-          : true,
+              widget.group.adminUser == null) ||
+          false,
       child: Dismissible(
         // Al deslizar muestra un cuadro de diálogo pidiendo confirmación
         confirmDismiss: (direction) => showDialog(
@@ -115,18 +81,18 @@ class _OverviewWidgetState extends State<OverviewWidget> {
           builder: (context) => _confirmDeleteDialog(context, member),
         ),
         onDismissed: (_) {
-          if (this.mounted) setState(() {});
+          if (mounted) setState(() {});
           //widget.group.members.remove(member);
         },
         key: UniqueKey(),
         background: Container(
-          margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
-            color: Color(0xffE29578),
+            color: const Color(0xffE29578),
           ),
           alignment: AlignmentDirectional.centerEnd,
-          child: Padding(
+          child: const Padding(
             padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
             child: Icon(
               Icons.delete,
@@ -144,8 +110,8 @@ class _OverviewWidgetState extends State<OverviewWidget> {
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: (member.balance >= 0)
-                    ? Color(0xff25C0B7)
-                    : Color(0xffF4a74d),
+                    ? const Color(0xff25C0B7)
+                    : const Color(0xffF4a74d),
               ),
             ),
           ),
@@ -154,14 +120,14 @@ class _OverviewWidgetState extends State<OverviewWidget> {
     );
   }
 
-  Widget _confirmDeleteDialog(BuildContext context, member) {
+  Widget _confirmDeleteDialog(BuildContext context, Member member) {
     return AlertDialog(
-      title: Text('Confirmar eliminación'),
+      title: const Text('Confirmar eliminación'),
       content: Text('¿Seguro/a deseas borrar del grupo a ${member.name}?'),
       actions: <Widget>[
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(
+          child: const Text(
             'Cancelar',
             style: TextStyle(
               color: Color(0xffe76f51),
@@ -170,7 +136,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
         ),
         TextButton(
           onPressed: () => _removeMember(context, member),
-          child: Text(
+          child: const Text(
             'Confirmar',
           ),
         ),
@@ -178,7 +144,7 @@ class _OverviewWidgetState extends State<OverviewWidget> {
     );
   }
 
-  void _removeMember(BuildContext context, Member member) async {
+  Future<void> _removeMember(BuildContext context, Member member) async {
     if (widget.online == true) {
       Navigator.of(context).pop(true);
 

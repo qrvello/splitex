@@ -23,10 +23,10 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
 
     final List<Member> members = group.members!;
 
-    Map<String, dynamic> updateObj = {};
+    final Map<String, dynamic> updateObj = {};
     expense.distributedBetween = {};
 
-    members.forEach((member) {
+    for (final Member member in members) {
       double? toPay = 0;
 
       // Si el miembro que se recorre actualmente es el que pagó el gasto
@@ -50,13 +50,13 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
           "name": member.name
         };
       }
-    });
+    }
 
     // Se crea el update object, un objeto que tiene los paths y los datos a colocar para realizar
     // solo una petición a la base de datos.
 
     updateObj['${groupReference.path}/total_balance'] =
-        group.totalBalance + expense.amount!;
+        group.totalBalance! + expense.amount!;
 
     updateObj[newChildExpenseReference.path] = expense.toMap();
 
@@ -64,20 +64,20 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
       await databaseReference.update(updateObj);
       return true;
     } catch (e) {
-      print('Error al agregar gasto: ' + e.toString());
+      print('Error al agregar gasto: ${e.toString()}');
       return false;
     }
   }
 
   @override
   List<Transaction> balanceDebts(List<Member> members) {
-    List<Transaction> transactions = [];
-    List<Member> members2 = [];
+    final List<Transaction> transactions = [];
+    final List<Member> members2 = [];
 
     // Crea una nueva lista de miembros y copia la lista original para no modificar la original.
 
-    for (Member member in members) {
-      Member member2 = Member(
+    for (final Member member in members) {
+      final Member member2 = Member(
         id: member.id,
         balance: member.balance,
         name: member.name,
@@ -85,21 +85,21 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
       members2.add(member2);
     }
 
-    Iterable<Member> membersWithDebt =
+    final Iterable<Member> membersWithDebt =
         members2.where((member) => member.balance < 0);
 
-    Iterable<Member> membersWithPositiveBalance =
+    final Iterable<Member> membersWithPositiveBalance =
         members2.where((member) => member.balance > 0);
 
-    for (Member member1 in membersWithDebt) {
-      for (Member member2 in membersWithPositiveBalance) {
+    for (final Member member1 in membersWithDebt) {
+      for (final Member member2 in membersWithPositiveBalance) {
         if (member1.balance.abs() <= member2.balance) {
-          double toPay = member1.balance.abs();
+          final double toPay = member1.balance.abs();
 
           member1.balance += toPay;
           member2.balance -= toPay;
 
-          Transaction transaction = Transaction(
+          final Transaction transaction = Transaction(
             amountToPay: toPay,
             memberToPay: member1,
             memberToReceive: member2,
@@ -111,12 +111,12 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
         }
 
         if (member1.balance.abs() > member2.balance) {
-          double toPay = member2.balance;
+          final double toPay = member2.balance;
 
           member1.balance += toPay;
           member2.balance -= toPay;
 
-          Transaction transaction = Transaction(
+          final Transaction transaction = Transaction(
             amountToPay: toPay,
             memberToPay: member1,
             memberToReceive: member2,
@@ -134,29 +134,31 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
   Future<bool> checkTransaction(Group group, Transaction transaction) async {
     if (await Utils.checkConnection() == false) return false;
 
-    DatabaseReference groupReference =
+    final DatabaseReference groupReference =
         databaseReference.child('/groups/${group.id}');
 
-    String groupMembersPath = groupReference.child('/members').path;
+    final String groupMembersPath = groupReference.child('members').path;
 
-    String newTransactionChildPath =
+    final String newTransactionChildPath =
         groupReference.child('transactions').push().path;
 
-    Member memberToPay = group.members!
+    final Member memberToPay = group.members!
         .firstWhere((member) => member.id == transaction.memberToPay.id);
 
-    Member memberToReceive = group.members!
+    final Member memberToReceive = group.members!
         .firstWhere((member) => member.id == transaction.memberToReceive.id);
 
     memberToPay.balance += transaction.amountToPay;
     memberToReceive.balance -= transaction.amountToPay;
 
-    Map<String, dynamic> updateObj = {
+    final Map<String, dynamic> updateObj = {
       '$groupMembersPath/${memberToPay.id}/balance': memberToPay.balance,
       '$groupMembersPath/${memberToReceive.id}/balance':
           memberToReceive.balance,
       newTransactionChildPath: transaction.toMap(),
     };
+
+    print(updateObj);
     try {
       await databaseReference.update(updateObj);
       return true;

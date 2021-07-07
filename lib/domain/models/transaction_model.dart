@@ -32,11 +32,11 @@ class Transaction {
 
   factory Transaction.fromMap(Map<dynamic, dynamic> map, id) {
     return Transaction(
-      id: id,
-      memberToPay: Member(id: map["member_to_pay"]),
-      memberToReceive: map["member_to_receive"],
-      amountToPay: map["amount_to_pay"].toDouble(),
-      timestamp: map["timestamp"],
+      id: id as String,
+      memberToPay: Member(id: map["member_to_pay"] as String),
+      memberToReceive: Member(id: map["member_to_receive"] as String),
+      amountToPay: map["amount_to_pay"].toDouble() as double,
+      timestamp: map["timestamp"] as int,
     );
   }
 

@@ -24,9 +24,9 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
 
     final Group group = Group(
       name: _group.name,
-      members: [],
-      transactions: [],
-      expenses: [],
+      members: const [],
+      transactions: const [],
+      expenses: const [],
       totalBalance: 0.00,
       timestamp: DateTime.now().millisecondsSinceEpoch,
     );
@@ -64,7 +64,7 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
 
   @override
   Future<bool> addPersonToGroup(String name, Group? group) async {
-    final Member member = Member(id: name, balance: 0);
+    final Member member = Member(id: name);
 
     group!.members!.add(member);
 

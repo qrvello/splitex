@@ -15,8 +15,8 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final Group group = Get.arguments['group'];
-  final bool online = Get.arguments['online'];
+  final Group group = Get.arguments['group'] as Group;
+  final bool online = Get.arguments['online'] as bool;
   final TextEditingController _expenseNameController = TextEditingController();
 
   final TextEditingController _expenseAmountController =
@@ -153,7 +153,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           dropdownValue = newValue;
         });
       },
-      onSaved: (value) => expense.paidBy = value!,
+      onSaved: (value) => expense.paidBy = value,
       items: items,
       validator: (value) {
         if (value == '') {
@@ -228,7 +228,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 group.members![index].amountToPay = 0;
                 group.members![index].weight = 0;
               } else {
-                int? weight = int.tryParse(value);
+                final int? weight = int.tryParse(value);
 
                 group.members![index].weight = weight;
               }
@@ -236,7 +236,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             },
             textAlign: TextAlign.center,
             initialValue: group.members![index].weight.toString(),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               isCollapsed: true,
               counterText: '',
               contentPadding: EdgeInsets.all(4),
@@ -310,7 +310,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         helperText: 'Ejemplo: almuerzo',
         labelText: 'Descripción',
       ),
-      onSaved: (value) => expense.description = value!,
+      onSaved: (value) => expense.description = value,
       controller: _expenseNameController,
       validator: (value) {
         if (value!.trim().isEmpty) return 'Por favor ingresá una descripción';
