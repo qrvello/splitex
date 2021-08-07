@@ -4,14 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 final ThemeData darkTheme = ThemeData(
   brightness: Brightness.dark,
   textTheme: GoogleFonts.montserratTextTheme().apply(
-    bodyColor: Colors.white.withOpacity(0.87),
-    displayColor: Colors.white.withOpacity(0.87),
+    bodyColor: Colors.white,
+    displayColor: Colors.white,
   ),
-  snackBarTheme: SnackBarThemeData(
-    backgroundColor: const Color(0xff0076ff),
+  snackBarTheme: const SnackBarThemeData(
+    backgroundColor: Color(0xff0076ff),
     behavior: SnackBarBehavior.fixed,
-    contentTextStyle: TextStyle(color: Colors.white.withOpacity(0.87)),
-    actionTextColor: Colors.white.withOpacity(0.87),
+    contentTextStyle: TextStyle(color: Colors.white),
+    actionTextColor: Colors.white,
   ),
   appBarTheme: AppBarTheme(
     shadowColor: Colors.transparent,
@@ -21,8 +21,8 @@ final ThemeData darkTheme = ThemeData(
         headline6: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
       ),
     ).apply(
-      bodyColor: Colors.white.withOpacity(0.87),
-      displayColor: Colors.white.withOpacity(0.87),
+      bodyColor: Colors.white,
+      displayColor: Colors.white,
     ),
     centerTitle: true,
   ),
@@ -39,25 +39,25 @@ final ThemeData darkTheme = ThemeData(
       const TextSelectionThemeData(cursorColor: Color(0xff0076ff)),
   inputDecorationTheme: InputDecorationTheme(
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16.0),
+      borderRadius: BorderRadius.circular(18.0),
       borderSide: const BorderSide(
         color: Color(0xff0076ff),
         width: 2,
       ),
     ),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16.0),
-      borderSide: BorderSide(
-        color: Colors.white.withOpacity(0.87),
+      borderRadius: BorderRadius.circular(18.0),
+      borderSide: const BorderSide(
+        color: Colors.white,
       ),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16.0),
-      borderSide: BorderSide(
-        color: Colors.white.withOpacity(0.87),
+      borderRadius: BorderRadius.circular(18.0),
+      borderSide: const BorderSide(
+        color: Colors.white,
       ),
     ),
-    labelStyle: TextStyle(color: Colors.white.withOpacity(0.87)),
+    labelStyle: const TextStyle(color: Colors.white),
     contentPadding: const EdgeInsets.symmetric(horizontal: 12),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
@@ -77,7 +77,7 @@ final ThemeData darkTheme = ThemeData(
   dialogTheme: const DialogTheme(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.all(
-        Radius.circular(12.0),
+        Radius.circular(18.0),
       ),
     ),
     backgroundColor: Color(0xff212529),

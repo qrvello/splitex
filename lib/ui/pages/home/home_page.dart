@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:splitex/domain/models/group_model.dart';
 import 'package:splitex/domain/repositories/groups_repository.dart';
 import 'package:splitex/domain/repositories/groups_repository_offline.dart';
@@ -19,9 +20,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<FormState> formKeyCreateGroup = GlobalKey<FormState>();
 
+  final BannerAd myBanner = BannerAd(
+    adUnitId: 'ca-app-pub-1642350664833085/2292297594',
+    size: AdSize.banner,
+    request: const AdRequest(),
+    listener: const BannerAdListener(),
+  );
+
   @override
   void initState() {
     super.initState();
+
+    myBanner.load();
 
     initDynamicLinks();
   }
@@ -38,12 +48,12 @@ class _HomePageState extends State<HomePage> {
               .read<GroupsRepository>()
               .acceptInvitationGroup(groupId);
 
-          Get.to(
-            () => DetailsGroupPage(),
-            arguments: {
-              'group': group,
-              'online': true,
-            },
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  DetailsGroupPage(group: group, online: true),
+            ),
           );
         } catch (e) {
           print(e.toString());
@@ -68,12 +78,11 @@ class _HomePageState extends State<HomePage> {
             .read<GroupsRepository>()
             .acceptInvitationGroup(groupId);
 
-        Get.to(
-          () => DetailsGroupPage(),
-          arguments: {
-            'group': group,
-            'online': true,
-          },
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsGroupPage(group: group, online: true),
+          ),
         );
       } catch (e) {
         snackbarError('Error', 'Error al unirse al grupo');
@@ -114,6 +123,17 @@ class _HomePageState extends State<HomePage> {
         ),
         body: GroupsList(),
         drawer: SideMenu(),
+        bottomSheet: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          alignment: Alignment.bottomCenter,
+          height: 50,
+          width: double.infinity,
+          child: SizedBox(
+            height: 50,
+            width: 320,
+            child: AdWidget(ad: myBanner),
+          ),
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: buildSpeedDial(context),
       ),
@@ -123,24 +143,26 @@ class _HomePageState extends State<HomePage> {
   SpeedDial buildSpeedDial(BuildContext context) {
     return SpeedDial(
       marginEnd: 32,
-      backgroundColor: const Color(0xff0076FF).withOpacity(0.87),
+      backgroundColor: const Color(0xff0076FF),
       overlayColor: Theme.of(context).scaffoldBackgroundColor,
+      iconTheme: const IconThemeData(color: Colors.white),
       icon: Icons.add_rounded,
       children: [
         SpeedDialChild(
-          child: const Icon(Icons.cloud_rounded),
+          child: const Icon(Icons.cloud_rounded, color: Colors.white),
           backgroundColor: Theme.of(context).accentColor,
           labelWidget: const Text(
-            'Crear un grupo con conexión',
+            'Crear grupo online',
+            maxLines: 2,
             style: TextStyle(fontSize: 18),
           ),
           onTap: () => dialogCreateGroup(context, online: true),
         ),
         SpeedDialChild(
-          child: const Icon(Icons.cloud_off_rounded),
+          child: const Icon(Icons.cloud_off_rounded, color: Colors.white),
           backgroundColor: Theme.of(context).accentColor,
           labelWidget: const Text(
-            'Crear un grupo sin conexión',
+            'Crear grupo offline',
             style: TextStyle(fontSize: 18),
           ),
           onTap: () => dialogCreateGroup(context, online: false),
@@ -167,6 +189,7 @@ class _HomePageState extends State<HomePage> {
               decoration: const InputDecoration(
                 errorMaxLines: 3,
                 labelText: 'Nombre del grupo',
+                counterText: '',
               ),
               validator: (value) {
                 if (value == null) {

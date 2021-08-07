@@ -10,31 +10,32 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
   final DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference();
 
-  final Box<Group?> _groupsBox = Hive.box<Group?>('groups');
+  final Box<Group> _groupsBox = Hive.box<Group>('groups');
 
   @override
-  Future<bool> addExpense(Group group, Expense expense) async {
-    for (final Member member in group.members!) {
-      // Si el miembro que se recorre actualmente es el que pagó el gasto
-      // se suma el balance del miembro previo más lo que cuesta este gasto
-      // menos lo que le corresponde pagar a este miembro.
+  Future<void> addExpense(Group group, Expense expense) async {
+    try {
+      for (final Member member in group.members!) {
+        // Si el miembro que se recorre actualmente es el que pagó el gasto
+        // se suma el balance del miembro previo más lo que cuesta este gasto
+        // menos lo que le corresponde pagar a este miembro.
 
-      if (member.id == expense.paidBy) {
-        member.balance = member.balance + expense.amount! - member.amountToPay!;
-      } else if (member.amountToPay != null) {
-        member.balance = member.balance - member.amountToPay!;
+        if (member.id == expense.paidBy) {
+          member.balance =
+              member.balance + expense.amount! - member.amountToPay!;
+        } else if (member.amountToPay != null) {
+          member.balance = member.balance - member.amountToPay!;
+        }
       }
+
+      group.expenses!.add(expense);
+
+      group.totalBalance = expense.amount! + group.totalBalance!;
+
+      _groupsBox.put(group.id, group);
+    } catch (e) {
+      print('Error when adding expense: ${e.toString()}');
     }
-
-    expense.timestamp = DateTime.now().millisecondsSinceEpoch;
-
-    group.expenses!.add(expense);
-
-    group.totalBalance = expense.amount! + group.totalBalance!;
-
-    await _groupsBox.put(group.id, group);
-
-    return true;
   }
 
   @override
@@ -80,7 +81,7 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
           break;
         }
 
-        if (member1.balance.abs() > member2.balance) {
+        if (member1.balance.abs() >= member2.balance) {
           final double toPay = member2.balance;
 
           member1.balance += toPay;
@@ -101,23 +102,25 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
   }
 
   @override
-  Future<bool> checkTransaction(Group group, Transaction transaction) async {
-    final Member memberToPay = group.members!
-        .firstWhere((member) => member.id == transaction.memberToPay.id);
+  Future<void> checkTransaction(Group group, Transaction transaction) async {
+    try {
+      final Member memberToPay = group.members!
+          .firstWhere((member) => member.id == transaction.memberToPay.id);
 
-    final Member memberToReceive = group.members!
-        .firstWhere((member) => member.id == transaction.memberToReceive.id);
+      final Member memberToReceive = group.members!
+          .firstWhere((member) => member.id == transaction.memberToReceive.id);
 
-    memberToPay.balance += transaction.amountToPay;
-    memberToReceive.balance -= transaction.amountToPay;
+      memberToPay.balance += transaction.amountToPay;
+      memberToReceive.balance -= transaction.amountToPay;
 
-    transaction.timestamp = DateTime.now().millisecondsSinceEpoch;
+      transaction.timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    group.transactions!.add(transaction);
+      group.transactions!.add(transaction);
 
-    await _groupsBox.put(group.id, group);
-
-    return true;
+      _groupsBox.put(group.id, group);
+    } catch (e) {
+      print('Error checking transaction: ${e.toString()}');
+    }
   }
 
   @override

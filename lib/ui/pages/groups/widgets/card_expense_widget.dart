@@ -40,9 +40,8 @@ class CardExpenseWidget extends StatelessWidget {
             children: [
               Text('Pagado por ${paidBy?.name ?? 'miembro borrado'}'),
               Text(
-                DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
-                  DateTime.fromMillisecondsSinceEpoch(expense.timestamp!),
-                ),
+                DateFormat.yMMMd().add_Hm().format(
+                    DateTime.fromMillisecondsSinceEpoch(expense.timestamp!)),
               ),
               //SizedBox(height: 10),
             ],

@@ -4,7 +4,7 @@ import 'package:splitex/domain/models/member_model.dart';
 import 'package:splitex/domain/models/transaction_model.dart';
 
 abstract class ExpensesRepository {
-  Future<bool> addExpense(Group group, Expense expense);
+  Future<void> addExpense(Group group, Expense expense);
 
   Future<bool> deleteExpense(Expense expense);
 

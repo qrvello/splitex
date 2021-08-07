@@ -105,41 +105,30 @@ class _GroupsListState extends State<GroupsList> {
       shrinkWrap: true,
       padding: EdgeInsets.only(bottom: context.height * 0.1),
       itemCount: groups.length,
-      itemBuilder: (context, int i) => _createItem(context, groups[i]),
+      itemBuilder: (context, int i) => ListTile(
+        trailing: IconButton(
+          icon: const Icon(Icons.delete),
+          color: (context.isDarkMode) ? Colors.white : Colors.black,
+          onPressed: () => showDialog(
+            context: context,
+            builder: (context) => _confirmDeleteDialog(context, groups[i]),
+          ),
+        ),
+        title: Text(groups[i].name!),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                DetailsGroupPage(group: groups[i], online: online!),
+          ),
+        ),
+      ),
     );
   }
 
   Center buildLoading() {
     return const Center(
       child: CircularProgressIndicator(),
-    );
-  }
-
-  Widget _createItem(BuildContext context, Group group) {
-    return Column(
-      children: [
-        ListTile(
-          trailing: IconButton(
-            icon: const Icon(Icons.delete),
-            color: (context.isDarkMode) ? Colors.white : Colors.black,
-            onPressed: () => showDialog(
-              context: context,
-              builder: (context) => _confirmDeleteDialog(context, group),
-            ),
-          ),
-          title: Text(group.name!),
-          onTap: () => Get.to(
-            () => DetailsGroupPage(),
-            arguments: {
-              'group': group,
-              'online': online,
-            },
-          ),
-        ),
-        const Divider(
-          height: 1,
-        ),
-      ],
     );
   }
 
@@ -165,26 +154,20 @@ class _GroupsListState extends State<GroupsList> {
   }
 
   Future<dynamic> _deleteGroup(BuildContext context, Group group) async {
-    if (online == true) {
-      final bool result =
-          await context.read<GroupsRepository>().deleteGroup(group);
+    try {
+      (online!)
+          ? await RepositoryProvider.of<GroupsRepository>(context)
+              .deleteGroup(group)
+          : await RepositoryProvider.of<GroupsRepositoryOffline>(context)
+              .deleteGroup(group);
 
-      if (result == true) {
-        Navigator.of(context).pop(true);
-
-        snackbarSuccess(context);
-      } else {
-        Navigator.of(context).pop(false);
-
-        snackbarError();
-      }
-    } else {
       Navigator.of(context).pop(true);
 
       snackbarSuccess(context);
+    } catch (e) {
+      Navigator.of(context).pop(false);
 
-      await RepositoryProvider.of<GroupsRepositoryOffline>(context)
-          .deleteGroup(group);
+      snackbarError('Error al borrar grupo: ${e.toString()}');
     }
   }
 
@@ -203,10 +186,10 @@ class _GroupsListState extends State<GroupsList> {
     );
   }
 
-  void snackbarError() {
+  void snackbarError(String message) {
     Get.snackbar(
       'Error',
-      'Error al borrar el grupo',
+      message,
       icon: const Icon(
         Icons.error_outline_rounded,
         color: Color(0xffee6c4d),

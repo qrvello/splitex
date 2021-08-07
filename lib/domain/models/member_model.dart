@@ -15,12 +15,14 @@ class Member {
   });
 
   @HiveField(0)
-  String? name;
+  String? id;
 
   @HiveField(1)
   double balance;
 
-  String? id;
+  @HiveField(2)
+  String? name;
+
   String? newName;
   double? amountToPay;
   int? weight;

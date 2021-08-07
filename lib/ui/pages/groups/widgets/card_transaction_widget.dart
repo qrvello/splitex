@@ -30,9 +30,8 @@ class CardTransactionWidget extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
-            DateTime.fromMillisecondsSinceEpoch(transaction.timestamp!),
-          ),
+          DateFormat.yMMMd().add_Hm().format(
+              DateTime.fromMillisecondsSinceEpoch(transaction.timestamp!)),
         ),
         leading: Container(
           margin: const EdgeInsets.only(left: 10),

@@ -29,13 +29,16 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Balancear cuentas'),
-      ),
-      body: (transactions.isNotEmpty)
-          ? buildAnimatedList()
-          : buildAccountsBalanced(),
-    );
+        appBar: AppBar(
+          title: const Text('Balancear cuentas'),
+        ),
+        body: AnimatedContainer(
+          curve: Curves.easeIn,
+          duration: const Duration(seconds: 3),
+          child: (transactions.isNotEmpty)
+              ? buildAnimatedList()
+              : const AccountsBalanced(),
+        ));
   }
 
   AnimatedList buildAnimatedList() {
@@ -44,37 +47,6 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
       initialItemCount: transactions.length,
       itemBuilder: (context, i, animation) =>
           _createItem(transactions[i], i, animation),
-    );
-  }
-
-  Center buildAccountsBalanced() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.check_circle_outline_rounded,
-            size: 35,
-            color: Color(0xff25c0b7),
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xff25c0b7),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Text(
-              'Cuentas balanceadas',
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -115,17 +87,54 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
               }
 
               setState(() {
-                transactions.remove(transaction);
-
                 listKey.currentState!.removeItem(
                   index,
                   (context, animation) =>
                       _createItem(transaction, index, animation),
                 );
+                transactions.remove(transaction);
               });
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AccountsBalanced extends StatelessWidget {
+  const AccountsBalanced({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.check_circle_outline_rounded,
+            size: 35,
+            color: Color(0xff25c0b7),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xff25c0b7),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Cuentas balanceadas',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

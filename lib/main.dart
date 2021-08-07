@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -17,17 +16,15 @@ import 'app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initializeDateFormatting('es_ES');
-
-  Intl.defaultLocale = 'es_ES';
+  Intl.defaultLocale = Platform.localeName;
 
   await Firebase.initializeApp();
 
-  await MobileAds.instance.initialize();
+  MobileAds.instance.initialize();
 
-  await FirebaseDatabase().setPersistenceEnabled(true);
+  FirebaseDatabase().setPersistenceEnabled(true);
 
-  await FirebaseDatabase().setPersistenceCacheSizeBytes(10000000);
+  FirebaseDatabase().setPersistenceCacheSizeBytes(10000000);
 
   final Directory appDocumentDir = await getApplicationDocumentsDirectory();
 

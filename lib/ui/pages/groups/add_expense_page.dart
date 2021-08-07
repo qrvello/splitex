@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import 'package:splitex/domain/models/expense_model.dart';
 import 'package:splitex/domain/models/group_model.dart';
@@ -34,6 +35,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   List<Member> payingMembers = [];
   bool advanced = false;
   bool _saving = false;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -55,6 +57,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         ),
       );
     }
+    expense.timestamp = selectedDate.millisecondsSinceEpoch;
     super.initState();
   }
 
@@ -63,6 +66,48 @@ class _AddExpensePageState extends State<AddExpensePage> {
     _expenseNameController.dispose();
     _expenseAmountController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime.fromMicrosecondsSinceEpoch(0),
+        lastDate: DateTime.now());
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          selectedDate.hour,
+          selectedDate.minute,
+        );
+      });
+
+      expense.timestamp = selectedDate.millisecondsSinceEpoch;
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? timeOfday = await showTimePicker(
+      initialTime: TimeOfDay.now(),
+      context: context,
+    );
+
+    if (timeOfday != null) {
+      setState(() {
+        selectedDate = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          timeOfday.hour,
+          timeOfday.minute,
+        );
+      });
+
+      expense.timestamp = selectedDate.millisecondsSinceEpoch;
+    }
   }
 
   @override
@@ -91,6 +136,33 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     _inputDescription(),
                     const SizedBox(height: 12),
                     _inputAmount(),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        TextButton(
+                          onPressed: () => _selectDate(context),
+                          child: Text(
+                            DateFormat.yMMMd().format(
+                              DateTime.fromMillisecondsSinceEpoch(
+                                selectedDate.millisecondsSinceEpoch,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Text("-"),
+                        TextButton(
+                          onPressed: () => _selectTime(context),
+                          child: Text(
+                            DateFormat('k:mm').format(
+                              DateTime.fromMillisecondsSinceEpoch(
+                                selectedDate.millisecondsSinceEpoch,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 16),
                     buildDropdownButton(),
                   ],
@@ -167,7 +239,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Widget membersList() {
     return ListView.separated(
       shrinkWrap: true,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, __) => const Divider(height: 2),
       padding: EdgeInsets.only(bottom: context.height * 0.1),
       itemCount: group.members!.length,
       itemBuilder: (context, index) {
@@ -307,8 +379,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
       maxLength: 25,
       style: const TextStyle(fontSize: 20),
       decoration: const InputDecoration(
-        helperText: 'Ejemplo: almuerzo',
         labelText: 'Descripción',
+        counterText: '',
       ),
       onSaved: (value) => expense.description = value,
       controller: _expenseNameController,
@@ -321,12 +393,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Widget _inputAmount() {
     return TextFormField(
       maxLength: 10,
-      textAlign: TextAlign.end,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       style: const TextStyle(fontSize: 20),
       decoration: const InputDecoration(
         prefixIcon: Icon(Icons.attach_money),
+        prefixIconConstraints: BoxConstraints(
+          minWidth: 36,
+        ),
         labelText: 'Monto',
+        counterText: '',
+        contentPadding: EdgeInsets.zero,
       ),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}')),
@@ -359,45 +435,49 @@ class _AddExpensePageState extends State<AddExpensePage> {
     setState(() {
       _saving = true;
     });
+
     if (errorNotMatchTotalExpenditure == true) {
       snackbarError(
           'La división de gastos entre miembros no concuerda con el gasto total');
+
       setState(() {
         _saving = false;
       });
 
       return;
     }
+
     if (!formKey.currentState!.validate()) {
       setState(() {
         _saving = false;
       });
+
       return;
     }
 
     formKey.currentState!.save();
 
-    bool resp;
+    try {
+      if (online) {
+        await RepositoryProvider.of<ExpensesRepository>(context)
+            .addExpense(group, expense);
+      } else {
+        RepositoryProvider.of<ExpensesRepositoryOffline>(context)
+            .addExpense(group, expense);
+      }
 
-    if (online == true) {
-      resp = await RepositoryProvider.of<ExpensesRepository>(context)
-          .addExpense(group, expense);
-    } else {
-      resp = await RepositoryProvider.of<ExpensesRepositoryOffline>(context)
-          .addExpense(group, expense);
-    }
-
-    if (resp == true) {
       setState(() {
         _saving = false;
       });
+
       Get.back();
+
       snackbarSuccess();
-    } else {
+    } catch (e) {
       setState(() {
         _saving = false;
       });
-      snackbarError('Error al agregar gasto al grupo');
+      snackbarError('Error al agregar gasto al grupo: ${e.toString()}');
     }
   }
 

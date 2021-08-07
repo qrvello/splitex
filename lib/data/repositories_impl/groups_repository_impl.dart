@@ -223,7 +223,7 @@ class GroupsRepositoryImpl extends GroupsRepository {
         updateObj['${groupRef.path}/members'] = null;
       }
     }
-    print(updateObj);
+
     if (updateObj != {}) {
       try {
         await _databaseReference.update(updateObj);

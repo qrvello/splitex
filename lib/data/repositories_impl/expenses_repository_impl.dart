@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:splitex/domain/models/transaction_model.dart';
 import 'package:splitex/domain/models/member_model.dart';
@@ -12,8 +14,10 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
       FirebaseDatabase.instance.reference();
 
   @override
-  Future<bool> addExpense(Group group, Expense expense) async {
-    if (await Utils.checkConnection() == false) return false;
+  Future<void> addExpense(Group group, Expense expense) async {
+    if (await Utils.checkConnection() == false) {
+      throw const SocketException('No hay internet');
+    }
 
     // Se obtiene la referencia de la raiz del grupo al que se quiere agregar un gasto
     final DatabaseReference groupReference =
@@ -62,10 +66,8 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
 
     try {
       await databaseReference.update(updateObj);
-      return true;
     } catch (e) {
-      print('Error al agregar gasto: ${e.toString()}');
-      return false;
+      rethrow;
     }
   }
 
@@ -110,7 +112,7 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
           break;
         }
 
-        if (member1.balance.abs() > member2.balance) {
+        if (member1.balance.abs() >= member2.balance) {
           final double toPay = member2.balance;
 
           member1.balance += toPay;

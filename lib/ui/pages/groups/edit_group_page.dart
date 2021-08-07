@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+
 import 'package:share/share.dart';
 import 'package:splitex/domain/models/group_model.dart';
 import 'package:splitex/domain/models/member_model.dart';
@@ -32,6 +33,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
     super.initState();
 
     newGroup = Group(
+      id: widget.group.id,
       name: widget.group.name,
       members: [...widget.group.members!],
     );
@@ -66,15 +68,16 @@ class _EditGroupPageState extends State<EditGroupPage> {
                 width: double.infinity,
                 color: Colors.black.withOpacity(0.3),
                 child: ListTile(
-                  title: const Text('Miembros del grupo'),
+                  title: const Text('Miembros'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        onPressed: () => Share.share(
-                            'Unite a mi grupo de splitex: ${widget.group.link}'),
-                        icon: const Icon(Icons.person_add_rounded),
-                      ),
+                      if (widget.online)
+                        IconButton(
+                          onPressed: () => Share.share(
+                              'Unite a mi grupo de splitex: ${widget.group.link}'),
+                          icon: const Icon(Icons.share_rounded),
+                        ),
                       IconButton(
                         onPressed: () => dialogAddMember(context),
                         icon: const Icon(Icons.add),
@@ -83,10 +86,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
                   ),
                 ),
               ),
-              MembersList(
-                members: newGroup.members!,
-                isOnline: widget.online,
-              ),
+              MembersList(members: newGroup.members!),
               const Divider(height: 1),
             ],
           ),
@@ -103,10 +103,11 @@ class _EditGroupPageState extends State<EditGroupPage> {
         style: const TextStyle(fontSize: 18),
         decoration: const InputDecoration(
           labelText: 'Nombre del grupo',
+          counterText: "",
         ),
         validator: (value) {
           if (value!.trim().isEmpty) {
-            return 'Ingrese el nombre del grupo';
+            return 'Ingresá un nombre para el grupo';
           } else if (value.trim().length > 25) {
             return 'Ingrese un nombre menor a 25 caracteres';
           } else {
@@ -138,6 +139,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
               decoration: const InputDecoration(
                 errorMaxLines: 3,
                 labelText: 'Nombre',
+                counterText: '',
               ),
               validator: (value) {
                 if (value!.trim().isEmpty) {
@@ -176,18 +178,17 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
     if (!formKeyNewMember.currentState!.validate()) return;
 
-    if (widget.online == true) {
-      final Member member = Member(name: controller.text.trim());
-      setState(() {
-        newGroup.members!.add(member);
-      });
+    // Si es offline, crea una id basada en la fecha y hora actual.
+    final String? id =
+        (widget.online == false) ? DateTime.now().toString() : null;
 
-      Get.back();
-    } else {
-      await context
-          .read<GroupsRepositoryOffline>()
-          .addPersonToGroup(controller.text.trim(), widget.group);
-    }
+    final Member member = Member(name: controller.text.trim(), id: id);
+
+    setState(() {
+      newGroup.members!.add(member);
+    });
+
+    Get.back();
   }
 
   Future<void> _submit(BuildContext context) async {
@@ -245,10 +246,12 @@ class _EditGroupPageState extends State<EditGroupPage> {
 }
 
 class MembersList extends StatefulWidget {
-  const MembersList({Key? key, required this.members, required this.isOnline})
-      : super(key: key);
-  final bool isOnline;
   final List<Member> members;
+
+  const MembersList({
+    Key? key,
+    required this.members,
+  }) : super(key: key);
 
   @override
   _MembersListState createState() => _MembersListState();
@@ -257,12 +260,10 @@ class MembersList extends StatefulWidget {
 class _MembersListState extends State<MembersList> {
   @override
   Widget build(BuildContext context) {
-    // TODO online
     return Expanded(
       child: ListView.separated(
         separatorBuilder: (context, index) => const Divider(height: 2),
         shrinkWrap: true,
-        padding: EdgeInsets.only(bottom: context.height * 0.1),
         itemCount: widget.members.length,
         itemBuilder: (context, i) {
           widget.members[i].controller =
@@ -297,6 +298,7 @@ class _MembersListState extends State<MembersList> {
                             decoration: const InputDecoration(
                               errorMaxLines: 3,
                               labelText: 'Nombre',
+                              counterText: '',
                             ),
                             validator: (value) {
                               if (value == null) {

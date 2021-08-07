@@ -63,7 +63,7 @@ final ThemeData lightTheme = ThemeData(
     ),
     fillColor: Colors.black12,
     labelStyle: TextStyle(color: Colors.black.withOpacity(0.87)),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(

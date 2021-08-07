@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:splitex/config/routes/routes.dart' as router;
 import 'package:splitex/domain/cubits/app_theme_cubit.dart';
@@ -21,6 +22,13 @@ class MyApp extends StatelessWidget {
         child: BlocBuilder<AppThemeCubit, bool>(
           builder: (context, isDark) {
             return GetMaterialApp(
+              supportedLocales: const [
+                Locale('en', ''),
+                Locale('es', ''),
+              ],
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+              ],
               debugShowCheckedModeBanner: false,
               title: 'Splitex',
               initialRoute: '/',

@@ -1,4 +1,3 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:hive/hive.dart';
 
 part 'expense_model.g.dart';
@@ -45,7 +44,7 @@ class Expense {
         "description": description,
         "amount": amount,
         "paid_by": paidBy,
-        "timestamp": ServerValue.timestamp,
+        "timestamp": timestamp,
         "distributed_between": distributedBetween,
       };
 }
