@@ -27,12 +27,11 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
       members: [],
       transactions: [],
       expenses: [],
-      totalBalance: 0.00,
       timestamp: DateTime.now().millisecondsSinceEpoch,
     );
 
     if (name != null) {
-      final Member member = Member(id: name);
+      final Member member = Member(id: DateTime.now().toString(), name: name);
 
       group.members!.add(member);
     }
@@ -47,12 +46,15 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
   }
 
   @override
-  Future<bool> updateGroup(
+  Future<void> updateGroup(
       {required Group group, required Group newGroup}) async {
-    group.members = newGroup.members;
-    group.name = newGroup.name;
-    await _groupsBox.put(group.id, group);
-    return true;
+    try {
+      group.members = newGroup.members;
+      group.name = newGroup.name;
+      await _groupsBox.put(group.id, group);
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
@@ -63,10 +65,10 @@ class GroupsRepositoryOfflineImpl extends GroupsRepositoryOffline {
   }
 
   @override
-  Future<bool> addPersonToGroup(String name, Group? group) async {
-    final Member member = Member(id: name, balance: 0);
+  Future<bool> addPersonToGroup(String name, Group group) async {
+    final Member member = Member(name: name);
 
-    group!.members!.add(member);
+    group.members!.add(member);
 
     await _groupsBox.put(group.id, group);
 

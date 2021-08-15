@@ -4,6 +4,7 @@ import 'package:splitex/domain/models/group_model.dart';
 import 'package:splitex/domain/models/member_model.dart';
 
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:splitex/domain/models/transaction_model.dart';
 import 'package:splitex/ui/pages/groups/widgets/card_expense_widget.dart';
 import 'package:splitex/ui/pages/groups/widgets/card_transaction_widget.dart';
 
@@ -11,7 +12,7 @@ class ActivityWidget extends StatelessWidget {
   final Group group;
   final List<dynamic> actions;
 
-  ActivityWidget({required this.group, required this.actions});
+  const ActivityWidget({required this.group, required this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +22,17 @@ class ActivityWidget extends StatelessWidget {
           backgroundColor: Colors.transparent,
           automaticallyImplyLeading: false,
           title: Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
-              color: Color(0xff0076ff).withOpacity(0.87),
+              color: const Color(0xff0076ff).withOpacity(0.87),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: (group.totalBalance > 0)
+            child: (group.totalBalance! > 0)
                 ? Text(
                     'Gasto total: \$${group.totalBalance}',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   )
-                : Text(
+                : const Text(
                     'Sin gastos',
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
@@ -55,7 +56,7 @@ class ActivityWidget extends StatelessWidget {
 
   Widget _createItem(action, context) {
     if (action is Expense) {
-      Member? paidBy = group.members!
+      final Member? paidBy = group.members!
           .firstWhereOrNull((element) => element.id == action.paidBy);
 
       return CardExpenseWidget(
@@ -63,14 +64,14 @@ class ActivityWidget extends StatelessWidget {
         paidBy: paidBy,
       );
     } else {
-      Member? memberToPay = group.members!
-          .firstWhereOrNull((element) => element.id == action.memberToPay);
+      final Member? memberToPay = group.members!
+          .firstWhereOrNull((element) => element.id == action.memberToPay.id);
 
-      Member? memberToReceive = group.members!
-          .firstWhereOrNull((element) => element.id == action.memberToReceive);
+      final Member? memberToReceive = group.members!.firstWhereOrNull(
+          (element) => element.id == action.memberToReceive.id);
 
       return CardTransactionWidget(
-        transaction: action,
+        transaction: action as Transaction,
         memberToPay: memberToPay,
         memberToReceive: memberToReceive,
       );

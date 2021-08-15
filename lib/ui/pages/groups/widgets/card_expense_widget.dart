@@ -17,9 +17,8 @@ class CardExpenseWidget extends StatelessWidget {
           builder: (context) => Dialog(
             backgroundColor: Colors.black,
             child: Container(
-              padding: EdgeInsets.all(25),
+              padding: const EdgeInsets.all(25),
               child: Stack(
-                fit: StackFit.loose,
                 children: [
                   Container(
                     alignment: Alignment.topCenter,
@@ -41,16 +40,15 @@ class CardExpenseWidget extends StatelessWidget {
             children: [
               Text('Pagado por ${paidBy?.name ?? 'miembro borrado'}'),
               Text(
-                DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
-                  DateTime.fromMillisecondsSinceEpoch(expense.timestamp!),
-                ),
+                DateFormat.yMMMd().add_Hm().format(
+                    DateTime.fromMillisecondsSinceEpoch(expense.timestamp!)),
               ),
               //SizedBox(height: 10),
             ],
           ),
           title: Text(
             expense.description!,
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 18,
             ),
@@ -60,7 +58,7 @@ class CardExpenseWidget extends StatelessWidget {
             children: [
               Text(
                 "\$${expense.amount!.toStringAsFixed(2)}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xffF4a74d),
                   fontWeight: FontWeight.w600,
@@ -69,9 +67,9 @@ class CardExpenseWidget extends StatelessWidget {
             ],
           ),
           leading: Container(
-            margin: EdgeInsets.only(left: 10),
+            margin: const EdgeInsets.only(left: 10),
             height: double.infinity,
-            child: Icon(
+            child: const Icon(
               Icons.shopping_bag_rounded,
               color: Color(0xff0076FF),
             ),

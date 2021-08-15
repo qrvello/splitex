@@ -18,17 +18,17 @@ class SideMenu extends StatelessWidget {
         children: <Widget>[
           _drawerHeader(context),
           ListTile(
-            leading: Icon(Icons.person_rounded),
-            title: Text('Mi perfil'),
+            leading: const Icon(Icons.person_rounded),
+            title: const Text('Mi perfil'),
             onTap: () {
               Get.to(() => ProfilePage());
             },
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.share_rounded),
             title: Text('Invitar a un amigo'),
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.star_rate_rounded),
             title: Text('Opiná de la aplicación'),
           ),
@@ -37,10 +37,10 @@ class SideMenu extends StatelessWidget {
               return SwitchListTile(
                 activeColor: Theme.of(context).primaryColor,
                 value: isDark,
-                secondary: FaIcon(FontAwesomeIcons.moon),
-                title: Text('Modo noche'),
+                secondary: const FaIcon(FontAwesomeIcons.moon),
+                title: const Text('Modo noche'),
                 onChanged: (bool value) {
-                  context.read<AppThemeCubit>().switchTheme(value);
+                  context.read<AppThemeCubit>().switchTheme(isDark: value);
                 },
               );
             },
@@ -60,7 +60,7 @@ class SideMenu extends StatelessWidget {
         return DrawerHeader(
           child: Center(
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
               child: GoogleSignUpButtonWidget(),
             ),
           ),

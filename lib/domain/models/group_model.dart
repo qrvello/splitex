@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
+import 'package:equatable/equatable.dart';
 
 import 'expense_model.dart';
-import 'transaction_model.dart';
 import 'member_model.dart';
-import 'package:equatable/equatable.dart';
+import 'transaction_model.dart';
 
 part 'group_model.g.dart';
 
@@ -34,7 +34,7 @@ class Group extends Equatable {
   int? timestamp;
 
   @HiveField(4)
-  num totalBalance;
+  double? totalBalance;
 
   @HiveField(5)
   List<Member>? members;
@@ -56,28 +56,34 @@ class Group extends Equatable {
     final List<Transaction> transactions = [];
 
     if (map['members'] != null) {
-      final Map<dynamic, dynamic> membersMap = map['members'];
+      final Map<dynamic, dynamic> membersMap =
+          map['members'] as Map<dynamic, dynamic>;
 
       membersMap.forEach((id, value) {
-        final Member thisMember = Member.fromMap(value, id);
+        final Member thisMember =
+            Member.fromMap(value as Map<dynamic, dynamic>, id);
         members.add(thisMember);
       });
     }
 
     if (map['expenses'] != null) {
-      final Map<dynamic, dynamic> expensesMap = map['expenses'];
+      final Map<dynamic, dynamic> expensesMap =
+          map['expenses'] as Map<dynamic, dynamic>;
 
       expensesMap.forEach((id, value) {
-        final Expense thisExpense = Expense.fromMap(value, id);
+        final Expense thisExpense =
+            Expense.fromMap(value as Map<dynamic, dynamic>, id);
         expenses.add(thisExpense);
       });
     }
 
     if (map['transactions'] != null) {
-      final Map<dynamic, dynamic> transactionsMap = map['transactions'];
+      final Map<dynamic, dynamic> transactionsMap =
+          map['transactions'] as Map<dynamic, dynamic>;
 
       transactionsMap.forEach((id, value) {
-        final Transaction thisTransaction = Transaction.fromMap(value, id);
+        final Transaction thisTransaction =
+            Transaction.fromMap(value as Map<dynamic, dynamic>, id);
         transactions.add(thisTransaction);
       });
     }
@@ -91,7 +97,7 @@ class Group extends Equatable {
       expenses: expenses,
       transactions: transactions,
       users: map["users"] as Map<dynamic, dynamic>?,
-      totalBalance: map["total_balance"] ?? 0,
+      totalBalance: map["total_balance"]?.roundToDouble() as double?,
       link: map['link'] as String?,
     );
   }

@@ -10,27 +10,27 @@ class GoogleSignUpButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 250,
-      padding: EdgeInsets.all(4),
+      padding: const EdgeInsets.all(4),
       child: ElevatedButton.icon(
         onPressed: () async {
           BlocProvider.of<AuthCubit>(context).signInWithGoogle().then(
                 (_) => Get.offAll(() => HomePage()),
               );
         },
-        icon: FaIcon(
+        icon: const FaIcon(
           FontAwesomeIcons.google,
           color: Colors.white,
           size: 18,
         ),
-        label: Text(
+        label: const Text(
           'Inicia sesión con Google',
           style: TextStyle(color: Colors.white),
         ),
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith(
-            (states) => (states.contains(MaterialState.pressed)
-                ? Color(0xffef233c).withOpacity(0.3)
-                : Color(0xffef233c).withOpacity(0.87)),
+            (states) => states.contains(MaterialState.pressed)
+                ? const Color(0xffef233c).withOpacity(0.3)
+                : const Color(0xffef233c).withOpacity(0.87),
           ),
         ),
       ),

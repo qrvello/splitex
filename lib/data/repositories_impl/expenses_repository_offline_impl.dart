@@ -10,42 +10,43 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
   final DatabaseReference databaseReference =
       FirebaseDatabase.instance.reference();
 
-  Box<Group?> _groupsBox = Hive.box<Group?>('groups');
+  final Box<Group> _groupsBox = Hive.box<Group>('groups');
 
   @override
-  Future<bool> addExpense(Group group, Expense expense) async {
-    group.members!.forEach((member) {
-      // Si el miembro que se recorre actualmente es el que pagó el gasto
-      // se suma el balance del miembro previo más lo que cuesta este gasto
-      // menos lo que le corresponde pagar a este miembro.
+  Future<void> addExpense(Group group, Expense expense) async {
+    try {
+      for (final Member member in group.members!) {
+        // Si el miembro que se recorre actualmente es el que pagó el gasto
+        // se suma el balance del miembro previo más lo que cuesta este gasto
+        // menos lo que le corresponde pagar a este miembro.
 
-      if (member.id == expense.paidBy) {
-        member.balance = member.balance + expense.amount! - member.amountToPay!;
-      } else if (member.amountToPay != null) {
-        member.balance = member.balance - member.amountToPay!;
+        if (member.id == expense.paidBy) {
+          member.balance =
+              member.balance + expense.amount! - member.amountToPay!;
+        } else if (member.amountToPay != null) {
+          member.balance = member.balance - member.amountToPay!;
+        }
       }
-    });
 
-    expense.timestamp = DateTime.now().millisecondsSinceEpoch;
+      group.expenses!.add(expense);
 
-    group.expenses!.add(expense);
+      group.totalBalance = expense.amount! + group.totalBalance!;
 
-    group.totalBalance += expense.amount!;
-
-    await _groupsBox.put(group.id, group);
-
-    return true;
+      _groupsBox.put(group.id, group);
+    } catch (e) {
+      print('Error when adding expense: ${e.toString()}');
+    }
   }
 
   @override
   List<Transaction> balanceDebts(List<Member> members) {
-    List<Transaction> transactions = [];
-    List<Member> members2 = [];
+    final List<Transaction> transactions = [];
+    final List<Member> members2 = [];
 
     // Crea una nueva lista de miembros y copia la lista original para no modificar la original.
 
-    for (Member member in members) {
-      Member member2 = Member(
+    for (final Member member in members) {
+      final Member member2 = Member(
         id: member.id,
         balance: member.balance,
         name: member.name,
@@ -53,23 +54,23 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
       members2.add(member2);
     }
 
-    Iterable<Member> membersWithDebt =
+    final Iterable<Member> membersWithDebt =
         members2.where((member) => member.balance < 0);
 
-    Iterable<Member> membersWithPositiveBalance =
+    final Iterable<Member> membersWithPositiveBalance =
         members2.where((member) => member.balance > 0);
 
     // Recorre los miembros con deudas (member1)
-    for (Member member1 in membersWithDebt) {
+    for (final Member member1 in membersWithDebt) {
       // Recorre los miembros con balance positivo (member2)
-      for (Member member2 in membersWithPositiveBalance) {
+      for (final Member member2 in membersWithPositiveBalance) {
         if (member1.balance.abs() <= member2.balance) {
-          double toPay = member1.balance.abs();
+          final double toPay = member1.balance.abs();
 
           member1.balance += toPay;
           member2.balance -= toPay;
 
-          Transaction transaction = Transaction(
+          final Transaction transaction = Transaction(
             amountToPay: toPay,
             memberToPay: member1,
             memberToReceive: member2,
@@ -80,13 +81,13 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
           break;
         }
 
-        if (member1.balance.abs() > member2.balance) {
-          double toPay = member2.balance;
+        if (member1.balance.abs() >= member2.balance) {
+          final double toPay = member2.balance;
 
           member1.balance += toPay;
           member2.balance -= toPay;
 
-          Transaction transaction = Transaction(
+          final Transaction transaction = Transaction(
             amountToPay: toPay,
             memberToPay: member1,
             memberToReceive: member2,
@@ -101,23 +102,25 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
   }
 
   @override
-  Future<bool> checkTransaction(Group group, Transaction transaction) async {
-    Member memberToPay = group.members!
-        .firstWhere((member) => member.id == transaction.memberToPay);
+  Future<void> checkTransaction(Group group, Transaction transaction) async {
+    try {
+      final Member memberToPay = group.members!
+          .firstWhere((member) => member.id == transaction.memberToPay.id);
 
-    Member memberToReceive = group.members!
-        .firstWhere((member) => member.id == transaction.memberToReceive);
+      final Member memberToReceive = group.members!
+          .firstWhere((member) => member.id == transaction.memberToReceive.id);
 
-    memberToPay.balance += transaction.amountToPay;
-    memberToReceive.balance -= transaction.amountToPay;
+      memberToPay.balance += transaction.amountToPay;
+      memberToReceive.balance -= transaction.amountToPay;
 
-    transaction.timestamp = DateTime.now().millisecondsSinceEpoch;
+      transaction.timestamp = DateTime.now().millisecondsSinceEpoch;
 
-    group.transactions!.add(transaction);
+      group.transactions!.add(transaction);
 
-    await _groupsBox.put(group.id, group);
-
-    return true;
+      _groupsBox.put(group.id, group);
+    } catch (e) {
+      print('Error checking transaction: ${e.toString()}');
+    }
   }
 
   @override

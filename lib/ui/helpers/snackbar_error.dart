@@ -11,6 +11,6 @@ void snackbarError({required String message}) {
     ),
     snackPosition: SnackPosition.BOTTOM,
     margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
-    backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+    backgroundColor: const Color(0xffee6c4d).withOpacity(0.1),
   );
 }

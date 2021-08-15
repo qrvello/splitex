@@ -23,7 +23,7 @@ class GroupAdapter extends TypeAdapter<Group> {
       members: (fields[5] as List?)?.cast<Member>(),
       expenses: (fields[6] as List?)?.cast<Expense>(),
       transactions: (fields[7] as List?)?.cast<Transaction>(),
-      totalBalance: fields[4] as num,
+      totalBalance: fields[4] as double?,
     );
   }
 

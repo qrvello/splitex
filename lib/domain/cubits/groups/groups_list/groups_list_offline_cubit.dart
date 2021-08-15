@@ -16,7 +16,7 @@ class GroupsListOfflineCubit extends Cubit<GroupsListState> {
 
     groupsRepositoryOffline.getGroupsList().listen((List<Group> groups) {
       print(groups);
-      if (groups.length > 0) {
+      if (groups.isNotEmpty) {
         emit(GroupsListLoaded(groups));
       }
     });

@@ -1,4 +1,3 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:hive/hive.dart';
 
 part 'expense_model.g.dart';
@@ -34,18 +33,18 @@ class Expense {
 
   factory Expense.fromMap(Map<dynamic, dynamic> map, id) => Expense(
         id: id as String,
-        description: map["description"],
-        amount: map["amount"].toDouble(),
-        paidBy: map["paid_by"],
-        timestamp: map["timestamp"],
-        distributedBetween: map["distributed_between"],
+        description: map["description"].toString(),
+        amount: map["amount"].toDouble() as double?,
+        paidBy: map["paid_by"].toString(),
+        timestamp: map["timestamp"] as int,
+        distributedBetween: map["distributed_between"] as Map<dynamic, dynamic>,
       );
 
   Map<String, dynamic> toMap() => {
         "description": description,
         "amount": amount,
         "paid_by": paidBy,
-        "timestamp": ServerValue.timestamp,
+        "timestamp": timestamp,
         "distributed_between": distributedBetween,
       };
 }

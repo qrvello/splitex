@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:splitex/domain/models/group_model.dart';
 import 'package:splitex/domain/repositories/groups_repository.dart';
 import 'package:splitex/domain/repositories/groups_repository_offline.dart';
@@ -19,31 +20,40 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final GlobalKey<FormState> formKeyCreateGroup = GlobalKey<FormState>();
 
+  final BannerAd myBanner = BannerAd(
+    adUnitId: 'ca-app-pub-1642350664833085/2292297594',
+    size: AdSize.banner,
+    request: const AdRequest(),
+    listener: const BannerAdListener(),
+  );
+
   @override
   void initState() {
     super.initState();
 
-    this.initDynamicLinks();
+    myBanner.load();
+
+    initDynamicLinks();
   }
 
-  void initDynamicLinks() async {
+  Future<void> initDynamicLinks() async {
     FirebaseDynamicLinks.instance.onLink(
         onSuccess: (PendingDynamicLinkData? dynamicLink) async {
       final Uri? deepLink = dynamicLink?.link;
 
       if (deepLink != null && deepLink.queryParameters.containsKey('id')) {
-        String groupId = deepLink.queryParameters['id']!;
+        final String groupId = deepLink.queryParameters['id']!;
         try {
-          Group group = await context
+          final Group group = await context
               .read<GroupsRepository>()
               .acceptInvitationGroup(groupId);
 
-          Get.to(
-            () => DetailsGroupPage(),
-            arguments: {
-              'group': group,
-              'online': true,
-            },
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  DetailsGroupPage(group: group, online: true),
+            ),
           );
         } catch (e) {
           print(e.toString());
@@ -62,18 +72,17 @@ class _HomePageState extends State<HomePage> {
     final Uri? deepLink = data?.link;
 
     if (deepLink != null && deepLink.queryParameters.containsKey('id')) {
-      String groupId = deepLink.queryParameters['id']!;
+      final String groupId = deepLink.queryParameters['id']!;
       try {
-        Group group = await context
+        final Group group = await context
             .read<GroupsRepository>()
             .acceptInvitationGroup(groupId);
 
-        Get.to(
-          () => DetailsGroupPage(),
-          arguments: {
-            'group': group,
-            'online': true,
-          },
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsGroupPage(group: group, online: true),
+          ),
         );
       } catch (e) {
         snackbarError('Error', 'Error al unirse al grupo');
@@ -88,15 +97,14 @@ class _HomePageState extends State<HomePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Grupos'),
-          actions: [
+          title: const Text('Grupos'),
+          actions: const [
             Padding(
               padding: EdgeInsets.all(8.0),
               child: FlutterLogo(),
             ),
           ],
           bottom: TabBar(
-            isScrollable: false,
             tabs: [
               Tab(
                 child: Icon(
@@ -115,6 +123,17 @@ class _HomePageState extends State<HomePage> {
         ),
         body: GroupsList(),
         drawer: SideMenu(),
+        bottomSheet: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          alignment: Alignment.bottomCenter,
+          height: 50,
+          width: double.infinity,
+          child: SizedBox(
+            height: 50,
+            width: 320,
+            child: AdWidget(ad: myBanner),
+          ),
+        ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: buildSpeedDial(context),
       ),
@@ -124,34 +143,35 @@ class _HomePageState extends State<HomePage> {
   SpeedDial buildSpeedDial(BuildContext context) {
     return SpeedDial(
       marginEnd: 32,
-      backgroundColor: Color(0xff0076FF).withOpacity(0.87),
+      backgroundColor: const Color(0xff0076FF),
       overlayColor: Theme.of(context).scaffoldBackgroundColor,
+      iconTheme: const IconThemeData(color: Colors.white),
       icon: Icons.add_rounded,
-      visible: true,
       children: [
         SpeedDialChild(
-          child: Icon(Icons.cloud_rounded),
+          child: const Icon(Icons.cloud_rounded, color: Colors.white),
           backgroundColor: Theme.of(context).accentColor,
-          labelWidget: Text(
-            'Crear un grupo con conexión',
+          labelWidget: const Text(
+            'Crear grupo online',
+            maxLines: 2,
             style: TextStyle(fontSize: 18),
           ),
-          onTap: () => dialogCreateGroup(context, true),
+          onTap: () => dialogCreateGroup(context, online: true),
         ),
         SpeedDialChild(
-          child: Icon(Icons.cloud_off_rounded),
+          child: const Icon(Icons.cloud_off_rounded, color: Colors.white),
           backgroundColor: Theme.of(context).accentColor,
-          labelWidget: Text(
-            'Crear un grupo sin conexión',
+          labelWidget: const Text(
+            'Crear grupo offline',
             style: TextStyle(fontSize: 18),
           ),
-          onTap: () => dialogCreateGroup(context, false),
+          onTap: () => dialogCreateGroup(context, online: false),
         ),
       ],
     );
   }
 
-  Future dialogCreateGroup(BuildContext context, bool online) {
+  Future dialogCreateGroup(BuildContext context, {required bool online}) {
     final TextEditingController _newGroupController = TextEditingController();
 
     return showDialog(
@@ -165,10 +185,11 @@ class _HomePageState extends State<HomePage> {
               autofocus: true,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               maxLength: 20,
-              style: TextStyle(fontSize: 18),
-              decoration: InputDecoration(
+              style: const TextStyle(fontSize: 18),
+              decoration: const InputDecoration(
                 errorMaxLines: 3,
                 labelText: 'Nombre del grupo',
+                counterText: '',
               ),
               validator: (value) {
                 if (value == null) {
@@ -185,19 +206,19 @@ class _HomePageState extends State<HomePage> {
             ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.resolveWith(
-                  (states) => (states.contains(MaterialState.pressed)
-                      ? Color(0xffE29578)
-                      : Color(0xffee6c4d)),
+                  (states) => states.contains(MaterialState.pressed)
+                      ? const Color(0xffE29578)
+                      : const Color(0xffee6c4d),
                 ),
               ),
-              child: Text('Cancelar'),
               onPressed: () {
                 Navigator.pop(context);
               },
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              child: Text('Guardar'),
               onPressed: () => _submit(context, online, _newGroupController),
+              child: const Text('Guardar'),
             ),
           ],
         );
@@ -205,13 +226,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _submit(BuildContext context, bool online,
+  Future<void> _submit(BuildContext context, bool online,
       TextEditingController _controller) async {
     if (!formKeyCreateGroup.currentState!.validate()) return;
 
     Get.back();
 
-    Group group = Group();
+    final Group group = Group();
 
     group.name = _controller.text.trim();
 
@@ -232,12 +253,12 @@ class _HomePageState extends State<HomePage> {
     return Get.snackbar(
       'Acción exitosa',
       'Grupo creado satisfactoriamente',
-      icon: Icon(
+      icon: const Icon(
         Icons.check_circle_outline_rounded,
         color: Color(0xff25C0B7),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
     );
   }
@@ -246,13 +267,13 @@ class _HomePageState extends State<HomePage> {
     return Get.snackbar(
       title,
       message,
-      icon: Icon(
+      icon: const Icon(
         Icons.error_outline_rounded,
         color: Color(0xffee6c4d),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
-      backgroundColor: Color(0xffee6c4d).withOpacity(0.1),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      backgroundColor: const Color(0xffee6c4d).withOpacity(0.1),
     );
   }
 }

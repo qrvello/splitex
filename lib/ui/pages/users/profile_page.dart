@@ -11,7 +11,7 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Perfil'),
+        title: const Text('Perfil'),
       ),
       body: BlocProvider(
         create: (_) => ProfileCubit()..init(),
@@ -29,7 +29,7 @@ class ProfilePage extends StatelessWidget {
             return _EditNameWidget(state: state);
           }
 
-          return _EditNameWidget();
+          return const _EditNameWidget();
         }),
       ),
     );
@@ -47,27 +47,27 @@ class _ProfileLoadedWithGoogleInfoWidget extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
             maxRadius: 25,
             backgroundImage: ((state!.user.photoURL != null)
-                ? (NetworkImage(state!.user.photoURL!))
-                : AssetImage('assets/blank-profile.jpg')) as ImageProvider<Object>?,
+                    ? (NetworkImage(state!.user.photoURL!))
+                    : const AssetImage('assets/blank-profile.jpg'))
+                as ImageProvider<Object>?,
           ),
-          SizedBox(height: 8),
-          Text('Nombre: ' + state!.user.displayName!),
-          SizedBox(height: 8),
-          Text('Correo electrónico: ' + state!.user.email!),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
+          Text('Nombre: ${state!.user.displayName!}'),
+          const SizedBox(height: 8),
+          Text('Correo electrónico: ${state!.user.email!}'),
+          const SizedBox(height: 8),
           ElevatedButton(
             onPressed: () async {
               BlocProvider.of<AuthCubit>(context).signOut().then((value) {
                 Get.offAll(() => HomePage());
               });
             },
-            child: Text('Cerrar sesión'),
+            child: const Text('Cerrar sesión'),
           ),
         ],
       ),
@@ -76,7 +76,7 @@ class _ProfileLoadedWithGoogleInfoWidget extends StatelessWidget {
 }
 
 class _EditNameWidget extends StatelessWidget {
-  _EditNameWidget({this.state});
+  const _EditNameWidget({this.state});
 
   final ProfileEditing? state;
 
@@ -95,28 +95,27 @@ class _EditNameWidget extends StatelessWidget {
         key: formKey,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               width: context.width * 0.5,
               child: TextFormField(
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (String? name) {
-                  if (name!.trim().length == 0) {
+                  if (name!.trim().isEmpty) {
                     return 'Ingrese un nombre';
                   }
                   return null;
                 },
                 maxLength: 25,
                 controller: nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   counterText: '',
                   labelText: 'Ingresá tu nombre',
                 ),
               ),
             ),
-            SizedBox(height: 12),
-            Container(
+            const SizedBox(height: 12),
+            SizedBox(
               width: context.width * 0.5,
               child: ElevatedButton(
                 onPressed: () {
@@ -126,7 +125,7 @@ class _EditNameWidget extends StatelessWidget {
                         .saveName(nameController.text.trim());
                   }
                 },
-                child: Text('Guardar'),
+                child: const Text('Guardar'),
               ),
             ),
             GoogleSignUpButtonWidget(),
@@ -155,16 +154,17 @@ class _ProfileLoadedWithInfoWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: Colors.blue,
                 ),
-                child: Text('Nombre'),
+                child: const Text('Nombre'),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text(state!.name),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Container(
                 padding: EdgeInsets.zero,
                 decoration: BoxDecoration(
@@ -174,7 +174,7 @@ class _ProfileLoadedWithInfoWidget extends StatelessWidget {
                 child: IconButton(
                   iconSize: 16,
                   padding: EdgeInsets.zero,
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                   onPressed: () {
                     context.read<ProfileCubit>().enterEditingMode(state!.name);
                   },
@@ -182,7 +182,7 @@ class _ProfileLoadedWithInfoWidget extends StatelessWidget {
               )
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           GoogleSignUpButtonWidget(),
         ],
       ),

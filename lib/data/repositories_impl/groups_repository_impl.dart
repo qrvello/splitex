@@ -31,8 +31,9 @@ class GroupsRepositoryImpl extends GroupsRepository {
     await for (final Event event in groupStream) {
       final DataSnapshot snapshot = event.snapshot;
 
-      if (snapshot.value != null) {
-        final Group groupComplete = Group.fromMap(snapshot.value, snapshot.key);
+      if (snapshot.value != null && snapshot.value is Map<dynamic, dynamic>) {
+        final Group groupComplete = Group.fromMap(
+            snapshot.value as Map<dynamic, dynamic>, snapshot.key);
 
         yield groupComplete;
       }
@@ -59,7 +60,8 @@ class GroupsRepositoryImpl extends GroupsRepository {
               event.snapshot.value as Map<dynamic, dynamic>;
 
           mapGroups.forEach((id, group) {
-            final Group thisGroup = Group.fromMap(group, id);
+            final Group thisGroup =
+                Group.fromMap(group as Map<dynamic, dynamic>, id);
             groups.add(thisGroup);
           });
 
@@ -73,8 +75,9 @@ class GroupsRepositoryImpl extends GroupsRepository {
 
   @override
   Future<void> createGroup(Group group) async {
-    if (await Utils.checkConnection() == false)
-      throw SocketException('No hay internet');
+    if (await Utils.checkConnection() == false) {
+      throw const SocketException('No hay internet');
+    }
 
     if (FirebaseAuth.instance.currentUser != null) {
       // Guarda el id del creador del grupo
@@ -119,7 +122,7 @@ class GroupsRepositoryImpl extends GroupsRepository {
 
       final Uri shortUrl = shortDynamicLink.shortUrl;
 
-      final String? name = _userBox.get('name');
+      final String? name = _userBox.get('name') as String?;
 
       final Map<String, dynamic> data = {
         if (name != null)
@@ -159,8 +162,9 @@ class GroupsRepositoryImpl extends GroupsRepository {
     required Group group,
     required Group newGroup,
   }) async {
-    if (await Utils.checkConnection() == false)
-      throw SocketException('No hay internet');
+    if (await Utils.checkConnection() == false) {
+      throw const SocketException('No hay internet');
+    }
 
     // Obtiene la ruta del grupo
     final DatabaseReference groupRef =
@@ -220,8 +224,6 @@ class GroupsRepositoryImpl extends GroupsRepository {
       }
     }
 
-    print(updateObj);
-
     if (updateObj != {}) {
       try {
         await _databaseReference.update(updateObj);
@@ -230,7 +232,7 @@ class GroupsRepositoryImpl extends GroupsRepository {
         rethrow;
       }
     } else {
-      throw ('No hay cambios a realizar');
+      throw 'No hay cambios a realizar';
     }
   }
 
@@ -271,17 +273,18 @@ class GroupsRepositoryImpl extends GroupsRepository {
       } catch (e) {
         print(e.toString());
 
-        return false;
+        rethrow;
       }
     } else {
-      return false;
+      throw Exception('El usuario no esta logueado');
     }
   }
 
   @override
   Future<Group> acceptInvitationGroup(String groupId) async {
-    if (await Utils.checkConnection() == false)
-      throw SocketException('No hay internet');
+    if (await Utils.checkConnection() == false) {
+      throw const SocketException('No hay internet');
+    }
 
     DataSnapshot snapshot;
     if (FirebaseAuth.instance.currentUser != null) {
@@ -289,10 +292,11 @@ class GroupsRepositoryImpl extends GroupsRepository {
         snapshot = await _databaseReference.child('groups/$groupId').once();
       } catch (e) {
         print(e.toString());
-        throw SocketException('No hay internet');
+        throw const SocketException('No hay internet');
       }
 
-      final Group group = Group.fromMap(snapshot.value, snapshot.key);
+      final Group group =
+          Group.fromMap(snapshot.value as Map<dynamic, dynamic>, snapshot.key);
 
       final usersGroupPath = _databaseReference
           .child(
@@ -301,7 +305,7 @@ class GroupsRepositoryImpl extends GroupsRepository {
 
       String? membersGroupPath;
 
-      String? name = _userBox.get('name');
+      final String? name = _userBox.get('name') as String?;
 
       if (name != null) {
         membersGroupPath =

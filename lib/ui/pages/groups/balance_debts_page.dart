@@ -12,8 +12,8 @@ class BalanceDebtsPage extends StatefulWidget {
 }
 
 class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
-  final Group group = Get.arguments['group'];
-  final bool online = Get.arguments['online'];
+  final Group group = Get.arguments['group'] as Group;
+  final bool online = Get.arguments['online'] as bool;
 
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
@@ -29,13 +29,16 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Balancear cuentas'),
-      ),
-      body: (transactions.length > 0)
-          ? buildAnimatedList()
-          : buildAccountsBalanced(),
-    );
+        appBar: AppBar(
+          title: const Text('Balancear cuentas'),
+        ),
+        body: AnimatedContainer(
+          curve: Curves.easeIn,
+          duration: const Duration(seconds: 3),
+          child: (transactions.isNotEmpty)
+              ? buildAnimatedList()
+              : const AccountsBalanced(),
+        ));
   }
 
   AnimatedList buildAnimatedList() {
@@ -47,42 +50,11 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
     );
   }
 
-  Center buildAccountsBalanced() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.check_circle_outline_rounded,
-            size: 35,
-            color: Color(0xff25c0b7),
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Color(0xff25c0b7),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              'Cuentas balanceadas',
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _createItem(Transaction transaction, int index, Animation animation) {
     return SlideTransition(
       position: Tween<Offset>(
-        begin: Offset(-1, 0),
-        end: Offset(0, 0),
+        begin: const Offset(-1, 0),
+        end: const Offset(0, 0),
       ).animate(CurvedAnimation(
         parent: animation as Animation<double>,
         curve: Curves.easeInOut,
@@ -91,7 +63,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
         child: ListTile(
           subtitle: Text(
             '\$${transaction.amountToPay.toStringAsFixed(2)}',
-            style: TextStyle(
+            style: const TextStyle(
                 color: Color(0xff25C0B7),
                 fontSize: 16,
                 fontWeight: FontWeight.bold),
@@ -100,7 +72,7 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
             '${transaction.memberToPay.name!} le tiene que pagar a ${transaction.memberToReceive.name!}',
           ),
           trailing: IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.check_circle_outline_rounded,
               color: Color(0xff25C0B7),
               size: 32,
@@ -115,17 +87,54 @@ class _BalanceDebtsPageState extends State<BalanceDebtsPage> {
               }
 
               setState(() {
-                transactions.remove(transaction);
-
                 listKey.currentState!.removeItem(
                   index,
                   (context, animation) =>
                       _createItem(transaction, index, animation),
                 );
+                transactions.remove(transaction);
               });
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class AccountsBalanced extends StatelessWidget {
+  const AccountsBalanced({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.check_circle_outline_rounded,
+            size: 35,
+            color: Color(0xff25c0b7),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xff25c0b7),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Text(
+              'Cuentas balanceadas',
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

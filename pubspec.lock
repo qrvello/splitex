@@ -307,6 +307,14 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.1.0"
+<<<<<<< HEAD
+=======
+  flutter_localizations:
+    dependency: "direct dev"
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+>>>>>>> 57d3b30f387631e4dbeb4a1a64744fafefd2186f
   flutter_speed_dial:
     dependency: "direct main"
     description:
@@ -359,6 +367,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  google_mobile_ads:
+    dependency: "direct main"
+    description:
+      name: google_mobile_ads
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.13.2"
   google_sign_in:
     dependency: "direct main"
     description:
@@ -757,5 +772,5 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.13.1 <3.0.0"
+  dart: ">=2.13.4 <3.0.0"
   flutter: ">=1.20.0"

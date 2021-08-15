@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+
 import 'package:share/share.dart';
 import 'package:splitex/domain/models/group_model.dart';
 import 'package:splitex/domain/models/member_model.dart';
@@ -12,31 +13,29 @@ class EditGroupPage extends StatefulWidget {
   final bool online;
   final Group group;
 
-  EditGroupPage({Key? key, required this.online, required this.group});
+  const EditGroupPage({required this.online, required this.group});
   @override
-  _EditGroupPageState createState() => _EditGroupPageState(group);
+  _EditGroupPageState createState() => _EditGroupPageState();
 }
 
 class _EditGroupPageState extends State<EditGroupPage> {
   final formKeyGroupName = GlobalKey<FormState>();
   final formKeyNewMember = GlobalKey<FormState>();
 
-  final Group group;
   TextEditingController _groupNameController = TextEditingController();
 
   late Group newGroup;
 
   bool isSwitched = false;
 
-  _EditGroupPageState(this.group);
-
   @override
   void initState() {
     super.initState();
 
     newGroup = Group(
+      id: widget.group.id,
       name: widget.group.name,
-      members: []..addAll(widget.group.members!),
+      members: [...widget.group.members!],
     );
 
     _groupNameController = TextEditingController(text: widget.group.name);
@@ -52,12 +51,12 @@ class _EditGroupPageState extends State<EditGroupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.check_rounded),
         onPressed: () => _submit(context),
+        child: const Icon(Icons.check_rounded),
       ),
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Editar grupo'),
+        title: const Text('Editar grupo'),
       ),
       body: Builder(
         builder: (context) => Form(
@@ -69,27 +68,25 @@ class _EditGroupPageState extends State<EditGroupPage> {
                 width: double.infinity,
                 color: Colors.black.withOpacity(0.3),
                 child: ListTile(
-                  title: Text('Miembros del grupo'),
+                  title: const Text('Miembros'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        onPressed: () => Share.share(
-                            'Unite a mi grupo de splitex: ${widget.group.link}'),
-                        icon: Icon(Icons.person_add_rounded),
-                      ),
+                      if (widget.online)
+                        IconButton(
+                          onPressed: () => Share.share(
+                              'Unite a mi grupo de splitex: ${widget.group.link}'),
+                          icon: const Icon(Icons.share_rounded),
+                        ),
                       IconButton(
                         onPressed: () => dialogAddMember(context),
-                        icon: Icon(Icons.add),
+                        icon: const Icon(Icons.add),
                       ),
                     ],
                   ),
                 ),
               ),
-              MembersList(
-                members: newGroup.members!,
-                isOnline: widget.online,
-              ),
+              MembersList(members: newGroup.members!),
               const Divider(height: 1),
             ],
           ),
@@ -103,13 +100,14 @@ class _EditGroupPageState extends State<EditGroupPage> {
       padding: const EdgeInsets.all(12.0),
       child: TextFormField(
         maxLength: 25,
-        style: TextStyle(fontSize: 18),
-        decoration: InputDecoration(
+        style: const TextStyle(fontSize: 18),
+        decoration: const InputDecoration(
           labelText: 'Nombre del grupo',
+          counterText: "",
         ),
         validator: (value) {
-          if (value!.trim().length < 1) {
-            return 'Ingrese el nombre del grupo';
+          if (value!.trim().isEmpty) {
+            return 'Ingresá un nombre para el grupo';
           } else if (value.trim().length > 25) {
             return 'Ingrese un nombre menor a 25 caracteres';
           } else {
@@ -137,13 +135,14 @@ class _EditGroupPageState extends State<EditGroupPage> {
               controller: _newMemberName,
               autofocus: true,
               maxLength: 20,
-              style: TextStyle(fontSize: 18),
-              decoration: InputDecoration(
+              style: const TextStyle(fontSize: 18),
+              decoration: const InputDecoration(
                 errorMaxLines: 3,
                 labelText: 'Nombre',
+                counterText: '',
               ),
               validator: (value) {
-                if (value!.trim().length < 1) {
+                if (value!.trim().isEmpty) {
                   return 'Ingrese el nombre del nuevo miembro';
                 } else if (value.trim().length > 20) {
                   return 'Ingrese un nombre menor a 20 caracteres';
@@ -156,17 +155,17 @@ class _EditGroupPageState extends State<EditGroupPage> {
             ElevatedButton(
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.resolveWith(
-                  (states) => (states.contains(MaterialState.pressed)
-                      ? Color(0xffE29578)
-                      : Color(0xffee6c4d)),
+                  (states) => states.contains(MaterialState.pressed)
+                      ? const Color(0xffE29578)
+                      : const Color(0xffee6c4d),
                 ),
               ),
-              child: Text('Cancelar'),
               onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
-              child: Text('Agregar'),
               onPressed: () => _addNewMember(_newMemberName),
+              child: const Text('Agregar'),
             ),
           ],
         );
@@ -174,26 +173,25 @@ class _EditGroupPageState extends State<EditGroupPage> {
     );
   }
 
-  void _addNewMember(TextEditingController controller) async {
+  Future<void> _addNewMember(TextEditingController controller) async {
     formKeyNewMember.currentState!.save();
 
     if (!formKeyNewMember.currentState!.validate()) return;
 
-    if (widget.online == true) {
-      Member member = Member(name: controller.text.trim());
-      setState(() {
-        newGroup.members!.add(member);
-      });
+    // Si es offline, crea una id basada en la fecha y hora actual.
+    final String? id =
+        (widget.online == false) ? DateTime.now().toString() : null;
 
-      Get.back();
-    } else {
-      await context
-          .read<GroupsRepositoryOffline>()
-          .addPersonToGroup(controller.text.trim(), widget.group);
-    }
+    final Member member = Member(name: controller.text.trim(), id: id);
+
+    setState(() {
+      newGroup.members!.add(member);
+    });
+
+    Get.back();
   }
 
-  Future<void> _submit(context) async {
+  Future<void> _submit(BuildContext context) async {
     if (!formKeyGroupName.currentState!.validate()) return;
 
     formKeyGroupName.currentState!.save();
@@ -222,12 +220,12 @@ class _EditGroupPageState extends State<EditGroupPage> {
     return Get.snackbar(
       'Acción exitosa',
       'Grupo editado satisfactoriamente',
-      icon: Icon(
+      icon: const Icon(
         Icons.check_circle_outline_rounded,
         color: Color(0xff25C0B7),
       ),
       snackPosition: SnackPosition.BOTTOM,
-      margin: EdgeInsets.only(bottom: 85, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 85, left: 20, right: 20),
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
     );
   }
@@ -248,10 +246,12 @@ class _EditGroupPageState extends State<EditGroupPage> {
 }
 
 class MembersList extends StatefulWidget {
-  const MembersList({Key? key, required this.members, required this.isOnline})
-      : super(key: key);
-  final bool isOnline;
   final List<Member> members;
+
+  const MembersList({
+    Key? key,
+    required this.members,
+  }) : super(key: key);
 
   @override
   _MembersListState createState() => _MembersListState();
@@ -260,12 +260,10 @@ class MembersList extends StatefulWidget {
 class _MembersListState extends State<MembersList> {
   @override
   Widget build(BuildContext context) {
-    // TODO online
     return Expanded(
       child: ListView.separated(
         separatorBuilder: (context, index) => const Divider(height: 2),
         shrinkWrap: true,
-        padding: EdgeInsets.only(bottom: context.height * 0.1),
         itemCount: widget.members.length,
         itemBuilder: (context, i) {
           widget.members[i].controller =
@@ -277,14 +275,14 @@ class _MembersListState extends State<MembersList> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                    icon: Icon(Icons.delete_rounded),
+                    icon: const Icon(Icons.delete_rounded),
                     onPressed: () {
                       setState(() {
                         widget.members.remove(widget.members[i]);
                       });
                     }),
                 IconButton(
-                  icon: Icon(Icons.edit_rounded),
+                  icon: const Icon(Icons.edit_rounded),
                   onPressed: () async {
                     return showDialog(
                       context: context,
@@ -296,14 +294,16 @@ class _MembersListState extends State<MembersList> {
                             controller: widget.members[i].controller,
                             autofocus: true,
                             maxLength: 20,
-                            style: TextStyle(fontSize: 18),
-                            decoration: InputDecoration(
+                            style: const TextStyle(fontSize: 18),
+                            decoration: const InputDecoration(
                               errorMaxLines: 3,
                               labelText: 'Nombre',
+                              counterText: '',
                             ),
                             validator: (value) {
-                              if (value == null)
+                              if (value == null) {
                                 return 'El nombre no puede estar vacío';
+                              }
                               if (value.trim().isEmpty) {
                                 return 'El nombre no puede estar vacío';
                               } else if (value.trim().length > 20) {
@@ -318,20 +318,19 @@ class _MembersListState extends State<MembersList> {
                                 backgroundColor:
                                     MaterialStateProperty.resolveWith(
                                   (states) =>
-                                      (states.contains(MaterialState.pressed)
-                                          ? Color(0xffE29578)
-                                          : Color(0xffee6c4d)),
+                                      states.contains(MaterialState.pressed)
+                                          ? const Color(0xffE29578)
+                                          : const Color(0xffee6c4d),
                                 ),
                               ),
-                              child: Text('Cancelar'),
                               onPressed: () {
                                 widget.members[i].controller!.text =
                                     widget.members[i].name!;
                                 Navigator.pop(context);
                               },
+                              child: const Text('Cancelar'),
                             ),
                             ElevatedButton(
-                              child: Text('Guardar'),
                               onPressed: () {
                                 setState(() {
                                   widget.members[i] = Member(
@@ -343,6 +342,7 @@ class _MembersListState extends State<MembersList> {
                                 });
                                 Navigator.pop(context);
                               },
+                              child: const Text('Guardar'),
                             ),
                           ],
                         );

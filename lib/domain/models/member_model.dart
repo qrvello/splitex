@@ -15,22 +15,24 @@ class Member {
   });
 
   @HiveField(0)
-  String? name;
+  String? id;
 
   @HiveField(1)
   double balance;
 
-  String? id;
+  @HiveField(2)
+  String? name;
+
   String? newName;
   double? amountToPay;
   int? weight;
   bool? checked;
   TextEditingController? controller;
 
-  factory Member.fromMap(Map<dynamic, dynamic>? json, id) => Member(
-        id: id,
-        name: json?['name'],
-        balance: json?['balance'].toDouble(),
+  factory Member.fromMap(Map<dynamic, dynamic> json, id) => Member(
+        id: id as String,
+        name: json['name'] as String,
+        balance: json['balance'].toDouble().roundToDouble() as double,
       );
 
   Map<dynamic, dynamic> toMap() => {

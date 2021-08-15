@@ -23,21 +23,20 @@ class CardTransactionWidget extends StatelessWidget {
             "${memberToPay?.name ?? 'miembro borrado'} le pagó a ${memberToReceive?.name ?? 'miembro borrado'}"),
         trailing: Text(
           '\$${transaction.amountToPay.toStringAsFixed(2)}',
-          style: TextStyle(
+          style: const TextStyle(
             color: Color(0xff25C0B7),
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
         ),
         subtitle: Text(
-          DateFormat('k:mm - EEEE d, MMMM, y', 'es_ES').format(
-            DateTime.fromMillisecondsSinceEpoch(transaction.timestamp!),
-          ),
+          DateFormat.yMMMd().add_Hm().format(
+              DateTime.fromMillisecondsSinceEpoch(transaction.timestamp!)),
         ),
         leading: Container(
-          margin: EdgeInsets.only(left: 10),
+          margin: const EdgeInsets.only(left: 10),
           height: double.infinity,
-          child: Icon(
+          child: const Icon(
             Icons.arrow_right_alt_rounded,
             color: Color(0xff0076FF),
           ),

@@ -6,7 +6,7 @@ abstract class GroupsRepositoryOffline {
 
   Future<bool> createGroup(Group group);
 
-  Future<bool> updateGroup({required Group group, required Group newGroup});
+  Future<void> updateGroup({required Group group, required Group newGroup});
 
   Future<bool> deleteGroup(Group group);
 
