@@ -1,28 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:splitex/domain/models/expense_model.dart';
-import 'package:splitex/domain/models/member_model.dart';
+import 'package:splitex/domain/models/group_model.dart';
 import 'package:intl/intl.dart';
 
 class CardExpenseWidget extends StatelessWidget {
-  const CardExpenseWidget({Key? key, required this.expense, this.paidBy})
-      : super(key: key);
+  const CardExpenseWidget({
+    required this.expense,
+    required this.group,
+  });
+
   final Expense expense;
-  final Member? paidBy;
+  final Group group;
+
   @override
   Widget build(BuildContext context) {
+    print(expense.distributedBetween!.values.toList());
     return InkWell(
       onTap: () {
         showDialog(
           context: context,
           builder: (context) => Dialog(
-            backgroundColor: Colors.black,
+            backgroundColor:
+                Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
             child: Container(
               padding: const EdgeInsets.all(25),
-              child: Stack(
+              child: Column(
                 children: [
-                  Container(
-                    alignment: Alignment.topCenter,
-                    child: Text(expense.description!),
+                  Text(expense.description!),
+                  const SizedBox(height: 8),
+                  Text(
+                    '\$${expense.amount!.toString()}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xffF4a74d),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                      'Pagado por ${expense.paidBy!.values.elementAt(0)['name']}'),
+                  const SizedBox(height: 8),
+                  const Text('Cuánto gastó cada miembro:'),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: expense.distributedBetween!.length,
+                    itemBuilder: (context, index) {
+                      final item =
+                          expense.distributedBetween!.values.elementAt(index);
+
+                      return ListTile(
+                        title: Text(item['name'].toString()),
+                        trailing: Text(
+                          '\$${item['to_pay'].toString()}',
+                          style: const TextStyle(
+                            color: Color(0xffF4a74d),
+                          ),
+                        ),
+                      );
+                    },
                   )
                 ],
               ),
@@ -38,7 +72,8 @@ class CardExpenseWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('Pagado por ${paidBy?.name ?? 'miembro borrado'}'),
+              Text(
+                  'Pagado por ${expense.paidBy!.values.elementAt(0)['name'] ?? 'miembro borrado'}'),
               Text(
                 DateFormat.yMMMd().add_Hm().format(
                     DateTime.fromMillisecondsSinceEpoch(expense.timestamp!)),

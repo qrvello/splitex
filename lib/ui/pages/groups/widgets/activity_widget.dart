@@ -56,12 +56,9 @@ class ActivityWidget extends StatelessWidget {
 
   Widget _createItem(action, context) {
     if (action is Expense) {
-      final Member? paidBy = group.members!
-          .firstWhereOrNull((element) => element.id == action.paidBy);
-
       return CardExpenseWidget(
         expense: action,
-        paidBy: paidBy,
+        group: group,
       );
     } else {
       final Member? memberToPay = group.members!

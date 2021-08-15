@@ -24,7 +24,7 @@ class Expense {
   double? amount;
 
   @HiveField(3)
-  String? paidBy;
+  Map<dynamic, dynamic>? paidBy;
 
   @HiveField(4)
   int? timestamp;
@@ -35,7 +35,7 @@ class Expense {
         id: id as String,
         description: map["description"].toString(),
         amount: map["amount"].toDouble() as double?,
-        paidBy: map["paid_by"].toString(),
+        paidBy: map["paid_by"] as Map<dynamic, dynamic>,
         timestamp: map["timestamp"] as int,
         distributedBetween: map["distributed_between"] as Map<dynamic, dynamic>,
       );

@@ -20,7 +20,7 @@ class ExpensesRepositoryOfflineImpl extends ExpensesRepositoryOffline {
         // se suma el balance del miembro previo más lo que cuesta este gasto
         // menos lo que le corresponde pagar a este miembro.
 
-        if (member.id == expense.paidBy) {
+        if (member.id == expense.paidBy!['id']) {
           member.balance =
               member.balance + expense.amount! - member.amountToPay!;
         } else if (member.amountToPay != null) {

@@ -20,7 +20,7 @@ class ExpenseAdapter extends TypeAdapter<Expense> {
       id: fields[0] as String?,
       description: fields[1] as String?,
       amount: fields[2] as double?,
-      paidBy: fields[3] as String?,
+      paidBy: (fields[3] as Map?)?.cast<dynamic, dynamic>(),
       timestamp: fields[4] as int?,
     );
   }

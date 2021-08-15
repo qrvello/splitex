@@ -37,7 +37,7 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
       // se suma el balance del miembro previo más lo que cuesta este gasto
       // menos lo que le corresponde pagar a este miembro.
 
-      if (member.id == expense.paidBy) {
+      if (member.id == expense.paidBy?['id']) {
         toPay = -(expense.amount! - member.amountToPay!);
       } else if (member.amountToPay != null) {
         toPay = member.amountToPay;
@@ -47,7 +47,10 @@ class ExpensesRepositoryImpl extends ExpensesRepository {
       // no se coloca en el update object.
 
       if (toPay != 0) {
-        expense.distributedBetween![member.id] = toPay;
+        expense.distributedBetween![member.id!] = {
+          'to_pay': toPay,
+          'name': member.name,
+        };
 
         updateObj['${groupReference.path}/members/${member.id}/'] = {
           "balance": member.balance - toPay!,

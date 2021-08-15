@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart' show IterableExtension;
 
 import 'package:splitex/domain/models/expense_model.dart';
 import 'package:splitex/domain/models/group_model.dart';
@@ -225,7 +226,18 @@ class _AddExpensePageState extends State<AddExpensePage> {
           dropdownValue = newValue;
         });
       },
-      onSaved: (value) => expense.paidBy = value,
+      onSaved: (value) {
+        final Member? paidBy =
+            group.members!.firstWhereOrNull((element) => element.id == value);
+
+        if (paidBy != null) {
+          expense.paidBy = {
+            paidBy.id!: {
+              'name': paidBy.name,
+            }
+          };
+        }
+      },
       items: items,
       validator: (value) {
         if (value == '') {
